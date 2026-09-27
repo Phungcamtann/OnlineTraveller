@@ -18,7 +18,7 @@ Nhóm thực hiện:
 - Phùng Cẩm Tân (leader)
 - Phạm Thiên Long
 - Nguyễn Duy Thành Tài
-
+- Dương Hoàng Sâm
 ---
 
 ## 🎯 1. Mục tiêu dự án
