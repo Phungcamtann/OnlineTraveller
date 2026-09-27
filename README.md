@@ -9,11 +9,14 @@
 | Thông tin | Nội dung |
 | --- | --- |
 | **Loại dự án** | Đồ án môn Web |
-| **Quy mô nhóm** | 4 thành viên |
 | **Thời gian dự kiến** | 1 tháng |
 | **Kiến trúc** | PHP hướng đối tượng kết hợp MVC |
 | **Tích hợp chính** | AJAX JSON, OpenWeather JSON, RSS du lịch XML |
 | **Mục tiêu** | Hoàn thiện luồng đặt lịch, kiểm soát quyền và đáp ứng yêu cầu kỹ thuật của môn học |
+
+Nhóm thực hiện:
+- Phùng Cẩm Tân (leader)
+
 
 ---
 
