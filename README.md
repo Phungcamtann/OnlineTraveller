@@ -17,6 +17,7 @@
 Nhóm thực hiện:
 - Phùng Cẩm Tân (leader)
 - Phạm Thiên Long
+- Nguyễn Duy Thành Tài
 
 ---
 
