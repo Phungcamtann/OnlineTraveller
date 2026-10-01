@@ -1,0 +1,17 @@
+# Local credentials and environment configuration
+/config/local.php
+.env
+.env.*
+!.env.example
+
+# Runtime files
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/public/uploads/*
+!/public/uploads/.htaccess
+
+# Operating system files
+.DS_Store
+Thumbs.db

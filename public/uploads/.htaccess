@@ -1,0 +1,11 @@
+Options -Indexes -ExecCGI
+
+# Serve only common raster image formats from this directory.
+<FilesMatch "(?i)^(?!.*\.(?:jpe?g|png|gif|webp|avif)$).*$">
+    Require all denied
+</FilesMatch>
+
+# Block executable filenames, including names with multiple extensions.
+<FilesMatch "(?i)\.(?:php[0-9]*|phtml|pht|phar|cgi|pl|py|sh|shtml)(?:\.|$)">
+    Require all denied
+</FilesMatch>
