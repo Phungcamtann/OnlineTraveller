@@ -1,1 +1,2 @@
--- TODO: Add demo seed data after defining the schema.
+-- TODO: Add sandbox/demo data after schema and procedure implementation.
+-- Never include real credentials or overwrite a shared database without a backup.

@@ -1,0 +1,4 @@
+-- TV4: discussion messages, replies, reviews and posts.
+-- TODO: Define stored procedures after schema approval.
+-- Procedures must not START TRANSACTION, COMMIT or ROLLBACK.
+-- Caller services own transactions; see docs/database/procedure-contracts.md.

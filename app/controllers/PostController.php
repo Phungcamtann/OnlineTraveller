@@ -1,3 +1,10 @@
 <?php
 
-// TODO: Implement PostController.
+declare(strict_types=1);
+
+/**
+ * Travel articles and guides.
+ *
+ * Scaffold only; implementation is pending.
+ */
+// TODO: Implement actions with the route policy in docs/architecture.md; keep cross-model business logic in app/services/.

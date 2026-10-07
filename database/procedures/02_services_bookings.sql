@@ -1,0 +1,4 @@
+-- TV2: tours, images, schedules, accommodations and shared bookings.
+-- TODO: Define stored procedures after schema approval.
+-- Procedures must not START TRANSACTION, COMMIT or ROLLBACK.
+-- Caller services own transactions; see docs/database/procedure-contracts.md.

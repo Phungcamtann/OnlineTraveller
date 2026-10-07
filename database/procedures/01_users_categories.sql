@@ -1,0 +1,4 @@
+-- TV1: users and categories.
+-- TODO: Define stored procedures after schema approval.
+-- Procedures must not START TRANSACTION, COMMIT or ROLLBACK.
+-- Caller services own transactions; see docs/database/procedure-contracts.md.

@@ -1,1 +1,6 @@
--- TODO: Define the initial database schema.
+-- TODO: Define the approved MySQL/InnoDB/utf8mb4 schema.
+-- Planned tables: users, categories, services, service_images, service_schedules,
+-- accommodations, bookings, promotions, payments, receipts, discussion_messages,
+-- reviews, posts. This file currently creates no tables.
+-- Required constraints and reservation/payment invariants:
+-- docs/database/procedure-contracts.md and docs/architecture.md.

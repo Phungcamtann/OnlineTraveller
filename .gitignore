@@ -1,17 +1,34 @@
-# Local credentials and environment configuration
+# Local credentials
 /config/local.php
 .env
 .env.*
 !.env.example
 
-# Runtime files
+# Private runtime files
 /storage/cache/*
 !/storage/cache/.gitkeep
 /storage/logs/*
 !/storage/logs/.gitkeep
+/storage/documents/*
+!/storage/documents/.gitkeep
+/storage/tmp/*
+!/storage/tmp/.gitkeep
+
+# Uploaded images: keep only protection rules and directory placeholders
 /public/uploads/*
 !/public/uploads/.htaccess
+!/public/uploads/avatars/
+!/public/uploads/services/
+!/public/uploads/posts/
+/public/uploads/avatars/*
+/public/uploads/services/*
+/public/uploads/posts/*
+!/public/uploads/avatars/.gitkeep
+!/public/uploads/services/.gitkeep
+!/public/uploads/posts/.gitkeep
 
-# Operating system files
+# Local dependencies and OS files
+/vendor/
+/node_modules/
 .DS_Store
 Thumbs.db
