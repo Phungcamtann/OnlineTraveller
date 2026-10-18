@@ -572,3 +572,1042 @@ Im lặng không đồng nghĩa nhận lỗi. Hồ sơ chưa kết luận chặn
 Ngoại lệ xem xét lại: Admin mở lại hồ sơ có căn cứ mới và lịch sử báo cáo. Nếu ghi nhận sai, no_show -> confirmed để xử lý lại đúng thực tế; nếu được hoàn, no_show -> cancelled và tạo nghĩa vụ hoàn. Không cho Host hoặc client tự khôi phục trạng thái này.
 
 Đây là bảng cho phép cùng ngoại lệ xem xét lại vừa nêu: các chuyển khác bị từ chối bằng INVALID_STATE. API gọi lại sau thành công trả trạng thái hiện tại khi có cùng idempotency key; không thực hiện tác động phụ hai lần.
+# 6 Thiết kế cơ sở dữ liệu
+
+<a id="sec-035"></a>
+
+## 6 1 Quy ước vật lý
+
+- Tất cả 25 bảng nghiệp vụ mang tiền tố tbl_. Tên trường snake_case; khóa chính BIGINT UNSIGNED; các FK dùng cùng kiểu.
+
+- MySQL InnoDB, utf8mb4; cấu hình SQL mode nghiêm ngặt. Thiết kế tham chiếu cú pháp MySQL 8.4 [S06–S08].
+
+- Tiền VND DECIMAL(14,0); tỷ lệ DECIMAL(5,2); phần điều chỉnh tiền giảm DECIMAL(8,4), điều chỉnh trả trước DECIMAL(6,2).
+
+- Lưu thời gian UTC DATETIME(6). JSON chỉ dùng snapshot, dữ liệu căn cứ và nội dung phụ; FK nghiệp vụ quan trọng được khai báo tường minh.
+
+- ON DELETE RESTRICT cho dữ liệu lịch sử; dùng khóa/ẩn/archive/hủy. Bảng append-only không có PROCEDURE sửa/xóa tùy ý.
+
+- Tất cả thay đổi nghiệp vụ qua PROCEDURE; đọc cũng có PROCEDURE riêng. Runtime chỉ có quyền EXECUTE theo danh sách; migration dùng tài khoản riêng.
+
+<a id="sec-036"></a>
+
+## Hình 9  ERD tổng hợp toàn hệ thống
+
+<a id="diagram-erd_full"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_categories {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_accommodations {
+    bigint service_id PK,FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_promotions {
+    bigint id PK
+    bigint created_by FK
+  }
+  tbl_promotion_services {
+    bigint promotion_id PK,FK
+    bigint service_id PK,FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_booking_events {
+    bigint id PK
+    bigint booking_id FK
+    bigint actor_id FK
+  }
+  tbl_payments {
+    bigint id PK
+    bigint booking_id FK
+  }
+  tbl_receipts {
+    bigint id PK
+    bigint payment_id FK,UK
+  }
+  tbl_refunds {
+    bigint id PK
+    bigint payment_id FK,UK
+    bigint approved_by FK
+  }
+  tbl_refund_attempts {
+    bigint id PK
+    bigint refund_id FK
+  }
+  tbl_discussions {
+    bigint id PK
+    bigint service_id FK
+    bigint user_id FK
+    bigint parent_id FK
+    bigint moderated_by FK
+  }
+  tbl_reviews {
+    bigint id PK
+    bigint booking_id FK,UK
+  }
+  tbl_posts {
+    bigint id PK
+    bigint author_id FK
+  }
+  tbl_schedule_updates {
+    bigint id PK
+    bigint schedule_id FK
+    bigint created_by FK
+  }
+  tbl_notifications {
+    bigint id PK
+    bigint user_id FK
+  }
+  tbl_reports {
+    bigint id PK
+    bigint reporter_id FK
+    bigint service_id FK
+    bigint booking_id FK
+    bigint refund_id FK
+    bigint no_show_case_id FK
+    bigint assigned_admin_id FK
+  }
+  tbl_report_events {
+    bigint id PK
+    bigint report_id FK
+    bigint actor_id FK
+  }
+  tbl_no_show_cases {
+    bigint id PK
+    bigint booking_id FK,UK
+    bigint reported_by FK
+    bigint resolved_by FK
+  }
+  tbl_no_show_responses {
+    bigint id PK
+    bigint case_id FK
+    bigint submitted_by FK
+  }
+  tbl_policy_acceptances {
+    bigint id PK
+    bigint booking_id FK
+    bigint policy_version_id FK
+    bigint accepted_by FK
+  }
+  tbl_audit_logs {
+    bigint id PK
+    bigint actor_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_categories ||--o{ tbl_services : "category_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o| tbl_service_accommodations : "service_id"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users ||--o{ tbl_promotions : "created_by"
+  tbl_promotions ||--o{ tbl_promotion_services : "promotion_id"
+  tbl_services ||--o{ tbl_promotion_services : "service_id"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_promotions |o--o{ tbl_bookings : "promotion_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_booking_events : "booking_id"
+  tbl_users |o--o{ tbl_booking_events : "actor_id"
+  tbl_bookings ||--o{ tbl_payments : "booking_id"
+  tbl_payments |o--o| tbl_bookings : "applied_payment_id"
+  tbl_payments ||--o| tbl_receipts : "payment_id"
+  tbl_payments ||--o| tbl_refunds : "payment_id"
+  tbl_users |o--o{ tbl_refunds : "approved_by"
+  tbl_refunds ||--o{ tbl_refund_attempts : "refund_id"
+  tbl_services ||--o{ tbl_discussions : "service_id"
+  tbl_users ||--o{ tbl_discussions : "user_id"
+  tbl_users |o--o{ tbl_discussions : "moderated_by"
+  tbl_discussions |o--o{ tbl_discussions : "parent_id"
+  tbl_bookings ||--o| tbl_reviews : "booking_id"
+  tbl_users ||--o{ tbl_posts : "author_id"
+  tbl_service_schedules ||--o{ tbl_schedule_updates : "schedule_id"
+  tbl_users ||--o{ tbl_schedule_updates : "created_by"
+  tbl_users ||--o{ tbl_notifications : "user_id"
+  tbl_users ||--o{ tbl_reports : "reporter_id"
+  tbl_services ||--o{ tbl_reports : "service_id"
+  tbl_bookings |o--o{ tbl_reports : "booking_id"
+  tbl_refunds |o--o{ tbl_reports : "refund_id"
+  tbl_no_show_cases |o--o{ tbl_reports : "no_show_case_id"
+  tbl_users |o--o{ tbl_reports : "assigned_admin_id"
+  tbl_reports ||--o{ tbl_report_events : "report_id"
+  tbl_users |o--o{ tbl_report_events : "actor_id"
+  tbl_bookings ||--o| tbl_no_show_cases : "booking_id"
+  tbl_users ||--o{ tbl_no_show_cases : "reported_by"
+  tbl_users |o--o{ tbl_no_show_cases : "resolved_by"
+  tbl_no_show_cases ||--o{ tbl_no_show_responses : "case_id"
+  tbl_users ||--o{ tbl_no_show_responses : "submitted_by"
+  tbl_bookings ||--o{ tbl_policy_acceptances : "booking_id"
+  tbl_policy_versions ||--o{ tbl_policy_acceptances : "policy_version_id"
+  tbl_users ||--o{ tbl_policy_acceptances : "accepted_by"
+  tbl_users |o--o{ tbl_audit_logs : "actor_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-037"></a>
+
+## Hình 10  ERD chi tiết tour booking và thanh toán
+
+<a id="diagram-erd_booking"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_categories {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_accommodations {
+    bigint service_id PK,FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_promotions {
+    bigint id PK
+    bigint created_by FK
+  }
+  tbl_promotion_services {
+    bigint promotion_id PK,FK
+    bigint service_id PK,FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_payments {
+    bigint id PK
+    bigint booking_id FK
+  }
+  tbl_receipts {
+    bigint id PK
+    bigint payment_id FK,UK
+  }
+  tbl_refunds {
+    bigint id PK
+    bigint payment_id FK,UK
+    bigint approved_by FK
+  }
+  tbl_refund_attempts {
+    bigint id PK
+    bigint refund_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_categories ||--o{ tbl_services : "category_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o| tbl_service_accommodations : "service_id"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users ||--o{ tbl_promotions : "created_by"
+  tbl_promotions ||--o{ tbl_promotion_services : "promotion_id"
+  tbl_services ||--o{ tbl_promotion_services : "service_id"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_promotions |o--o{ tbl_bookings : "promotion_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_payments : "booking_id"
+  tbl_payments |o--o| tbl_bookings : "applied_payment_id"
+  tbl_payments ||--o| tbl_receipts : "payment_id"
+  tbl_payments ||--o| tbl_refunds : "payment_id"
+  tbl_users |o--o{ tbl_refunds : "approved_by"
+  tbl_refunds ||--o{ tbl_refund_attempts : "refund_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-038"></a>
+
+## Hình 11  ERD chi tiết cộng đồng và xử lý
+
+<a id="diagram-erd_community"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_booking_events {
+    bigint id PK
+    bigint booking_id FK
+    bigint actor_id FK
+  }
+  tbl_discussions {
+    bigint id PK
+    bigint service_id FK
+    bigint user_id FK
+    bigint parent_id FK
+    bigint moderated_by FK
+  }
+  tbl_reviews {
+    bigint id PK
+    bigint booking_id FK,UK
+  }
+  tbl_posts {
+    bigint id PK
+    bigint author_id FK
+  }
+  tbl_schedule_updates {
+    bigint id PK
+    bigint schedule_id FK
+    bigint created_by FK
+  }
+  tbl_notifications {
+    bigint id PK
+    bigint user_id FK
+  }
+  tbl_reports {
+    bigint id PK
+    bigint reporter_id FK
+    bigint service_id FK
+    bigint booking_id FK
+    bigint refund_id FK
+    bigint no_show_case_id FK
+    bigint assigned_admin_id FK
+  }
+  tbl_report_events {
+    bigint id PK
+    bigint report_id FK
+    bigint actor_id FK
+  }
+  tbl_no_show_cases {
+    bigint id PK
+    bigint booking_id FK,UK
+    bigint reported_by FK
+    bigint resolved_by FK
+  }
+  tbl_no_show_responses {
+    bigint id PK
+    bigint case_id FK
+    bigint submitted_by FK
+  }
+  tbl_policy_acceptances {
+    bigint id PK
+    bigint booking_id FK
+    bigint policy_version_id FK
+    bigint accepted_by FK
+  }
+  tbl_audit_logs {
+    bigint id PK
+    bigint actor_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_booking_events : "booking_id"
+  tbl_users |o--o{ tbl_booking_events : "actor_id"
+  tbl_services ||--o{ tbl_discussions : "service_id"
+  tbl_users ||--o{ tbl_discussions : "user_id"
+  tbl_users |o--o{ tbl_discussions : "moderated_by"
+  tbl_discussions |o--o{ tbl_discussions : "parent_id"
+  tbl_bookings ||--o| tbl_reviews : "booking_id"
+  tbl_users ||--o{ tbl_posts : "author_id"
+  tbl_service_schedules ||--o{ tbl_schedule_updates : "schedule_id"
+  tbl_users ||--o{ tbl_schedule_updates : "created_by"
+  tbl_users ||--o{ tbl_notifications : "user_id"
+  tbl_users ||--o{ tbl_reports : "reporter_id"
+  tbl_services ||--o{ tbl_reports : "service_id"
+  tbl_bookings |o--o{ tbl_reports : "booking_id"
+  tbl_no_show_cases |o--o{ tbl_reports : "no_show_case_id"
+  tbl_users |o--o{ tbl_reports : "assigned_admin_id"
+  tbl_reports ||--o{ tbl_report_events : "report_id"
+  tbl_users |o--o{ tbl_report_events : "actor_id"
+  tbl_bookings ||--o| tbl_no_show_cases : "booking_id"
+  tbl_users ||--o{ tbl_no_show_cases : "reported_by"
+  tbl_users |o--o{ tbl_no_show_cases : "resolved_by"
+  tbl_no_show_cases ||--o{ tbl_no_show_responses : "case_id"
+  tbl_users ||--o{ tbl_no_show_responses : "submitted_by"
+  tbl_bookings ||--o{ tbl_policy_acceptances : "booking_id"
+  tbl_policy_versions ||--o{ tbl_policy_acceptances : "policy_version_id"
+  tbl_users ||--o{ tbl_policy_acceptances : "accepted_by"
+  tbl_users |o--o{ tbl_audit_logs : "actor_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-039"></a>
+
+## 6 2 Từ điển dữ liệu đầy đủ
+
+PK là khóa chính, FK là khóa ngoại, UK là duy nhất. Bảng dưới mô tả nhóm trường cùng kiểu trên một dòng khi phù hợp; mỗi tên trong nhóm là một cột riêng. Các nhóm trạng thái dùng VARCHAR kèm CHECK; kiểm tra xuyên bảng/role đặt trong PROCEDURE.
+
+<a id="sec-040"></a>
+
+### 6 2 1 tbl_users
+
+Tài khoản có đúng một vai trò; Host và Tourist dùng tài khoản riêng.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| email | VARCHAR(254) | UK; chuẩn hóa trước khi so sánh |
+| name | VARCHAR(150) | NOT NULL |
+| password_hash | VARCHAR(255) | Hash do PHP tạo; không lưu mật khẩu gốc |
+| role | VARCHAR(16) | tourist \| local \| admin |
+| phone | VARCHAR(32) | Có thể trống |
+| status | VARCHAR(16) | active \| locked |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không gộp vai trò. Admin cấp tài khoản Host riêng; tài khoản Host/Admin không được tạo booking.
+
+Khóa tài khoản không tự hủy booking; lịch sử vẫn được bảo toàn.
+
+<a id="sec-041"></a>
+
+### 6 2 2 tbl_categories
+
+Danh mục tour và trải nghiệm.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| name | VARCHAR(150) | NOT NULL |
+| slug | VARCHAR(180) | UK |
+| description | TEXT | Có thể trống |
+| status | VARCHAR(16) | active \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không xóa danh mục đã được tour tham chiếu.
+
+<a id="sec-042"></a>
+
+### 6 2 3 tbl_services
+
+Nội dung và cam kết của tour, cùng chế độ giá và thanh toán.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| local_id | BIGINT UNSIGNED | FK tbl_users.id; role local |
+| category_id | BIGINT UNSIGNED | FK tbl_categories.id |
+| title | VARCHAR(255) | NOT NULL |
+| description, itinerary | TEXT | NOT NULL |
+| location_name | VARCHAR(255) | NOT NULL |
+| lat, lng | DECIMAL(10,7) | Có thể trống; kiểm tra miền tọa độ |
+| duration_label | VARCHAR(80) | Nhãn mô tả; lịch dùng thời gian thực |
+| thumbnail | VARCHAR(512) | Đường dẫn ảnh đã kiểm tra |
+| payment_mode | VARCHAR(24) | free \| host_range \| fixed_choice \| prepaid_full |
+| price | DECIMAL(14,0) | 0 với free; >0 với fixed_choice/prepaid_full; NULL với host_range |
+| price_min, price_max | DECIMAL(14,0) | Chỉ có giá trị với host_range; 0 < min <= max |
+| included_costs, excluded_costs | TEXT | Nêu rõ phạm vi giá và mua thêm tự nguyện |
+| status | VARCHAR(20) | draft \| pending \| approved \| rejected \| suspended \| archived |
+| approved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable; Admin |
+| approved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Có lưu trú => payment_mode = prepaid_full; kiểm tra xuyên bảng trong PROCEDURE.
+
+Sau khi có booking đang chờ/còn hiệu lực, không ghi đè nội dung cam kết; thay đổi lớn tạo tour mới.
+
+Sửa vận hành dùng tbl_schedule_updates. Tour suspended/archived ngừng nhận mới, không tự hủy lịch.
+
+<a id="sec-043"></a>
+
+### 6 2 4 tbl_service_accommodations
+
+Một khối lưu trú nằm trong gói của một tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| service_id | BIGINT UNSIGNED | PK và FK tbl_services.id |
+| name | VARCHAR(255) | NOT NULL |
+| address | VARCHAR(500) | NOT NULL |
+| nights | SMALLINT UNSIGNED | >=1 |
+| room_details, notes | TEXT | Cách bố trí phòng và lưu ý |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không có bản ghi nghĩa là tour không có lưu trú. Chưa quản lý tồn phòng theo đêm.
+
+Không thay đổi/xóa khỏi tour có cam kết đang hiệu lực; Host bảo đảm phòng trước khi duyệt.
+
+<a id="sec-044"></a>
+
+### 6 2 5 tbl_service_schedules
+
+Lịch khởi hành, hạn đăng ký và sức chứa theo người.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| starts_at, ends_at | DATETIME(6) | starts_at < ends_at |
+| booking_closes_at | DATETIME(6) | <= starts_at |
+| meeting_at | DATETIME(6) | Thời điểm tập trung công bố; <= starts_at |
+| meeting_location | VARCHAR(500) | Địa điểm tập trung |
+| capacity | INT UNSIGNED | >0 |
+| status | VARCHAR(16) | open \| closed \| cancelled |
+| cancelled_at | DATETIME(6) | Nullable |
+| cancel_reason | TEXT | Bắt buộc khi hủy |
+| cancelled_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+UK(id, service_id) hỗ trợ FK ghép của booking.
+
+Closed chỉ ngừng nhận yêu cầu mới; pending đã tạo vẫn được xét trước deadline nếu không có quyết định hủy.
+
+Không đổi ngày giờ khi có booking hiệu lực; không hạ capacity dưới chỗ đã giữ.
+
+<a id="sec-045"></a>
+
+### 6 2 6 tbl_promotions
+
+Khuyến mãi phần trăm do Admin quản lý.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| created_by | BIGINT UNSIGNED | FK tbl_users.id; Admin |
+| name | VARCHAR(200) | NOT NULL |
+| description | TEXT | Nullable |
+| discount_percent | DECIMAL(5,2) | 0 < giá trị <=90 |
+| starts_at, ends_at | DATETIME(6) | starts_at < ends_at |
+| status | VARCHAR(16) | active \| disabled \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ gắn tour fixed_choice/prepaid_full; không giảm giá tour free/host_range.
+
+Một booking dùng tối đa một chương trình; cao nhất trước, cùng tỷ lệ chọn id nhỏ nhất.
+
+<a id="sec-046"></a>
+
+### 6 2 7 tbl_promotion_services
+
+Liên kết khuyến mãi với tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| promotion_id | BIGINT UNSIGNED | PK ghép; FK tbl_promotions.id |
+| service_id | BIGINT UNSIGNED | PK ghép; FK tbl_services.id |
+| created_at | DATETIME(6) | NOT NULL |
+
+PK(promotion_id, service_id). Có thể bỏ liên kết cho tương lai; booking cũ giữ snapshot.
+
+<a id="sec-047"></a>
+
+### 6 2 8 tbl_policy_versions
+
+Các phiên bản chính sách được công bố và lưu bất biến.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| version_code | VARCHAR(50) | UK |
+| title | VARCHAR(200) | NOT NULL |
+| content | LONGTEXT | Chính sách hủy, vắng mặt, thanh toán |
+| content_hash | CHAR(64) | SHA256 nội dung chuẩn hóa |
+| status | VARCHAR(16) | draft \| published \| retired |
+| published_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| published_at | DATETIME(6) | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ sửa bản draft. Published không sửa nội dung; thay đổi phải công bố phiên bản mới.
+
+Retired không dùng cho booking mới; booking cũ vẫn tra cứu và áp dụng phiên bản đã chốt.
+
+<a id="sec-048"></a>
+
+### 6 2 9 tbl_bookings
+
+Yêu cầu đặt tour và toàn bộ dữ liệu cam kết đã chốt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_code | VARCHAR(40) | UK |
+| tourist_id | BIGINT UNSIGNED | FK tbl_users.id; role tourist |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| schedule_id | BIGINT UNSIGNED | FK tbl_service_schedules.id; FK ghép đúng tour |
+| promotion_id | BIGINT UNSIGNED | FK tbl_promotions.id; nullable |
+| policy_version_id | BIGINT UNSIGNED | FK tbl_policy_versions.id |
+| participant_count | INT UNSIGNED | >0; không vượt sức chứa toàn lịch |
+| contact_name | VARCHAR(150) | NOT NULL |
+| contact_phone | VARCHAR(32) | NOT NULL |
+| message | TEXT | Nullable |
+| status | VARCHAR(24) | pending \| awaiting_payment \| confirmed \| completed \| rejected \| cancelled \| expired \| no_show |
+| payment_plan | VARCHAR(20) | none \| host_direct \| deposit_50 \| full_online |
+| payment_mode_snapshot | VARCHAR(24) | Chế độ tour tại lúc đặt |
+| unit_price, original_price | DECIMAL(14,0) | Nullable với host_range |
+| discount_percent | DECIMAL(5,2) | 0 nếu không có khuyến mãi |
+| discount_amount, total_price | DECIMAL(14,0) | Nullable với host_range; 0 với free |
+| discount_rounding_adjustment | DECIMAL(8,4) | Chênh lệch tiền giảm sau làm tròn; giữ đủ phần lẻ |
+| online_due, host_balance | DECIMAL(14,0) | 0 với free; NULL với host_range; host_balance không phải xác nhận đã thu |
+| deposit_rounding_adjustment | DECIMAL(6,2) | Chênh lệch khoản 50%; thường 0 hoặc +0.50 |
+| price_min_snapshot, price_max_snapshot | DECIMAL(14,0) | Chỉ dành cho host_range |
+| promotion_name_snapshot | VARCHAR(200) | Nullable |
+| service_title_snapshot, host_name_snapshot | VARCHAR(255) | NOT NULL |
+| starts_at_snapshot, ends_at_snapshot | DATETIME(6) | NOT NULL |
+| commitment_snapshot | JSON | Lịch trình, địa điểm, gồm/chưa gồm, lưu trú, điểm/giờ tập trung |
+| request_expires_at, payment_expires_at | DATETIME(6) | Hạn duyệt bắt buộc; hạn trả tiền nullable |
+| applied_payment_id | BIGINT UNSIGNED | FK tbl_payments.id; nullable; UK khi có giá trị |
+| client_request_id | VARCHAR(80) | UK ghép với tourist_id |
+| approved_at, cancelled_at, completed_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+UK(tourist_id, client_request_id); từ chối token lặp nhưng payload khác.
+
+FK(schedule_id,service_id) -> tbl_service_schedules(id,service_id). applied_payment phải cùng booking, kiểm tra bằng PROCEDURE.
+
+online_due + host_balance = total_price cho tour cố định; khoản thực thu online = online_due.
+
+Không đổi số người, lịch, giá hoặc payment_plan sau tạo; cần hủy và đặt mới theo điều kiện.
+
+Không sửa snapshot. Chỉ chuyển trạng thái qua thủ tục nghiệp vụ.
+
+<a id="sec-049"></a>
+
+### 6 2 10 tbl_booking_events
+
+Lịch sử thay đổi trạng thái booking.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; NULL với tác vụ hệ thống |
+| event_key | VARCHAR(100) | UK; chống ghi lặp |
+| event_type | VARCHAR(50) | approve \| expire \| cancel \| complete \| no_show... |
+| from_status, to_status | VARCHAR(24) | NOT NULL |
+| reason | TEXT | Nullable |
+| details_json | JSON | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm và đọc; không sửa/xóa lịch sử.
+
+<a id="sec-050"></a>
+
+### 6 2 11 tbl_payments
+
+Mỗi lần thử thu tiền online qua MoMo sandbox.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| provider | VARCHAR(20) | momo |
+| environment | VARCHAR(16) | sandbox |
+| merchant_order_id, request_id | VARCHAR(100) | UK riêng cho từng trường |
+| provider_transaction_id | VARCHAR(100) | UK(provider,environment,provider_transaction_id); nullable |
+| amount | DECIMAL(14,0) | Số tiền thực thu; từ booking.online_due |
+| currency | CHAR(3) | VND |
+| status | VARCHAR(16) | created \| pending \| succeeded \| failed \| cancelled |
+| allocation_status | VARCHAR(20) | unapplied \| applied \| needs_review |
+| result_code | VARCHAR(30) | Nullable; kết quả gốc |
+| request_snapshot, verified_result | JSON | Dữ liệu đã lọc khóa bí mật |
+| paid_at, verified_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không lấy amount từ trình duyệt. Succeeded không bị ghi đè thành failed do thông báo cũ.
+
+Một booking chỉ có một payment áp dụng; các khoản thu thừa xử lý riêng.
+
+Refund không đổi payment succeeded; trạng thái hoàn được suy ra từ hồ sơ hoàn.
+
+<a id="sec-051"></a>
+
+### 6 2 12 tbl_receipts
+
+Biên nhận của khoản thu online đã xác minh.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| payment_id | BIGINT UNSIGNED | UK và FK tbl_payments.id |
+| receipt_number | VARCHAR(50) | UK |
+| amount | DECIMAL(14,0) | Bằng khoản payment đã thu |
+| currency | CHAR(3) | VND |
+| snapshot_json | JSON | Dữ liệu chứng từ bất biến; có nhãn SANDBOX |
+| issued_at | DATETIME(6) | NOT NULL |
+
+Chỉ phát hành cho succeeded đã verified. Không sửa/xóa hoặc đổi thành biên nhận tổng tour.
+
+<a id="sec-052"></a>
+
+### 6 2 13 tbl_refunds
+
+Một nghĩa vụ hoàn toàn bộ khoản thu của một payment.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| refund_code | VARCHAR(50) | UK |
+| payment_id | BIGINT UNSIGNED | UK và FK tbl_payments.id |
+| reason_type | VARCHAR(40) | booking_cancelled \| late_payment \| duplicate_payment \| resolved_complaint |
+| reason | TEXT | NOT NULL |
+| amount | DECIMAL(14,0) | Khoản đã thu cần hoàn, không vượt payment.amount |
+| status | VARCHAR(20) | requested \| approved \| processing \| needs_review \| succeeded \| failed \| rejected |
+| requested_at, due_at | DATETIME(6) | NOT NULL |
+| approved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| approved_at | DATETIME(6) | Nullable |
+| refund_reference | VARCHAR(100) | Mã hoàn xác minh; nullable |
+| verified_at | DATETIME(6) | Nullable |
+| customer_receipt_status | VARCHAR(16) | unknown \| received \| not_received |
+| customer_confirmed_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Bản cơ bản hoàn toàn bộ khoản online cần trả, chưa hỗ trợ hoàn từng phần tự nguyện.
+
+Hủy có thu tiền: due_at = cancelled_at +24 giờ. Khoản thu trùng không có hủy: mốc phát hiện +24 giờ.
+
+Quá hạn là thuộc tính suy ra; retry/duyệt không dời due_at. Nút khách không tạo lệnh chi mới.
+
+<a id="sec-053"></a>
+
+### 6 2 14 tbl_refund_attempts
+
+Từng lần gửi và tra cứu một yêu cầu hoàn.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| refund_id | BIGINT UNSIGNED | FK tbl_refunds.id |
+| attempt_no | INT UNSIGNED | UK ghép refund_id |
+| merchant_refund_order_id, request_id | VARCHAR(100) | UK riêng |
+| amount | DECIMAL(14,0) | Bằng nghĩa vụ còn phải hoàn |
+| status | VARCHAR(20) | prepared \| processing \| unknown \| succeeded \| failed |
+| provider_refund_id | VARCHAR(100) | UK khi có giá trị |
+| result_code | VARCHAR(30) | Nullable |
+| request_snapshot, verified_result | JSON | Không lưu khóa bí mật |
+| sent_at, checked_at, verified_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ một lần chưa rõ kết quả được hoạt động cho một refund; unknown phải tra cứu trước lần mới.
+
+Prepared được lưu trước gọi mạng; thành công không bị hạ trạng thái.
+
+<a id="sec-054"></a>
+
+### 6 2 15 tbl_discussions
+
+Chủ đề và trả lời một cấp theo tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| user_id | BIGINT UNSIGNED | FK tbl_users.id |
+| parent_id | BIGINT UNSIGNED | FK tbl_discussions.id; NULL với chủ đề |
+| title | VARCHAR(255) | Chỉ chủ đề; nullable |
+| content | TEXT | NOT NULL |
+| visibility | VARCHAR(20) | visible \| author_hidden \| admin_hidden |
+| moderation_reason | TEXT | Nullable |
+| moderated_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Trả lời cùng tour, parent phải là chủ đề gốc. Không nhận trả lời mới nếu chủ đề bị ẩn.
+
+Tác giả ẩn gốc: hiện nhãn thay nội dung, giữ trả lời hợp lệ. Admin ẩn gốc: ẩn cả nhánh công khai.
+
+Khôi phục gốc không đổi visibility riêng của các trả lời. Admin-hidden chỉ Admin khôi phục.
+
+<a id="sec-055"></a>
+
+### 6 2 16 tbl_reviews
+
+Đánh giá chuyến đi hoàn tất; một review cho một booking.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | UK và FK tbl_bookings.id |
+| rating | TINYINT UNSIGNED | 1..5 |
+| comment | TEXT | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Người viết suy ra từ booking. Chỉ chủ booking completed được tạo; không tự coi hết giờ là đã tham gia.
+
+Giữ quyền báo cáo độc lập với quyền review; no_show không được review theo luồng completed.
+
+<a id="sec-056"></a>
+
+### 6 2 17 tbl_posts
+
+Bài viết và cẩm nang do Admin quản lý.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| author_id | BIGINT UNSIGNED | FK tbl_users.id; Admin |
+| title | VARCHAR(255) | NOT NULL |
+| slug | VARCHAR(255) | UK |
+| content | LONGTEXT | NOT NULL |
+| thumbnail | VARCHAR(512) | Nullable |
+| status | VARCHAR(16) | draft \| published \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Người dùng khác chỉ đọc nội dung published.
+
+<a id="sec-057"></a>
+
+### 6 2 18 tbl_schedule_updates
+
+Thông báo vận hành bổ sung theo từng lịch.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| schedule_id | BIGINT UNSIGNED | FK tbl_service_schedules.id |
+| created_by | BIGINT UNSIGNED | FK tbl_users.id |
+| update_type | VARCHAR(30) | guide \| contact \| meal_time \| emergency |
+| title | VARCHAR(255) | NOT NULL |
+| old_value, new_value | TEXT | Giữ cả trước và sau nếu có |
+| reason | TEXT | NOT NULL |
+| is_emergency | BOOLEAN | FALSE mặc định; Admin kiểm soát ngoại lệ |
+| created_at | DATETIME(6) | NOT NULL |
+
+Không dùng để đổi tuyến/giá/lưu trú đã cam kết. Thông thường phải trước starts_at -24 giờ.
+
+Chỉ thêm và đọc; đính chính bằng bản mới; không ghi đè.
+
+<a id="sec-058"></a>
+
+### 6 2 19 tbl_notifications
+
+Thông báo trong website cho một người nhận.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| user_id | BIGINT UNSIGNED | FK tbl_users.id |
+| event_key | VARCHAR(160) | UK ghép user_id; chống phát lặp |
+| type | VARCHAR(40) | booking \| schedule_update \| refund \| no_show \| report |
+| title | VARCHAR(255) | NOT NULL |
+| body | TEXT | NOT NULL |
+| payload_json | JSON | Mã liên quan/đường dẫn nội bộ; không là FK đa hình |
+| created_at | DATETIME(6) | NOT NULL |
+| read_at, archived_at | DATETIME(6) | Nullable |
+
+Đã đọc chỉ là trạng thái UI, không phải bằng chứng khách chấp nhận thay đổi hay nhận tiền.
+
+<a id="sec-059"></a>
+
+### 6 2 20 tbl_reports
+
+Hồ sơ phản ánh dịch vụ hoặc tranh chấp liên quan.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| reporter_id | BIGINT UNSIGNED | FK tbl_users.id |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id; nullable |
+| refund_id | BIGINT UNSIGNED | FK tbl_refunds.id; nullable |
+| no_show_case_id | BIGINT UNSIGNED | FK tbl_no_show_cases.id; nullable |
+| category | VARCHAR(30) | price \| quality \| cancellation \| refund \| no_show \| other |
+| description | TEXT | NOT NULL |
+| evidence_json | JSON | Tham chiếu tệp đã kiểm tra; nullable |
+| status | VARCHAR(20) | open \| reviewing \| resolved \| rejected |
+| assigned_admin_id | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| resolution | TEXT | Nullable; bắt buộc khi kết luận |
+| resolved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Các FK tùy chọn phải cùng tour/booking thực tế, kiểm tra trong PROCEDURE.
+
+Không yêu cầu booking completed để báo cáo. Số báo cáo không tự động kết luận Host vi phạm.
+
+<a id="sec-060"></a>
+
+### 6 2 21 tbl_report_events
+
+Lịch sử xử lý hồ sơ báo cáo.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| report_id | BIGINT UNSIGNED | FK tbl_reports.id |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; nullable với hệ thống |
+| event_type | VARCHAR(40) | submitted \| assigned \| evidence_added \| resolved \| reopened |
+| content | TEXT | NOT NULL |
+| evidence_json | JSON | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm/đọc; kết luận cũ vẫn được lưu khi xem xét lại.
+
+<a id="sec-061"></a>
+
+### 6 2 22 tbl_no_show_cases
+
+Xác minh việc khách không tham gia; không tự động tịch thu tiền.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | UK và FK tbl_bookings.id |
+| reported_by | BIGINT UNSIGNED | FK tbl_users.id; Host sở hữu lịch |
+| reported_at | DATETIME(6) | Sau thời điểm tập trung công bố |
+| evidence_json | JSON | Căn cứ vắng mặt và việc đã thử liên hệ |
+| status | VARCHAR(24) | awaiting_response \| needs_review \| resolved_no_refund \| resolved_refund \| dismissed |
+| response_due_at | DATETIME(6) | reported_at +48 giờ; phải tạo thông báo cùng giao dịch |
+| resolved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable; Admin nếu tranh chấp/không phản hồi |
+| resolution_reason | TEXT | Nullable |
+| resolved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ mở cho confirmed; chặn complete khi hồ sơ chưa kết luận. Khách nhận lỗi có thể kết luận theo thỏa thuận.
+
+Không phản hồi sau 48 giờ => needs_review; không tự suy ra có lỗi. Không tự mất quyền khiếu nại.
+
+Khách có lỗi, Host đúng cam kết => booking no_show; payment vẫn succeeded; không tạo refund.
+
+<a id="sec-062"></a>
+
+### 6 2 23 tbl_no_show_responses
+
+Phản hồi và bằng chứng của khách đối với hồ sơ vắng mặt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| case_id | BIGINT UNSIGNED | FK tbl_no_show_cases.id |
+| submitted_by | BIGINT UNSIGNED | FK tbl_users.id; chủ booking |
+| response_type | VARCHAR(24) | acknowledge_fault \| request_exception \| dispute |
+| content | TEXT | NOT NULL |
+| evidence_json | JSON | Nullable |
+| is_late | BOOLEAN | Suy ra tại lúc nhận so với deadline |
+| submitted_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm/đọc. Phản hồi sau hạn vẫn ghi nhận và chuyển xem xét; không xóa phản hồi trước.
+
+<a id="sec-063"></a>
+
+### 6 2 24 tbl_policy_acceptances
+
+Bằng chứng chủ động đồng ý với phiên bản chính sách.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| policy_version_id | BIGINT UNSIGNED | FK tbl_policy_versions.id |
+| accepted_by | BIGINT UNSIGNED | FK tbl_users.id; chủ booking |
+| purpose | VARCHAR(16) | booking \| payment |
+| content_hash | CHAR(64) | Hash bản chính sách đã hiển thị |
+| amounts_snapshot | JSON | Tổng giá, khoản trả trước, số còn lại, điều chỉnh làm tròn |
+| accepted_at | DATETIME(6) | NOT NULL |
+
+UK(booking_id, policy_version_id, purpose). Không tích sẵn; không tạo payment nếu thiếu acceptance payment hợp lệ.
+
+Chỉ thêm/đọc. Đồng ý không loại bỏ quyền phản ánh/khiếu nại.
+
+<a id="sec-064"></a>
+
+### 6 2 25 tbl_audit_logs
+
+Nhật ký thao tác quan trọng và kiểm duyệt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; NULL với hệ thống |
+| action | VARCHAR(80) | NOT NULL |
+| entity_type | VARCHAR(50) | Tên loại bản ghi |
+| entity_id | BIGINT UNSIGNED | Tham chiếu logic, không FK đa hình |
+| event_key | VARCHAR(160) | UK |
+| details_json | JSON | Bỏ dữ liệu nhạy cảm/khóa |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ ghi qua thủ tục nội bộ và đọc theo quyền; không sửa/xóa trong bản cơ bản.
+
+<a id="sec-065"></a>
+
+## 6 3 Ràng buộc liên bảng và chỉ mục
+
+- Cặp booking(schedule_id,service_id) tham chiếu lịch(id,service_id); không nhận booking cho lịch của tour khác.
+
+- Thêm FK applied_payment_id sau khi cả tbl_bookings và tbl_payments đã được tạo; không tắt FOREIGN_KEY_CHECKS để bỏ qua dữ liệu sai. PROCEDURE kiểm tra payment thuộc đúng booking.
+
+- Một payment chỉ áp dụng một booking; khóa booking đảm bảo chỉ có một applied_payment_id. Trước khi áp dụng kiểm tra lại deadline dưới khóa.
+
+- Thứ tự khóa nhất quán: lịch -> booking theo id -> payment -> refund/attempt -> lịch sử/thông báo. Các thủ tục chỉ đọc/ghi thông báo không chiếm khóa lịch.
+
+- Chỉ mục chính: tbl_services(status,category_id), schedules(service_id,starts_at), tbl_bookings(schedule_id,status,payment_expires_at), tbl_bookings(tourist_id,created_at), tbl_bookings(status,request_expires_at).
+
+- Thêm tbl_payments(booking_id,status), tbl_refunds(status,due_at), tbl_refund_attempts(refund_id,status), tbl_no_show_cases(status,response_due_at), tbl_notifications(user_id,read_at,created_at), tbl_reports(status,created_at).
+
+- Thảo luận: (service_id,parent_id,created_at); khuyến mãi: (status,starts_at,ends_at); events theo FK và created_at; UK nghiệp vụ chống lặp như từ điển.
+
+- CHECK giữ rating 1..5, phần trăm (0,90], số người/capacity dương, khoảng giá hợp lệ và thời gian đúng thứ tự. CHECK không thay thế kiểm tra xuyên bảng [S08].
+
+<a id="sec-066"></a>
+
