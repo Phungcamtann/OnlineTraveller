@@ -4060,3 +4060,27 @@ Ví dụ duyệt dùng READ COMMITTED để phép tổng hợp sức chứa đ�
 | Thông báo vắng mặt | Booking, giờ/điểm tập trung đã công bố, căn cứ Host, hạn phản hồi 48 giờ, đường phản hồi và quyền xem xét. |
 
 <a id="sec-104"></a>
+
+# 10 Bảo mật vận hành và thông tin ngoài
+
+- PHP password_hash/password_verify; session được bảo vệ, kiểm tra active và quyền sở hữu tại mỗi request quan trọng [S09].
+
+- PDO prepared CALL; không ghép SQL từ JSON, ID hoặc bộ lọc [S10].
+
+- CSRF cho thao tác người dùng có session; route IPN riêng kiểm tra chữ ký/cấu hình đối tác thay cho CSRF trình duyệt [S11, S03].
+
+- Escape nội dung khi hiển thị; không tin HTML của người dùng/RSS. Upload kiểm tra loại thực, dung lượng, tên sinh bởi server; minh chứng không public trực tiếp.
+
+- APP_ENV và credentials chỉ ở server. Mọi trang thanh toán/chứng từ ghi SANDBOX; không suy môi trường từ IP khách.
+
+- Không lưu secret, mật khẩu gốc hoặc toàn bộ dữ liệu nhạy cảm vào payload/audit. Kiểm tra quyền khi tải ảnh minh chứng.
+
+- Job hết hạn chạy theo lô nhỏ; job đối soát và dispatch refund có khóa chống hai worker nhận cùng việc. Nếu worker dừng sau gửi mạng, dùng mã đã lưu để tra cứu.
+
+- Job vắng mặt chỉ chuyển needs_review sau 48 giờ và thông báo Admin; không tự kết luận lỗi.
+
+- OpenWeather/RSS có timeout và cache; lỗi nguồn ngoài chỉ làm thiếu thông tin hỗ trợ, không phá luồng booking.
+
+- Sao lưu CSDL và kiểm tra khôi phục trước bàn giao. Thay đổi schema qua migration; dữ liệu seed có nhãn thử nghiệm.
+
+<a id="sec-105"></a>
