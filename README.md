@@ -4017,3 +4017,46 @@ Ví dụ duyệt dùng READ COMMITTED để phép tổng hợp sức chứa đ�
 
 <a id="sec-101"></a>
 
+# 9 Giao diện tuyến xử lý và chứng từ
+
+| Khu vực | Màn hình và hành động |
+| --- | --- |
+| Công khai | Trang chủ, danh sách/tìm kiếm tour, chi tiết với bốn nhãn chế độ, lịch, cộng đồng, review, bài viết, thời tiết/RSS. |
+| Tourist | Booking của tôi, hạn xử lý, thanh toán 50/100, hủy/yêu cầu xét, chứng từ, hoàn tiền, phản hồi vắng mặt, báo cáo và thông báo. |
+| Host | Tour và gửi duyệt, khối lưu trú, lịch và số chỗ, danh sách chờ ưu tiên, lý do từ chối/hủy, vận hành, xác nhận tham gia và ghi nhận vắng mặt. |
+| Admin | Tài khoản, danh mục, duyệt/ngừng tour, khuyến mãi, chính sách, danh sách duyệt hoàn, giao dịch cần đối soát, báo cáo và hồ sơ vắng mặt. |
+
+<a id="sec-102"></a>
+
+## 9 1 Các tuyến tiêu biểu
+
+| Phương thức và tuyến | Xử lý và quyền |
+| --- | --- |
+| GET /services và /services/{id} | Công khai; chỉ nội dung được phép. |
+| POST /bookings | Tourist; tính lại quote và chống trùng. |
+| POST /host/bookings/{id}/approve | Host sở hữu; duyệt có transaction. |
+| POST /bookings/{id}/cancel | Chủ booking theo điều kiện hoặc route quản trị riêng. |
+| POST /bookings/{id}/payments | Tourist; acceptance payment và deadline. |
+| POST /payments/momo/ipn | MoMo; không đòi cookie/session hoặc CSRF của trình duyệt; xác minh chữ ký. |
+| GET /payments/return | Chỉ đọc trạng thái server; không áp dụng payment. |
+| POST /admin/refunds/approve | Admin; danh sách có kết quả từng hồ sơ. |
+| POST /refunds/{id}/feedback | Chủ booking; phản hồi không phát lệnh hoàn. |
+| POST /host/bookings/{id}/no-show | Host sở hữu; căn cứ và thời điểm. |
+| POST /no-show-cases/{id}/responses | Tourist sở hữu; tiếp nhận phản hồi trễ. |
+| POST /admin/no-show-cases/{id}/resolve | Admin; kết luận có căn cứ. |
+| POST /discussions và /reviews | Đúng quyền/điều kiện; CSRF. |
+| POST /reports | Thành viên active; không đòi completed. |
+| GET /notifications và POST /notifications/{id}/read | Chỉ người nhận. |
+
+<a id="sec-103"></a>
+
+## 9 2 Nội dung chứng từ
+
+| Chứng từ | Nguồn và nội dung |
+| --- | --- |
+| Phiếu xác nhận tham gia | Booking confirmed; tour/lịch/người đại diện/số người/cam kết/tổng giá hoặc khoảng giá/đã thu online/còn trả Host. |
+| Biên nhận SANDBOX | Một payment succeeded đã verified; đúng khoản thu 50 hoặc 100%, mã giao dịch và thời điểm; không chứng nhận tiền mặt. |
+| Phiếu theo dõi hoàn | Refund, khoản thu gốc, lý do, số tiền, mốc 24 giờ, trạng thái xác minh, mã tham chiếu và phản hồi khách. |
+| Thông báo vắng mặt | Booking, giờ/điểm tập trung đã công bố, căn cứ Host, hạn phản hồi 48 giờ, đường phản hồi và quyền xem xét. |
+
+<a id="sec-104"></a>
