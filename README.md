@@ -1611,3 +1611,2409 @@ Chỉ ghi qua thủ tục nội bộ và đọc theo quyền; không sửa/xóa 
 
 <a id="sec-066"></a>
 
+# 6 Thiết kế cơ sở dữ liệu
+
+<a id="sec-035"></a>
+
+## 6 1 Quy ước vật lý
+
+- Tất cả 25 bảng nghiệp vụ mang tiền tố tbl_. Tên trường snake_case; khóa chính BIGINT UNSIGNED; các FK dùng cùng kiểu.
+
+- MySQL InnoDB, utf8mb4; cấu hình SQL mode nghiêm ngặt. Thiết kế tham chiếu cú pháp MySQL 8.4 [S06–S08].
+
+- Tiền VND DECIMAL(14,0); tỷ lệ DECIMAL(5,2); phần điều chỉnh tiền giảm DECIMAL(8,4), điều chỉnh trả trước DECIMAL(6,2).
+
+- Lưu thời gian UTC DATETIME(6). JSON chỉ dùng snapshot, dữ liệu căn cứ và nội dung phụ; FK nghiệp vụ quan trọng được khai báo tường minh.
+
+- ON DELETE RESTRICT cho dữ liệu lịch sử; dùng khóa/ẩn/archive/hủy. Bảng append-only không có PROCEDURE sửa/xóa tùy ý.
+
+- Tất cả thay đổi nghiệp vụ qua PROCEDURE; đọc cũng có PROCEDURE riêng. Runtime chỉ có quyền EXECUTE theo danh sách; migration dùng tài khoản riêng.
+
+<a id="sec-036"></a>
+
+## Hình 9  ERD tổng hợp toàn hệ thống
+
+<a id="diagram-erd_full"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_categories {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_accommodations {
+    bigint service_id PK,FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_promotions {
+    bigint id PK
+    bigint created_by FK
+  }
+  tbl_promotion_services {
+    bigint promotion_id PK,FK
+    bigint service_id PK,FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_booking_events {
+    bigint id PK
+    bigint booking_id FK
+    bigint actor_id FK
+  }
+  tbl_payments {
+    bigint id PK
+    bigint booking_id FK
+  }
+  tbl_receipts {
+    bigint id PK
+    bigint payment_id FK,UK
+  }
+  tbl_refunds {
+    bigint id PK
+    bigint payment_id FK,UK
+    bigint approved_by FK
+  }
+  tbl_refund_attempts {
+    bigint id PK
+    bigint refund_id FK
+  }
+  tbl_discussions {
+    bigint id PK
+    bigint service_id FK
+    bigint user_id FK
+    bigint parent_id FK
+    bigint moderated_by FK
+  }
+  tbl_reviews {
+    bigint id PK
+    bigint booking_id FK,UK
+  }
+  tbl_posts {
+    bigint id PK
+    bigint author_id FK
+  }
+  tbl_schedule_updates {
+    bigint id PK
+    bigint schedule_id FK
+    bigint created_by FK
+  }
+  tbl_notifications {
+    bigint id PK
+    bigint user_id FK
+  }
+  tbl_reports {
+    bigint id PK
+    bigint reporter_id FK
+    bigint service_id FK
+    bigint booking_id FK
+    bigint refund_id FK
+    bigint no_show_case_id FK
+    bigint assigned_admin_id FK
+  }
+  tbl_report_events {
+    bigint id PK
+    bigint report_id FK
+    bigint actor_id FK
+  }
+  tbl_no_show_cases {
+    bigint id PK
+    bigint booking_id FK,UK
+    bigint reported_by FK
+    bigint resolved_by FK
+  }
+  tbl_no_show_responses {
+    bigint id PK
+    bigint case_id FK
+    bigint submitted_by FK
+  }
+  tbl_policy_acceptances {
+    bigint id PK
+    bigint booking_id FK
+    bigint policy_version_id FK
+    bigint accepted_by FK
+  }
+  tbl_audit_logs {
+    bigint id PK
+    bigint actor_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_categories ||--o{ tbl_services : "category_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o| tbl_service_accommodations : "service_id"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users ||--o{ tbl_promotions : "created_by"
+  tbl_promotions ||--o{ tbl_promotion_services : "promotion_id"
+  tbl_services ||--o{ tbl_promotion_services : "service_id"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_promotions |o--o{ tbl_bookings : "promotion_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_booking_events : "booking_id"
+  tbl_users |o--o{ tbl_booking_events : "actor_id"
+  tbl_bookings ||--o{ tbl_payments : "booking_id"
+  tbl_payments |o--o| tbl_bookings : "applied_payment_id"
+  tbl_payments ||--o| tbl_receipts : "payment_id"
+  tbl_payments ||--o| tbl_refunds : "payment_id"
+  tbl_users |o--o{ tbl_refunds : "approved_by"
+  tbl_refunds ||--o{ tbl_refund_attempts : "refund_id"
+  tbl_services ||--o{ tbl_discussions : "service_id"
+  tbl_users ||--o{ tbl_discussions : "user_id"
+  tbl_users |o--o{ tbl_discussions : "moderated_by"
+  tbl_discussions |o--o{ tbl_discussions : "parent_id"
+  tbl_bookings ||--o| tbl_reviews : "booking_id"
+  tbl_users ||--o{ tbl_posts : "author_id"
+  tbl_service_schedules ||--o{ tbl_schedule_updates : "schedule_id"
+  tbl_users ||--o{ tbl_schedule_updates : "created_by"
+  tbl_users ||--o{ tbl_notifications : "user_id"
+  tbl_users ||--o{ tbl_reports : "reporter_id"
+  tbl_services ||--o{ tbl_reports : "service_id"
+  tbl_bookings |o--o{ tbl_reports : "booking_id"
+  tbl_refunds |o--o{ tbl_reports : "refund_id"
+  tbl_no_show_cases |o--o{ tbl_reports : "no_show_case_id"
+  tbl_users |o--o{ tbl_reports : "assigned_admin_id"
+  tbl_reports ||--o{ tbl_report_events : "report_id"
+  tbl_users |o--o{ tbl_report_events : "actor_id"
+  tbl_bookings ||--o| tbl_no_show_cases : "booking_id"
+  tbl_users ||--o{ tbl_no_show_cases : "reported_by"
+  tbl_users |o--o{ tbl_no_show_cases : "resolved_by"
+  tbl_no_show_cases ||--o{ tbl_no_show_responses : "case_id"
+  tbl_users ||--o{ tbl_no_show_responses : "submitted_by"
+  tbl_bookings ||--o{ tbl_policy_acceptances : "booking_id"
+  tbl_policy_versions ||--o{ tbl_policy_acceptances : "policy_version_id"
+  tbl_users ||--o{ tbl_policy_acceptances : "accepted_by"
+  tbl_users |o--o{ tbl_audit_logs : "actor_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-037"></a>
+
+## Hình 10  ERD chi tiết tour booking và thanh toán
+
+<a id="diagram-erd_booking"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_categories {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_accommodations {
+    bigint service_id PK,FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_promotions {
+    bigint id PK
+    bigint created_by FK
+  }
+  tbl_promotion_services {
+    bigint promotion_id PK,FK
+    bigint service_id PK,FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_payments {
+    bigint id PK
+    bigint booking_id FK
+  }
+  tbl_receipts {
+    bigint id PK
+    bigint payment_id FK,UK
+  }
+  tbl_refunds {
+    bigint id PK
+    bigint payment_id FK,UK
+    bigint approved_by FK
+  }
+  tbl_refund_attempts {
+    bigint id PK
+    bigint refund_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_categories ||--o{ tbl_services : "category_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o| tbl_service_accommodations : "service_id"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users ||--o{ tbl_promotions : "created_by"
+  tbl_promotions ||--o{ tbl_promotion_services : "promotion_id"
+  tbl_services ||--o{ tbl_promotion_services : "service_id"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_promotions |o--o{ tbl_bookings : "promotion_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_payments : "booking_id"
+  tbl_payments |o--o| tbl_bookings : "applied_payment_id"
+  tbl_payments ||--o| tbl_receipts : "payment_id"
+  tbl_payments ||--o| tbl_refunds : "payment_id"
+  tbl_users |o--o{ tbl_refunds : "approved_by"
+  tbl_refunds ||--o{ tbl_refund_attempts : "refund_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-038"></a>
+
+## Hình 11  ERD chi tiết cộng đồng và xử lý
+
+<a id="diagram-erd_community"></a>
+
+```mermaid
+erDiagram
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_booking_events {
+    bigint id PK
+    bigint booking_id FK
+    bigint actor_id FK
+  }
+  tbl_discussions {
+    bigint id PK
+    bigint service_id FK
+    bigint user_id FK
+    bigint parent_id FK
+    bigint moderated_by FK
+  }
+  tbl_reviews {
+    bigint id PK
+    bigint booking_id FK,UK
+  }
+  tbl_posts {
+    bigint id PK
+    bigint author_id FK
+  }
+  tbl_schedule_updates {
+    bigint id PK
+    bigint schedule_id FK
+    bigint created_by FK
+  }
+  tbl_notifications {
+    bigint id PK
+    bigint user_id FK
+  }
+  tbl_reports {
+    bigint id PK
+    bigint reporter_id FK
+    bigint service_id FK
+    bigint booking_id FK
+    bigint refund_id FK
+    bigint no_show_case_id FK
+    bigint assigned_admin_id FK
+  }
+  tbl_report_events {
+    bigint id PK
+    bigint report_id FK
+    bigint actor_id FK
+  }
+  tbl_no_show_cases {
+    bigint id PK
+    bigint booking_id FK,UK
+    bigint reported_by FK
+    bigint resolved_by FK
+  }
+  tbl_no_show_responses {
+    bigint id PK
+    bigint case_id FK
+    bigint submitted_by FK
+  }
+  tbl_policy_acceptances {
+    bigint id PK
+    bigint booking_id FK
+    bigint policy_version_id FK
+    bigint accepted_by FK
+  }
+  tbl_audit_logs {
+    bigint id PK
+    bigint actor_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_booking_events : "booking_id"
+  tbl_users |o--o{ tbl_booking_events : "actor_id"
+  tbl_services ||--o{ tbl_discussions : "service_id"
+  tbl_users ||--o{ tbl_discussions : "user_id"
+  tbl_users |o--o{ tbl_discussions : "moderated_by"
+  tbl_discussions |o--o{ tbl_discussions : "parent_id"
+  tbl_bookings ||--o| tbl_reviews : "booking_id"
+  tbl_users ||--o{ tbl_posts : "author_id"
+  tbl_service_schedules ||--o{ tbl_schedule_updates : "schedule_id"
+  tbl_users ||--o{ tbl_schedule_updates : "created_by"
+  tbl_users ||--o{ tbl_notifications : "user_id"
+  tbl_users ||--o{ tbl_reports : "reporter_id"
+  tbl_services ||--o{ tbl_reports : "service_id"
+  tbl_bookings |o--o{ tbl_reports : "booking_id"
+  tbl_no_show_cases |o--o{ tbl_reports : "no_show_case_id"
+  tbl_users |o--o{ tbl_reports : "assigned_admin_id"
+  tbl_reports ||--o{ tbl_report_events : "report_id"
+  tbl_users |o--o{ tbl_report_events : "actor_id"
+  tbl_bookings ||--o| tbl_no_show_cases : "booking_id"
+  tbl_users ||--o{ tbl_no_show_cases : "reported_by"
+  tbl_users |o--o{ tbl_no_show_cases : "resolved_by"
+  tbl_no_show_cases ||--o{ tbl_no_show_responses : "case_id"
+  tbl_users ||--o{ tbl_no_show_responses : "submitted_by"
+  tbl_bookings ||--o{ tbl_policy_acceptances : "booking_id"
+  tbl_policy_versions ||--o{ tbl_policy_acceptances : "policy_version_id"
+  tbl_users ||--o{ tbl_policy_acceptances : "accepted_by"
+  tbl_users |o--o{ tbl_audit_logs : "actor_id"
+```
+
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
+
+<a id="sec-039"></a>
+
+## 6 2 Từ điển dữ liệu đầy đủ
+
+PK là khóa chính, FK là khóa ngoại, UK là duy nhất. Bảng dưới mô tả nhóm trường cùng kiểu trên một dòng khi phù hợp; mỗi tên trong nhóm là một cột riêng. Các nhóm trạng thái dùng VARCHAR kèm CHECK; kiểm tra xuyên bảng/role đặt trong PROCEDURE.
+
+<a id="sec-040"></a>
+
+### 6 2 1 tbl_users
+
+Tài khoản có đúng một vai trò; Host và Tourist dùng tài khoản riêng.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| email | VARCHAR(254) | UK; chuẩn hóa trước khi so sánh |
+| name | VARCHAR(150) | NOT NULL |
+| password_hash | VARCHAR(255) | Hash do PHP tạo; không lưu mật khẩu gốc |
+| role | VARCHAR(16) | tourist \| local \| admin |
+| phone | VARCHAR(32) | Có thể trống |
+| status | VARCHAR(16) | active \| locked |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không gộp vai trò. Admin cấp tài khoản Host riêng; tài khoản Host/Admin không được tạo booking.
+
+Khóa tài khoản không tự hủy booking; lịch sử vẫn được bảo toàn.
+
+<a id="sec-041"></a>
+
+### 6 2 2 tbl_categories
+
+Danh mục tour và trải nghiệm.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| name | VARCHAR(150) | NOT NULL |
+| slug | VARCHAR(180) | UK |
+| description | TEXT | Có thể trống |
+| status | VARCHAR(16) | active \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không xóa danh mục đã được tour tham chiếu.
+
+<a id="sec-042"></a>
+
+### 6 2 3 tbl_services
+
+Nội dung và cam kết của tour, cùng chế độ giá và thanh toán.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| local_id | BIGINT UNSIGNED | FK tbl_users.id; role local |
+| category_id | BIGINT UNSIGNED | FK tbl_categories.id |
+| title | VARCHAR(255) | NOT NULL |
+| description, itinerary | TEXT | NOT NULL |
+| location_name | VARCHAR(255) | NOT NULL |
+| lat, lng | DECIMAL(10,7) | Có thể trống; kiểm tra miền tọa độ |
+| duration_label | VARCHAR(80) | Nhãn mô tả; lịch dùng thời gian thực |
+| thumbnail | VARCHAR(512) | Đường dẫn ảnh đã kiểm tra |
+| payment_mode | VARCHAR(24) | free \| host_range \| fixed_choice \| prepaid_full |
+| price | DECIMAL(14,0) | 0 với free; >0 với fixed_choice/prepaid_full; NULL với host_range |
+| price_min, price_max | DECIMAL(14,0) | Chỉ có giá trị với host_range; 0 < min <= max |
+| included_costs, excluded_costs | TEXT | Nêu rõ phạm vi giá và mua thêm tự nguyện |
+| status | VARCHAR(20) | draft \| pending \| approved \| rejected \| suspended \| archived |
+| approved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable; Admin |
+| approved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Có lưu trú => payment_mode = prepaid_full; kiểm tra xuyên bảng trong PROCEDURE.
+
+Sau khi có booking đang chờ/còn hiệu lực, không ghi đè nội dung cam kết; thay đổi lớn tạo tour mới.
+
+Sửa vận hành dùng tbl_schedule_updates. Tour suspended/archived ngừng nhận mới, không tự hủy lịch.
+
+<a id="sec-043"></a>
+
+### 6 2 4 tbl_service_accommodations
+
+Một khối lưu trú nằm trong gói của một tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| service_id | BIGINT UNSIGNED | PK và FK tbl_services.id |
+| name | VARCHAR(255) | NOT NULL |
+| address | VARCHAR(500) | NOT NULL |
+| nights | SMALLINT UNSIGNED | >=1 |
+| room_details, notes | TEXT | Cách bố trí phòng và lưu ý |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không có bản ghi nghĩa là tour không có lưu trú. Chưa quản lý tồn phòng theo đêm.
+
+Không thay đổi/xóa khỏi tour có cam kết đang hiệu lực; Host bảo đảm phòng trước khi duyệt.
+
+<a id="sec-044"></a>
+
+### 6 2 5 tbl_service_schedules
+
+Lịch khởi hành, hạn đăng ký và sức chứa theo người.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| starts_at, ends_at | DATETIME(6) | starts_at < ends_at |
+| booking_closes_at | DATETIME(6) | <= starts_at |
+| meeting_at | DATETIME(6) | Thời điểm tập trung công bố; <= starts_at |
+| meeting_location | VARCHAR(500) | Địa điểm tập trung |
+| capacity | INT UNSIGNED | >0 |
+| status | VARCHAR(16) | open \| closed \| cancelled |
+| cancelled_at | DATETIME(6) | Nullable |
+| cancel_reason | TEXT | Bắt buộc khi hủy |
+| cancelled_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+UK(id, service_id) hỗ trợ FK ghép của booking.
+
+Closed chỉ ngừng nhận yêu cầu mới; pending đã tạo vẫn được xét trước deadline nếu không có quyết định hủy.
+
+Không đổi ngày giờ khi có booking hiệu lực; không hạ capacity dưới chỗ đã giữ.
+
+<a id="sec-045"></a>
+
+### 6 2 6 tbl_promotions
+
+Khuyến mãi phần trăm do Admin quản lý.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| created_by | BIGINT UNSIGNED | FK tbl_users.id; Admin |
+| name | VARCHAR(200) | NOT NULL |
+| description | TEXT | Nullable |
+| discount_percent | DECIMAL(5,2) | 0 < giá trị <=90 |
+| starts_at, ends_at | DATETIME(6) | starts_at < ends_at |
+| status | VARCHAR(16) | active \| disabled \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ gắn tour fixed_choice/prepaid_full; không giảm giá tour free/host_range.
+
+Một booking dùng tối đa một chương trình; cao nhất trước, cùng tỷ lệ chọn id nhỏ nhất.
+
+<a id="sec-046"></a>
+
+### 6 2 7 tbl_promotion_services
+
+Liên kết khuyến mãi với tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| promotion_id | BIGINT UNSIGNED | PK ghép; FK tbl_promotions.id |
+| service_id | BIGINT UNSIGNED | PK ghép; FK tbl_services.id |
+| created_at | DATETIME(6) | NOT NULL |
+
+PK(promotion_id, service_id). Có thể bỏ liên kết cho tương lai; booking cũ giữ snapshot.
+
+<a id="sec-047"></a>
+
+### 6 2 8 tbl_policy_versions
+
+Các phiên bản chính sách được công bố và lưu bất biến.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| version_code | VARCHAR(50) | UK |
+| title | VARCHAR(200) | NOT NULL |
+| content | LONGTEXT | Chính sách hủy, vắng mặt, thanh toán |
+| content_hash | CHAR(64) | SHA256 nội dung chuẩn hóa |
+| status | VARCHAR(16) | draft \| published \| retired |
+| published_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| published_at | DATETIME(6) | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ sửa bản draft. Published không sửa nội dung; thay đổi phải công bố phiên bản mới.
+
+Retired không dùng cho booking mới; booking cũ vẫn tra cứu và áp dụng phiên bản đã chốt.
+
+<a id="sec-048"></a>
+
+### 6 2 9 tbl_bookings
+
+Yêu cầu đặt tour và toàn bộ dữ liệu cam kết đã chốt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_code | VARCHAR(40) | UK |
+| tourist_id | BIGINT UNSIGNED | FK tbl_users.id; role tourist |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| schedule_id | BIGINT UNSIGNED | FK tbl_service_schedules.id; FK ghép đúng tour |
+| promotion_id | BIGINT UNSIGNED | FK tbl_promotions.id; nullable |
+| policy_version_id | BIGINT UNSIGNED | FK tbl_policy_versions.id |
+| participant_count | INT UNSIGNED | >0; không vượt sức chứa toàn lịch |
+| contact_name | VARCHAR(150) | NOT NULL |
+| contact_phone | VARCHAR(32) | NOT NULL |
+| message | TEXT | Nullable |
+| status | VARCHAR(24) | pending \| awaiting_payment \| confirmed \| completed \| rejected \| cancelled \| expired \| no_show |
+| payment_plan | VARCHAR(20) | none \| host_direct \| deposit_50 \| full_online |
+| payment_mode_snapshot | VARCHAR(24) | Chế độ tour tại lúc đặt |
+| unit_price, original_price | DECIMAL(14,0) | Nullable với host_range |
+| discount_percent | DECIMAL(5,2) | 0 nếu không có khuyến mãi |
+| discount_amount, total_price | DECIMAL(14,0) | Nullable với host_range; 0 với free |
+| discount_rounding_adjustment | DECIMAL(8,4) | Chênh lệch tiền giảm sau làm tròn; giữ đủ phần lẻ |
+| online_due, host_balance | DECIMAL(14,0) | 0 với free; NULL với host_range; host_balance không phải xác nhận đã thu |
+| deposit_rounding_adjustment | DECIMAL(6,2) | Chênh lệch khoản 50%; thường 0 hoặc +0.50 |
+| price_min_snapshot, price_max_snapshot | DECIMAL(14,0) | Chỉ dành cho host_range |
+| promotion_name_snapshot | VARCHAR(200) | Nullable |
+| service_title_snapshot, host_name_snapshot | VARCHAR(255) | NOT NULL |
+| starts_at_snapshot, ends_at_snapshot | DATETIME(6) | NOT NULL |
+| commitment_snapshot | JSON | Lịch trình, địa điểm, gồm/chưa gồm, lưu trú, điểm/giờ tập trung |
+| request_expires_at, payment_expires_at | DATETIME(6) | Hạn duyệt bắt buộc; hạn trả tiền nullable |
+| applied_payment_id | BIGINT UNSIGNED | FK tbl_payments.id; nullable; UK khi có giá trị |
+| client_request_id | VARCHAR(80) | UK ghép với tourist_id |
+| approved_at, cancelled_at, completed_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+UK(tourist_id, client_request_id); từ chối token lặp nhưng payload khác.
+
+FK(schedule_id,service_id) -> tbl_service_schedules(id,service_id). applied_payment phải cùng booking, kiểm tra bằng PROCEDURE.
+
+online_due + host_balance = total_price cho tour cố định; khoản thực thu online = online_due.
+
+Không đổi số người, lịch, giá hoặc payment_plan sau tạo; cần hủy và đặt mới theo điều kiện.
+
+Không sửa snapshot. Chỉ chuyển trạng thái qua thủ tục nghiệp vụ.
+
+<a id="sec-049"></a>
+
+### 6 2 10 tbl_booking_events
+
+Lịch sử thay đổi trạng thái booking.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; NULL với tác vụ hệ thống |
+| event_key | VARCHAR(100) | UK; chống ghi lặp |
+| event_type | VARCHAR(50) | approve \| expire \| cancel \| complete \| no_show... |
+| from_status, to_status | VARCHAR(24) | NOT NULL |
+| reason | TEXT | Nullable |
+| details_json | JSON | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm và đọc; không sửa/xóa lịch sử.
+
+<a id="sec-050"></a>
+
+### 6 2 11 tbl_payments
+
+Mỗi lần thử thu tiền online qua MoMo sandbox.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| provider | VARCHAR(20) | momo |
+| environment | VARCHAR(16) | sandbox |
+| merchant_order_id, request_id | VARCHAR(100) | UK riêng cho từng trường |
+| provider_transaction_id | VARCHAR(100) | UK(provider,environment,provider_transaction_id); nullable |
+| amount | DECIMAL(14,0) | Số tiền thực thu; từ booking.online_due |
+| currency | CHAR(3) | VND |
+| status | VARCHAR(16) | created \| pending \| succeeded \| failed \| cancelled |
+| allocation_status | VARCHAR(20) | unapplied \| applied \| needs_review |
+| result_code | VARCHAR(30) | Nullable; kết quả gốc |
+| request_snapshot, verified_result | JSON | Dữ liệu đã lọc khóa bí mật |
+| paid_at, verified_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Không lấy amount từ trình duyệt. Succeeded không bị ghi đè thành failed do thông báo cũ.
+
+Một booking chỉ có một payment áp dụng; các khoản thu thừa xử lý riêng.
+
+Refund không đổi payment succeeded; trạng thái hoàn được suy ra từ hồ sơ hoàn.
+
+<a id="sec-051"></a>
+
+### 6 2 12 tbl_receipts
+
+Biên nhận của khoản thu online đã xác minh.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| payment_id | BIGINT UNSIGNED | UK và FK tbl_payments.id |
+| receipt_number | VARCHAR(50) | UK |
+| amount | DECIMAL(14,0) | Bằng khoản payment đã thu |
+| currency | CHAR(3) | VND |
+| snapshot_json | JSON | Dữ liệu chứng từ bất biến; có nhãn SANDBOX |
+| issued_at | DATETIME(6) | NOT NULL |
+
+Chỉ phát hành cho succeeded đã verified. Không sửa/xóa hoặc đổi thành biên nhận tổng tour.
+
+<a id="sec-052"></a>
+
+### 6 2 13 tbl_refunds
+
+Một nghĩa vụ hoàn toàn bộ khoản thu của một payment.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| refund_code | VARCHAR(50) | UK |
+| payment_id | BIGINT UNSIGNED | UK và FK tbl_payments.id |
+| reason_type | VARCHAR(40) | booking_cancelled \| late_payment \| duplicate_payment \| resolved_complaint |
+| reason | TEXT | NOT NULL |
+| amount | DECIMAL(14,0) | Khoản đã thu cần hoàn, không vượt payment.amount |
+| status | VARCHAR(20) | requested \| approved \| processing \| needs_review \| succeeded \| failed \| rejected |
+| requested_at, due_at | DATETIME(6) | NOT NULL |
+| approved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| approved_at | DATETIME(6) | Nullable |
+| refund_reference | VARCHAR(100) | Mã hoàn xác minh; nullable |
+| verified_at | DATETIME(6) | Nullable |
+| customer_receipt_status | VARCHAR(16) | unknown \| received \| not_received |
+| customer_confirmed_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Bản cơ bản hoàn toàn bộ khoản online cần trả, chưa hỗ trợ hoàn từng phần tự nguyện.
+
+Hủy có thu tiền: due_at = cancelled_at +24 giờ. Khoản thu trùng không có hủy: mốc phát hiện +24 giờ.
+
+Quá hạn là thuộc tính suy ra; retry/duyệt không dời due_at. Nút khách không tạo lệnh chi mới.
+
+<a id="sec-053"></a>
+
+### 6 2 14 tbl_refund_attempts
+
+Từng lần gửi và tra cứu một yêu cầu hoàn.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| refund_id | BIGINT UNSIGNED | FK tbl_refunds.id |
+| attempt_no | INT UNSIGNED | UK ghép refund_id |
+| merchant_refund_order_id, request_id | VARCHAR(100) | UK riêng |
+| amount | DECIMAL(14,0) | Bằng nghĩa vụ còn phải hoàn |
+| status | VARCHAR(20) | prepared \| processing \| unknown \| succeeded \| failed |
+| provider_refund_id | VARCHAR(100) | UK khi có giá trị |
+| result_code | VARCHAR(30) | Nullable |
+| request_snapshot, verified_result | JSON | Không lưu khóa bí mật |
+| sent_at, checked_at, verified_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ một lần chưa rõ kết quả được hoạt động cho một refund; unknown phải tra cứu trước lần mới.
+
+Prepared được lưu trước gọi mạng; thành công không bị hạ trạng thái.
+
+<a id="sec-054"></a>
+
+### 6 2 15 tbl_discussions
+
+Chủ đề và trả lời một cấp theo tour.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| user_id | BIGINT UNSIGNED | FK tbl_users.id |
+| parent_id | BIGINT UNSIGNED | FK tbl_discussions.id; NULL với chủ đề |
+| title | VARCHAR(255) | Chỉ chủ đề; nullable |
+| content | TEXT | NOT NULL |
+| visibility | VARCHAR(20) | visible \| author_hidden \| admin_hidden |
+| moderation_reason | TEXT | Nullable |
+| moderated_by | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Trả lời cùng tour, parent phải là chủ đề gốc. Không nhận trả lời mới nếu chủ đề bị ẩn.
+
+Tác giả ẩn gốc: hiện nhãn thay nội dung, giữ trả lời hợp lệ. Admin ẩn gốc: ẩn cả nhánh công khai.
+
+Khôi phục gốc không đổi visibility riêng của các trả lời. Admin-hidden chỉ Admin khôi phục.
+
+<a id="sec-055"></a>
+
+### 6 2 16 tbl_reviews
+
+Đánh giá chuyến đi hoàn tất; một review cho một booking.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | UK và FK tbl_bookings.id |
+| rating | TINYINT UNSIGNED | 1..5 |
+| comment | TEXT | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Người viết suy ra từ booking. Chỉ chủ booking completed được tạo; không tự coi hết giờ là đã tham gia.
+
+Giữ quyền báo cáo độc lập với quyền review; no_show không được review theo luồng completed.
+
+<a id="sec-056"></a>
+
+### 6 2 17 tbl_posts
+
+Bài viết và cẩm nang do Admin quản lý.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| author_id | BIGINT UNSIGNED | FK tbl_users.id; Admin |
+| title | VARCHAR(255) | NOT NULL |
+| slug | VARCHAR(255) | UK |
+| content | LONGTEXT | NOT NULL |
+| thumbnail | VARCHAR(512) | Nullable |
+| status | VARCHAR(16) | draft \| published \| archived |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Người dùng khác chỉ đọc nội dung published.
+
+<a id="sec-057"></a>
+
+### 6 2 18 tbl_schedule_updates
+
+Thông báo vận hành bổ sung theo từng lịch.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| schedule_id | BIGINT UNSIGNED | FK tbl_service_schedules.id |
+| created_by | BIGINT UNSIGNED | FK tbl_users.id |
+| update_type | VARCHAR(30) | guide \| contact \| meal_time \| emergency |
+| title | VARCHAR(255) | NOT NULL |
+| old_value, new_value | TEXT | Giữ cả trước và sau nếu có |
+| reason | TEXT | NOT NULL |
+| is_emergency | BOOLEAN | FALSE mặc định; Admin kiểm soát ngoại lệ |
+| created_at | DATETIME(6) | NOT NULL |
+
+Không dùng để đổi tuyến/giá/lưu trú đã cam kết. Thông thường phải trước starts_at -24 giờ.
+
+Chỉ thêm và đọc; đính chính bằng bản mới; không ghi đè.
+
+<a id="sec-058"></a>
+
+### 6 2 19 tbl_notifications
+
+Thông báo trong website cho một người nhận.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| user_id | BIGINT UNSIGNED | FK tbl_users.id |
+| event_key | VARCHAR(160) | UK ghép user_id; chống phát lặp |
+| type | VARCHAR(40) | booking \| schedule_update \| refund \| no_show \| report |
+| title | VARCHAR(255) | NOT NULL |
+| body | TEXT | NOT NULL |
+| payload_json | JSON | Mã liên quan/đường dẫn nội bộ; không là FK đa hình |
+| created_at | DATETIME(6) | NOT NULL |
+| read_at, archived_at | DATETIME(6) | Nullable |
+
+Đã đọc chỉ là trạng thái UI, không phải bằng chứng khách chấp nhận thay đổi hay nhận tiền.
+
+<a id="sec-059"></a>
+
+### 6 2 20 tbl_reports
+
+Hồ sơ phản ánh dịch vụ hoặc tranh chấp liên quan.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| reporter_id | BIGINT UNSIGNED | FK tbl_users.id |
+| service_id | BIGINT UNSIGNED | FK tbl_services.id |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id; nullable |
+| refund_id | BIGINT UNSIGNED | FK tbl_refunds.id; nullable |
+| no_show_case_id | BIGINT UNSIGNED | FK tbl_no_show_cases.id; nullable |
+| category | VARCHAR(30) | price \| quality \| cancellation \| refund \| no_show \| other |
+| description | TEXT | NOT NULL |
+| evidence_json | JSON | Tham chiếu tệp đã kiểm tra; nullable |
+| status | VARCHAR(20) | open \| reviewing \| resolved \| rejected |
+| assigned_admin_id | BIGINT UNSIGNED | FK tbl_users.id; nullable |
+| resolution | TEXT | Nullable; bắt buộc khi kết luận |
+| resolved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Các FK tùy chọn phải cùng tour/booking thực tế, kiểm tra trong PROCEDURE.
+
+Không yêu cầu booking completed để báo cáo. Số báo cáo không tự động kết luận Host vi phạm.
+
+<a id="sec-060"></a>
+
+### 6 2 21 tbl_report_events
+
+Lịch sử xử lý hồ sơ báo cáo.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| report_id | BIGINT UNSIGNED | FK tbl_reports.id |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; nullable với hệ thống |
+| event_type | VARCHAR(40) | submitted \| assigned \| evidence_added \| resolved \| reopened |
+| content | TEXT | NOT NULL |
+| evidence_json | JSON | Nullable |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm/đọc; kết luận cũ vẫn được lưu khi xem xét lại.
+
+<a id="sec-061"></a>
+
+### 6 2 22 tbl_no_show_cases
+
+Xác minh việc khách không tham gia; không tự động tịch thu tiền.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | UK và FK tbl_bookings.id |
+| reported_by | BIGINT UNSIGNED | FK tbl_users.id; Host sở hữu lịch |
+| reported_at | DATETIME(6) | Sau thời điểm tập trung công bố |
+| evidence_json | JSON | Căn cứ vắng mặt và việc đã thử liên hệ |
+| status | VARCHAR(24) | awaiting_response \| needs_review \| resolved_no_refund \| resolved_refund \| dismissed |
+| response_due_at | DATETIME(6) | reported_at +48 giờ; phải tạo thông báo cùng giao dịch |
+| resolved_by | BIGINT UNSIGNED | FK tbl_users.id; nullable; Admin nếu tranh chấp/không phản hồi |
+| resolution_reason | TEXT | Nullable |
+| resolved_at | DATETIME(6) | Nullable |
+| created_at, updated_at | DATETIME(6) | NOT NULL |
+
+Chỉ mở cho confirmed; chặn complete khi hồ sơ chưa kết luận. Khách nhận lỗi có thể kết luận theo thỏa thuận.
+
+Không phản hồi sau 48 giờ => needs_review; không tự suy ra có lỗi. Không tự mất quyền khiếu nại.
+
+Khách có lỗi, Host đúng cam kết => booking no_show; payment vẫn succeeded; không tạo refund.
+
+<a id="sec-062"></a>
+
+### 6 2 23 tbl_no_show_responses
+
+Phản hồi và bằng chứng của khách đối với hồ sơ vắng mặt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| case_id | BIGINT UNSIGNED | FK tbl_no_show_cases.id |
+| submitted_by | BIGINT UNSIGNED | FK tbl_users.id; chủ booking |
+| response_type | VARCHAR(24) | acknowledge_fault \| request_exception \| dispute |
+| content | TEXT | NOT NULL |
+| evidence_json | JSON | Nullable |
+| is_late | BOOLEAN | Suy ra tại lúc nhận so với deadline |
+| submitted_at | DATETIME(6) | NOT NULL |
+
+Chỉ thêm/đọc. Phản hồi sau hạn vẫn ghi nhận và chuyển xem xét; không xóa phản hồi trước.
+
+<a id="sec-063"></a>
+
+### 6 2 24 tbl_policy_acceptances
+
+Bằng chứng chủ động đồng ý với phiên bản chính sách.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| booking_id | BIGINT UNSIGNED | FK tbl_bookings.id |
+| policy_version_id | BIGINT UNSIGNED | FK tbl_policy_versions.id |
+| accepted_by | BIGINT UNSIGNED | FK tbl_users.id; chủ booking |
+| purpose | VARCHAR(16) | booking \| payment |
+| content_hash | CHAR(64) | Hash bản chính sách đã hiển thị |
+| amounts_snapshot | JSON | Tổng giá, khoản trả trước, số còn lại, điều chỉnh làm tròn |
+| accepted_at | DATETIME(6) | NOT NULL |
+
+UK(booking_id, policy_version_id, purpose). Không tích sẵn; không tạo payment nếu thiếu acceptance payment hợp lệ.
+
+Chỉ thêm/đọc. Đồng ý không loại bỏ quyền phản ánh/khiếu nại.
+
+<a id="sec-064"></a>
+
+### 6 2 25 tbl_audit_logs
+
+Nhật ký thao tác quan trọng và kiểm duyệt.
+
+| Trường | Kiểu | Vai trò và điều kiện |
+| --- | --- | --- |
+| id | BIGINT UNSIGNED | PK |
+| actor_id | BIGINT UNSIGNED | FK tbl_users.id; NULL với hệ thống |
+| action | VARCHAR(80) | NOT NULL |
+| entity_type | VARCHAR(50) | Tên loại bản ghi |
+| entity_id | BIGINT UNSIGNED | Tham chiếu logic, không FK đa hình |
+| event_key | VARCHAR(160) | UK |
+| details_json | JSON | Bỏ dữ liệu nhạy cảm/khóa |
+| created_at | DATETIME(6) | NOT NULL |
+
+Chỉ ghi qua thủ tục nội bộ và đọc theo quyền; không sửa/xóa trong bản cơ bản.
+
+<a id="sec-065"></a>
+
+## 6 3 Ràng buộc liên bảng và chỉ mục
+
+- Cặp booking(schedule_id,service_id) tham chiếu lịch(id,service_id); không nhận booking cho lịch của tour khác.
+
+- Thêm FK applied_payment_id sau khi cả tbl_bookings và tbl_payments đã được tạo; không tắt FOREIGN_KEY_CHECKS để bỏ qua dữ liệu sai. PROCEDURE kiểm tra payment thuộc đúng booking.
+
+- Một payment chỉ áp dụng một booking; khóa booking đảm bảo chỉ có một applied_payment_id. Trước khi áp dụng kiểm tra lại deadline dưới khóa.
+
+- Thứ tự khóa nhất quán: lịch -> booking theo id -> payment -> refund/attempt -> lịch sử/thông báo. Các thủ tục chỉ đọc/ghi thông báo không chiếm khóa lịch.
+
+- Chỉ mục chính: tbl_services(status,category_id), schedules(service_id,starts_at), tbl_bookings(schedule_id,status,payment_expires_at), tbl_bookings(tourist_id,created_at), tbl_bookings(status,request_expires_at).
+
+- Thêm tbl_payments(booking_id,status), tbl_refunds(status,due_at), tbl_refund_attempts(refund_id,status), tbl_no_show_cases(status,response_due_at), tbl_notifications(user_id,read_at,created_at), tbl_reports(status,created_at).
+
+- Thảo luận: (service_id,parent_id,created_at); khuyến mãi: (status,starts_at,ends_at); events theo FK và created_at; UK nghiệp vụ chống lặp như từ điển.
+
+- CHECK giữ rating 1..5, phần trăm (0,90], số người/capacity dương, khoảng giá hợp lệ và thời gian đúng thứ tự. CHECK không thay thế kiểm tra xuyên bảng [S08].
+
+<a id="sec-066"></a>
+
+# 7 Kiến trúc lớp và tổ chức chương trình
+
+Kiến trúc giữ Front Controller và MVC, bổ sung tầng Service để điều phối và Repository để gọi PROCEDURE. Class diagram tập trung các lớp có ảnh hưởng trực tiếp đến booking, thanh toán, hoàn tiền và xác minh vắng mặt.
+
+<a id="sec-067"></a>
+
+## Hình 12  Kiến trúc ứng dụng
+
+<a id="diagram-architecture"></a>
+
+```mermaid
+flowchart TB
+  browser["Trình duyệt Bootstrap 5 và Fetch API"] --> router["Front Controller và Router"]
+  router --> controller["Controller"]
+  controller --> service["Service nghiệp vụ"]
+  service --> repo["Repository PDO CALL"]
+  repo --> db["MySQL InnoDB và PROCEDURE"]
+  jobs["Tác vụ định kỳ"] --> service
+  service --> gateway["MoMoGateway"]
+  gateway --> momo["MoMo sandbox"]
+  momo --> ipn["IPN xác minh chữ ký"]
+  ipn --> service
+  service --> external["OpenWeather và RSS"]
+  controller --> browser
+```
+
+Gọi mạng không nằm trong transaction đang giữ khóa lịch hoặc booking.
+
+<a id="sec-068"></a>
+
+## Hình 13  Class diagram các thành phần nghiệp vụ
+
+<a id="diagram-class"></a>
+
+```mermaid
+classDiagram
+  direction LR
+  class BaseController {
+    +requireRole(role)
+    +requireOwner(id)
+    +json(data)
+  }
+  class BookingController {
+    +create(request)
+    +approve(id)
+    +cancel(id)
+  }
+  class PaymentController {
+    +checkout(id)
+    +receiveIpn(body)
+    +returnPage(id)
+  }
+  class RefundController {
+    +approveBatch(ids)
+    +receiptFeedback(id)
+  }
+  class NoShowController {
+    +report(bookingId)
+    +respond(caseId)
+    +resolve(caseId)
+  }
+  class BookingService {
+    -BookingRepository repo
+    +quote(data)
+    +approve(id)
+    +cancel(id)
+  }
+  class PaymentService {
+    -PaymentGateway gateway
+    +prepare(id)
+    +applyVerified(result)
+    +reconcile(id)
+  }
+  class RefundService {
+    -PaymentGateway gateway
+    +approveBatch(ids)
+    +dispatch(id)
+    +reconcile(id)
+  }
+  class NoShowService {
+    +open(bookingId)
+    +respond(caseId)
+    +resolve(caseId)
+  }
+  class PricingService {
+    +selectPromotion(serviceId)
+    +roundVnd(value)
+    +splitPayment(total,plan)
+  }
+  class NotificationService {
+    +enqueue(event)
+    +markRead(id)
+  }
+  class ProcedureRepository {
+    -PDO pdo
+    +call(name,params)
+  }
+  class BookingRepository {
+    +create(data)
+    +approve(id)
+    +cancel(id)
+  }
+  class PaymentRepository {
+    +prepare(id)
+    +applyVerified(result)
+  }
+  class RefundRepository {
+    +approve(id)
+    +prepareAttempt(id)
+    +applyResult(result)
+  }
+  class NoShowRepository {
+    +open(id)
+    +respond(id)
+    +resolve(id)
+  }
+  class PaymentGateway {
+    <<interface>>
+    +createPayment(data)
+    +queryPayment(id)
+    +refund(data)
+    +queryRefund(id)
+    +verifySignature(data)
+  }
+  class MoMoGateway {
+    -ServerConfig credentials
+    +createPayment(data)
+    +refund(data)
+    +verifySignature(data)
+  }
+  class ScheduledJobs {
+    +expireBookings()
+    +reconcilePayments()
+    +reconcileRefunds()
+    +escalateNoShows()
+  }
+  BaseController <|-- BookingController
+  BaseController <|-- PaymentController
+  BaseController <|-- RefundController
+  BaseController <|-- NoShowController
+  BookingController ..> BookingService
+  PaymentController ..> PaymentService
+  RefundController ..> RefundService
+  NoShowController ..> NoShowService
+  BookingService ..> PricingService
+  BookingService ..> BookingRepository
+  PaymentService ..> PaymentRepository
+  RefundService ..> RefundRepository
+  NoShowService ..> NoShowRepository
+  PaymentService ..> PaymentGateway
+  RefundService ..> PaymentGateway
+  BookingService ..> NotificationService
+  NoShowService ..> NotificationService
+  ProcedureRepository <|-- BookingRepository
+  ProcedureRepository <|-- PaymentRepository
+  ProcedureRepository <|-- RefundRepository
+  ProcedureRepository <|-- NoShowRepository
+  PaymentGateway <|.. MoMoGateway
+  ScheduledJobs ..> BookingService
+  ScheduledJobs ..> PaymentService
+  ScheduledJobs ..> RefundService
+  ScheduledJobs ..> NoShowService
+```
+
+Mô tả lớp chính. Các Controller/Service/Repository còn lại áp dụng cùng cấu trúc trong cây thư mục; không dùng lớp con để gộp vai trò tài khoản.
+
+<a id="sec-069"></a>
+
+## 7 1 Trách nhiệm từng tầng
+
+| Tầng | Trách nhiệm | Không thực hiện |
+| --- | --- | --- |
+| Controller | Parse request, session, quyền, validation hình thức, trả HTML/JSON | Không tự tính lại giá hoặc đổi booking bằng SQL rời |
+| Service | Điều phối nghiệp vụ, gateway, xác minh, chọn thủ tục và xử lý lỗi | Không gọi mạng khi thủ tục đang giữ transaction |
+| Repository | Gọi CALL có tham số, đọc result set, chuẩn hóa lỗi | Không dùng chuỗi SQL từ client |
+| PROCEDURE | Ràng buộc dữ liệu, khóa và thay đổi nhiều bảng nguyên tử | Không thực hiện HTTP tới MoMo |
+| Gateway | Ký tạo/tra cứu/hoàn và xác minh chữ ký | Không tự quyết booking đã xác nhận |
+| View | Hiển thị dữ liệu đã chốt và điều khiển tương tác | Không dùng số tiền trình duyệt làm nguồn quyết định |
+
+Mỗi Repository chuyên biệt kế thừa ProcedureRepository. PaymentGateway là interface; MoMoGateway triển khai. ScheduledJobs gọi cùng Services như request thông thường. Các lớp miền được biểu diễn bằng dữ liệu Booking, Payment, Refund và Schedule; mỗi tài khoản có một role, không dùng đa kế thừa để gộp Tourist và Host.
+
+<a id="sec-070"></a>
+
+## 7 2 Cây thư mục đề xuất
+
+```text
+online-traveller/
+  app/
+    controllers/
+      AuthController.php        ServiceController.php
+      ScheduleController.php    BookingController.php
+      PaymentController.php     RefundController.php
+      NoShowController.php      DiscussionController.php
+      ReviewController.php      ReportController.php
+      PromotionController.php   PolicyController.php
+      NotificationController.php PostController.php
+      AdminController.php
+    services/
+      AuthService.php           TourService.php
+      BookingService.php        PricingService.php
+      PaymentService.php        RefundService.php
+      NoShowService.php         CommunityService.php
+      ReportService.php         NotificationService.php
+      PolicyService.php         ExternalInfoService.php
+    repositories/
+      ProcedureRepository.php
+      UserRepository.php        ServiceRepository.php
+      ScheduleRepository.php    BookingRepository.php
+      PaymentRepository.php     RefundRepository.php
+      NoShowRepository.php      DiscussionRepository.php
+      ReviewRepository.php      ReportRepository.php
+      PromotionRepository.php   PolicyRepository.php
+      NotificationRepository.php PostRepository.php
+      AuditRepository.php
+    gateways/
+      PaymentGateway.php        MoMoGateway.php
+    models/
+      Booking.php  Payment.php  Refund.php  Schedule.php
+      User.php     Service.php  Report.php  NoShowCase.php
+    views/
+      layouts/  public/  tourist/  host/  admin/
+    validators/  exceptions/  support/
+  core/
+    Router.php  Database.php  BaseController.php
+    Auth.php    Csrf.php      Response.php
+  config/
+    app.php  database.php  routes.php  payment.php
+  public/
+    index.php
+    assets/css/  assets/js/  assets/images/
+  storage/
+    uploads/evidence/  uploads/tours/  logs/  cache/
+  database/
+    migrations/
+      001_tables.sql  002_foreign_keys.sql  003_indexes.sql
+    procedures/
+      01_accounts.sql  02_tours.sql  03_bookings.sql
+      04_payments.sql  05_refunds.sql  06_community.sql
+      07_reports.sql   08_policies.sql
+    seeds/  grants.sql
+  jobs/
+    expire_bookings.php       reconcile_payments.php
+    dispatch_refunds.php      reconcile_refunds.php
+    escalate_no_shows.php
+  tests/
+    integration/  acceptance/
+  composer.json  .env.example  .gitignore
+```
+
+storage nằm ngoài public; minh chứng chỉ truy cập qua route kiểm tra quyền. .env thật không đưa vào mã công khai. app/models là lớp dữ liệu miền; repositories là nơi gọi PROCEDURE, tránh trùng hai nguồn SQL.
+
+<a id="sec-071"></a>
+
+# 8 Thiết kế PROCEDURE và giao dịch
+
+<a id="sec-072"></a>
+
+## 8 1 Nguyên tắc và mức độ đặc tả
+
+Danh mục dưới gồm 117 PROCEDURE cho đủ 25 bảng, vượt yêu cầu tối thiểu 12. Đây là đặc tả tên, tham số, quyền và hợp đồng nghiệp vụ cho triển khai; phụ lục B cung cấp ba thân SQL minh họa. Tài liệu không tuyên bố toàn bộ 117 thân thủ tục đã được triển khai hoặc chạy kiểm thử trên MySQL.
+
+Mỗi bảng có get/list và các thao tác ghi hợp lệ. Bảng bất biến chỉ append/issue và đọc; không tạo UPDATE/DELETE giả để đủ CRUD. Bảng trạng thái dùng thao tác nghiệp vụ hoặc archive thay vì xóa lịch sử. Tất cả routine trong danh mục là PROCEDURE, không yêu cầu FUNCTION/TRIGGER để thay thế số lượng.
+
+- Tham số p_actor_id do server lấy từ session; JSON có schema được kiểm tra theo bảng dữ liệu, không chứa lệnh SQL.
+
+- ID dùng BIGINT UNSIGNED khi cài đặt; chữ ký rút gọn bên dưới ghi BIGINT cho dễ đọc. Các tham số liệt kê đều là IN; kết quả trả bằng result set.
+
+- Một kết quả thành công chuẩn: id, status, changed và dữ liệu nghiệp vụ cần thiết; lỗi dùng SIGNAL SQLSTATE 45000 cùng mã miền.
+
+- Get/list kiểm tra quyền và lọc trường nhạy cảm; các bảng lịch sử chỉ người liên quan/Admin được xem.
+
+- Thủ tục public tự BEGIN/COMMIT với EXIT HANDLER ROLLBACK; thủ tục nội bộ kế thừa transaction không tự COMMIT. PHP không mở transaction bao ngoài CALL tự quản lý [S06].
+
+- Không tạo PROCEDURE chung cho phép caller truyền tên bảng/cột để UPDATE tùy ý. SQL SECURITY DEFINER dùng tài khoản triển khai chuyên biệt với quyền tối thiểu.
+
+- Mã lỗi thống nhất: NOT_FOUND, FORBIDDEN, INVALID_STATE, DEADLINE_PASSED, NOT_ENOUGH_SEATS, INVALID_AMOUNT, PAYMENT_UNRESOLVED, DUPLICATE_REQUEST, POLICY_NOT_ACCEPTED.
+
+<a id="sec-073"></a>
+
+## 8 2 Ma trận phủ PROCEDURE theo bảng
+
+| Bảng | Số thủ tục | Các thao tác ghi |
+| --- | --- | --- |
+| tbl_users | 7 | register, create_host, update_profile, set_status, find_login |
+| tbl_categories | 4 | save, archive |
+| tbl_services | 7 | create, update, submit, moderate, archive |
+| tbl_service_accommodations | 4 | save, remove |
+| tbl_service_schedules | 6 | create, update, set_closed, cancel |
+| tbl_promotions | 4 | save, set_status |
+| tbl_promotion_services | 5 | attach, detach, replace |
+| tbl_policy_versions | 6 | create, update_draft, publish, retire |
+| tbl_bookings | 9 | quote, create, approve, reject, cancel, complete, expire_due |
+| tbl_booking_events | 3 | append |
+| tbl_payments | 4 | prepare, apply_verified |
+| tbl_receipts | 3 | issue |
+| tbl_refunds | 6 | request, approve, reject, customer_feedback |
+| tbl_refund_attempts | 4 | prepare, apply_verified |
+| tbl_discussions | 5 | create, edit, set_visibility |
+| tbl_reviews | 3 | create |
+| tbl_posts | 5 | create, update, set_status |
+| tbl_schedule_updates | 3 | publish |
+| tbl_notifications | 5 | enqueue, mark_read, archive |
+| tbl_reports | 6 | create, assign, resolve, reopen |
+| tbl_report_events | 3 | append |
+| tbl_no_show_cases | 6 | open, resolve, escalate_due, reopen |
+| tbl_no_show_responses | 3 | append |
+| tbl_policy_acceptances | 3 | append |
+| tbl_audit_logs | 3 | append |
+
+<a id="sec-074"></a>
+
+## 8 3 Hợp đồng chi tiết từng thủ tục
+
+<a id="sec-075"></a>
+
+### tbl_users
+
+sp_users_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_users_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_users_register
+
+```sql
+(p_email VARCHAR(254), p_name VARCHAR(150), p_hash VARCHAR(255), p_phone VARCHAR(32))
+```
+
+Quyền: Công khai qua AuthController. Transaction: Có. Tạo Tourist active, chặn email trùng. PHP băm mật khẩu trước CALL; không cho client truyền role.
+
+sp_users_create_host
+
+```sql
+(p_actor_id BIGINT, p_data JSON)
+```
+
+Quyền: Admin. Transaction: Có. Admin tạo tài khoản Host riêng, không gộp quyền với tài khoản Tourist.
+
+sp_users_update_profile
+
+```sql
+(p_actor_id BIGINT, p_name VARCHAR(150), p_phone VARCHAR(32))
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Chỉ sửa hồ sơ của mình; không đổi role/status/email tùy ý.
+
+sp_users_set_status
+
+```sql
+(p_actor_id BIGINT, p_target_id BIGINT, p_status VARCHAR(16), p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Khóa/mở theo quyền, ghi audit; không tự hủy booking.
+
+sp_users_find_login
+
+```sql
+(p_email VARCHAR(254))
+```
+
+Quyền: AuthService nội bộ. Transaction: Không. Trả bản ghi xác thực nội bộ gồm hash/role/status cho PHP password_verify; không đưa hash vào response.
+
+<a id="sec-076"></a>
+
+### tbl_categories
+
+sp_categories_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_categories_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_categories_save
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_data JSON)
+```
+
+Quyền: Admin. Transaction: Có. Thêm/sửa tên, slug, mô tả; slug duy nhất.
+
+sp_categories_archive
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Đổi archived; không DELETE dữ liệu đang được tham chiếu.
+
+<a id="sec-077"></a>
+
+### tbl_services
+
+sp_services_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_services_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_services_create
+
+```sql
+(p_actor_id BIGINT, p_data JSON)
+```
+
+Quyền: Host. Transaction: Có. Tạo draft, local_id lấy từ actor; kiểm tra bốn chế độ và giá.
+
+sp_services_update
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_data JSON)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Chỉ sửa trường hợp lệ; khóa nội dung cam kết khi có booking chờ/còn hiệu lực. Không đổi gói lớn bằng sửa tour approved.
+
+sp_services_submit
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Host sở hữu. Transaction: Có. draft/rejected -> pending nếu đủ nội dung; kiểm tra lưu trú phải prepaid_full.
+
+sp_services_moderate
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_decision VARCHAR(20), p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Duyệt lần đầu hoặc tạm ngừng sau xác minh vi phạm; lưu quyết định và audit. Không tự hủy lịch.
+
+sp_services_archive
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_reason TEXT)
+```
+
+Quyền: Host sở hữu / Admin. Transaction: Có. Ngừng nhận mới; không xóa tour hoặc dữ liệu khách đã đặt.
+
+<a id="sec-078"></a>
+
+### tbl_service_accommodations
+
+sp_service_accommodations_get
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_service_accommodations_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_service_accommodations_save
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT, p_data JSON)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Thêm/sửa khối lưu trú nếu cam kết chưa bị khóa; đòi tour prepaid_full.
+
+sp_service_accommodations_remove
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Chỉ bỏ khi không phá cam kết booking và tour còn được chỉnh; ghi audit.
+
+<a id="sec-079"></a>
+
+### tbl_service_schedules
+
+sp_service_schedules_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_service_schedules_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_service_schedules_create
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT, p_data JSON)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Tạo lịch hợp lệ, capacity dương, hạn nhận không sau khởi hành.
+
+sp_service_schedules_update
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_data JSON)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Khóa lịch, không sửa giờ khi có booking hiệu lực; capacity không thấp hơn chỗ giữ.
+
+sp_service_schedules_set_closed
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_closed BOOLEAN)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Đóng/mở nhận mới nếu lịch chưa hủy/chưa kết thúc; không tự hủy pending.
+
+sp_service_schedules_cancel
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_reason TEXT, p_emergency BOOLEAN)
+```
+
+Quyền: Host trước mốc / Admin. Transaction: Có. Khóa lịch rồi booking theo id; hủy các đơn còn hiệu lực, lập sự kiện/hoàn/thông báo cùng giao dịch. Sau mốc 24 giờ chỉ Admin xử lý ngoại lệ.
+
+<a id="sec-080"></a>
+
+### tbl_promotions
+
+sp_promotions_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_promotions_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_promotions_save
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_data JSON)
+```
+
+Quyền: Admin. Transaction: Có. Tạo/sửa tên, thời gian và tỷ lệ 0 < percent <=90; booking đã chốt không bị tính lại.
+
+sp_promotions_set_status
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_status VARCHAR(16))
+```
+
+Quyền: Admin. Transaction: Có. Bật, tắt hoặc archive chương trình.
+
+<a id="sec-081"></a>
+
+### tbl_promotion_services
+
+sp_promotion_services_get
+
+```sql
+(p_actor_id BIGINT, p_promotion_id BIGINT, p_service_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_promotion_services_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_promotion_services_attach
+
+```sql
+(p_actor_id BIGINT, p_promotion_id BIGINT, p_service_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Thêm liên kết; chỉ tour fixed_choice/prepaid_full; lặp cùng cặp là không đổi.
+
+sp_promotion_services_detach
+
+```sql
+(p_actor_id BIGINT, p_promotion_id BIGINT, p_service_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Bỏ áp dụng tương lai; không xóa snapshot booking.
+
+sp_promotion_services_replace
+
+```sql
+(p_actor_id BIGINT, p_promotion_id BIGINT, p_service_ids JSON)
+```
+
+Quyền: Admin. Transaction: Có. Thay danh sách tour áp dụng trong một transaction; validate toàn bộ trước thay đổi.
+
+<a id="sec-082"></a>
+
+### tbl_policy_versions
+
+sp_policy_versions_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_policy_versions_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_policy_versions_create
+
+```sql
+(p_actor_id BIGINT, p_version_code VARCHAR(50), p_title VARCHAR(200), p_content LONGTEXT)
+```
+
+Quyền: Admin. Transaction: Có. Tạo draft chính sách, mã phiên bản duy nhất.
+
+sp_policy_versions_update_draft
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_content LONGTEXT)
+```
+
+Quyền: Admin. Transaction: Có. Chỉ sửa draft; không sửa nội dung đã công bố.
+
+sp_policy_versions_publish
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Công bố, lưu hash và thời điểm; phiên bản mới dùng cho booking mới.
+
+sp_policy_versions_retire
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Ngừng dùng cho booking mới; giữ đọc và áp dụng booking cũ.
+
+<a id="sec-083"></a>
+
+### tbl_bookings
+
+sp_bookings_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_bookings_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_bookings_quote
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT, p_schedule_id BIGINT, p_count INT, p_plan VARCHAR(20))
+```
+
+Quyền: Tourist. Transaction: Không. Báo giá phía server, chọn khuyến mãi, kiểm tra cổng; chưa tạo/giữ chỗ. Khi tạo phải tính lại và yêu cầu xác nhận nếu giá đổi.
+
+sp_bookings_create
+
+```sql
+(p_actor_id BIGINT, p_data JSON, p_client_request_id VARCHAR(80))
+```
+
+Quyền: Tourist. Transaction: Có. Tạo pending, snapshot giá/nội dung/chính sách, deadline và acceptance booking. Chặn lặp token khác payload; không tin số tiền client.
+
+sp_bookings_approve
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Khóa lịch rồi booking; kiểm tra chủ tour, deadline, trạng thái và chỗ. Free/range -> confirmed; còn lại -> awaiting_payment, cấp hạn 15 phút.
+
+sp_bookings_reject
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_reason TEXT)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Chỉ pending chưa hết hạn; từ chối có lý do, ghi event và thông báo.
+
+sp_bookings_cancel
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_reason TEXT, p_case_type VARCHAR(30))
+```
+
+Quyền: Tourist đúng điều kiện / Host / Admin. Transaction: Có. Kiểm tra mốc 24 giờ/ngoại lệ; hủy, giải phóng chỗ, tạo nghĩa vụ hoàn nếu có. Lệnh hủy lặp không tạo nghĩa vụ trùng.
+
+sp_bookings_complete
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Sau ends_at, confirmed và đã xác nhận tham gia; không có hồ sơ vắng mặt chưa kết luận. Không dựa riêng vào hết giờ.
+
+sp_bookings_expire_due
+
+```sql
+(p_batch_size INT)
+```
+
+Quyền: ScheduledJobs nội bộ. Transaction: Có. Xử lý pending/awaiting_payment quá hạn theo từng transaction nhỏ; khóa lịch trước booking, ghi event/thông báo một lần.
+
+<a id="sec-084"></a>
+
+### tbl_booking_events
+
+sp_booking_events_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_booking_events_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_booking_events_append
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_event_key VARCHAR(100), p_data JSON)
+```
+
+Quyền: Thủ tục nghiệp vụ nội bộ. Transaction: Kế thừa. Thêm bất biến; nội bộ cùng transaction đổi booking, không COMMIT riêng.
+
+<a id="sec-085"></a>
+
+### tbl_payments
+
+sp_payments_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_payments_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_payments_prepare
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_acceptance_id BIGINT)
+```
+
+Quyền: Tourist. Transaction: Có. Khóa booking/lịch; đúng chủ, awaiting_payment còn hạn, acceptance hợp lệ và chưa có lần chưa rõ; tạo payment amount=online_due.
+
+sp_payments_apply_verified
+
+```sql
+(p_payment_id BIGINT, p_verified_result JSON)
+```
+
+Quyền: PaymentService sau xác minh. Transaction: Có. Chỉ nhận kết quả đã xác minh backend; khóa lịch rồi booking/payment; cập nhật một lần, áp dụng hoặc needs_review, phát biên nhận; thu muộn/trùng lập nghĩa vụ hoàn khi đủ căn cứ.
+
+<a id="sec-086"></a>
+
+### tbl_receipts
+
+sp_receipts_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_receipts_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_receipts_issue
+
+```sql
+(p_payment_id BIGINT)
+```
+
+Quyền: Thanh toán nội bộ. Transaction: Kế thừa. Phát hành một lần từ payment succeeded đã verified; amount=payment.amount; không COMMIT riêng.
+
+<a id="sec-087"></a>
+
+### tbl_refunds
+
+sp_refunds_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_refunds_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_refunds_request
+
+```sql
+(p_actor_id BIGINT, p_payment_id BIGINT, p_reason_type VARCHAR(40), p_reason TEXT)
+```
+
+Quyền: Nghiệp vụ nội bộ. Transaction: Kế thừa. Tạo một nghĩa vụ cho payment, tính mốc xử lý, chặn trùng; được gọi cùng transaction hủy/kết luận.
+
+sp_refunds_approve
+
+```sql
+(p_actor_id BIGINT, p_refund_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Admin kiểm tra khoản thực thu/chưa hoàn và duyệt; lặp cùng trạng thái là không đổi. Danh sách duyệt gọi từng hồ sơ có kết quả riêng.
+
+sp_refunds_reject
+
+```sql
+(p_actor_id BIGINT, p_refund_id BIGINT, p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Chỉ hồ sơ chưa thực hiện và có căn cứ; không xóa quyền phản ánh.
+
+sp_refunds_customer_feedback
+
+```sql
+(p_actor_id BIGINT, p_refund_id BIGINT, p_feedback VARCHAR(20), p_content TEXT)
+```
+
+Quyền: Tourist sở hữu. Transaction: Có. Chủ booking xác nhận received hoặc yêu cầu kiểm tra sau hạn; ghi phản hồi/báo cáo và thông báo, không phát lệnh hoàn mới.
+
+<a id="sec-088"></a>
+
+### tbl_refund_attempts
+
+sp_refund_attempts_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_refund_attempts_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_refund_attempts_prepare
+
+```sql
+(p_refund_id BIGINT)
+```
+
+Quyền: RefundService nội bộ. Transaction: Có. Tạo mã hoàn duy nhất sau approve; chặn prepared/processing/unknown còn hiệu lực; đánh dấu processing trước khi gọi mạng.
+
+sp_refund_attempts_apply_verified
+
+```sql
+(p_attempt_id BIGINT, p_verified_result JSON)
+```
+
+Quyền: RefundService sau xác minh. Transaction: Có. Ghi kết quả xác minh; cập nhật nghĩa vụ, mã tham chiếu và thông báo. Unknown yêu cầu tra cứu, không tự tạo mã mới.
+
+<a id="sec-089"></a>
+
+### tbl_discussions
+
+sp_discussions_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_discussions_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_discussions_create
+
+```sql
+(p_actor_id BIGINT, p_service_id BIGINT, p_parent_id BIGINT, p_title VARCHAR(255), p_content TEXT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Thành viên active; nếu trả lời phải cùng tour, parent gốc visible; chỉ một cấp.
+
+sp_discussions_edit
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_content TEXT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Chỉ tác giả; không tự phục hồi admin_hidden sau sửa. Ghi audit.
+
+sp_discussions_set_visibility
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_action VARCHAR(24), p_reason TEXT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Tác giả tự ẩn/khôi phục author_hidden; Admin kiểm duyệt/khôi phục admin_hidden; không đổi trạng thái riêng của con.
+
+<a id="sec-090"></a>
+
+### tbl_reviews
+
+sp_reviews_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_reviews_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_reviews_create
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_rating TINYINT, p_comment TEXT)
+```
+
+Quyền: Tourist. Transaction: Có. Chỉ chủ booking completed, rating 1..5 và chưa có review. UNIQUE chặn gửi lặp.
+
+<a id="sec-091"></a>
+
+### tbl_posts
+
+sp_posts_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_posts_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_posts_create
+
+```sql
+(p_actor_id BIGINT, p_data JSON)
+```
+
+Quyền: Admin. Transaction: Có. Tạo bài draft, slug duy nhất.
+
+sp_posts_update
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_data JSON)
+```
+
+Quyền: Admin. Transaction: Có. Cập nhật nội dung, giữ author và lịch sử thao tác.
+
+sp_posts_set_status
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_status VARCHAR(16))
+```
+
+Quyền: Admin. Transaction: Có. Xuất bản/thu hồi/archive; không DELETE tùy ý.
+
+<a id="sec-092"></a>
+
+### tbl_schedule_updates
+
+sp_schedule_updates_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_schedule_updates_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_schedule_updates_publish
+
+```sql
+(p_actor_id BIGINT, p_schedule_id BIGINT, p_data JSON)
+```
+
+Quyền: Host sở hữu / Admin. Transaction: Có. Kiểm tra loại thay đổi, mốc 24 giờ/ngoại lệ; thêm lịch sử, tạo thông báo theo các booking liên quan, không sửa snapshot.
+
+<a id="sec-093"></a>
+
+### tbl_notifications
+
+sp_notifications_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_notifications_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_notifications_enqueue
+
+```sql
+(p_user_id BIGINT, p_event_key VARCHAR(160), p_data JSON)
+```
+
+Quyền: Nội bộ. Transaction: Kế thừa. Thêm một lần theo UK(user_id,event_key), nằm trong transaction nghiệp vụ.
+
+sp_notifications_mark_read
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Chỉ người nhận; ghi read_at nếu chưa đọc. Không đổi bất cứ quyền hay trạng thái tiền nào.
+
+sp_notifications_archive
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Chỉ người nhận, ghi archived_at; không xóa hồ sơ nguồn.
+
+<a id="sec-094"></a>
+
+### tbl_reports
+
+sp_reports_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_reports_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_reports_create
+
+```sql
+(p_actor_id BIGINT, p_data JSON)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Có. Tạo phản ánh, kiểm tra FK cùng tour; không đòi completed; thêm event và thông báo.
+
+sp_reports_assign
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_admin_id BIGINT)
+```
+
+Quyền: Admin. Transaction: Có. Phân công xử lý cho Admin active, ghi event.
+
+sp_reports_resolve
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_decision VARCHAR(20), p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Kết luận có căn cứ; thao tác hủy/hoàn/khóa liên quan gọi đúng nghiệp vụ; không tự xử chỉ vì số báo cáo.
+
+sp_reports_reopen
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT, p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Xem xét lại khi có căn cứ/bằng chứng; không ghi đè kết luận cũ.
+
+<a id="sec-095"></a>
+
+### tbl_report_events
+
+sp_report_events_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_report_events_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_report_events_append
+
+```sql
+(p_actor_id BIGINT, p_report_id BIGINT, p_data JSON)
+```
+
+Quyền: Người liên quan theo quyền / nội bộ. Transaction: Kế thừa. Ghi diễn biến/bằng chứng bổ sung; không COMMIT riêng khi gọi từ reports.
+
+<a id="sec-096"></a>
+
+### tbl_no_show_cases
+
+sp_no_show_cases_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_no_show_cases_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_no_show_cases_open
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_evidence JSON)
+```
+
+Quyền: Host sở hữu. Transaction: Có. Host đúng sở hữu, booking confirmed, sau giờ tập trung; tạo hồ sơ và thông báo cùng giao dịch, response_due_at=reported_at+48 giờ.
+
+sp_no_show_cases_resolve
+
+```sql
+(p_actor_id BIGINT, p_case_id BIGINT, p_decision VARCHAR(24), p_reason TEXT)
+```
+
+Quyền: Admin / nghiệp vụ xác nhận nhận lỗi. Transaction: Có. Xác minh điều kiện: no_refund -> booking no_show; refund -> cancelled + nghĩa vụ hoàn; dismissed giữ quyền khách. Khách nhận lỗi được xử theo chính sách; tranh chấp/im lặng do Admin xét.
+
+sp_no_show_cases_escalate_due
+
+```sql
+(p_batch_size INT)
+```
+
+Quyền: ScheduledJobs nội bộ. Transaction: Có. Hết 48 giờ chưa phản hồi thì needs_review và thông báo Admin; không kết luận lỗi khách.
+
+sp_no_show_cases_reopen
+
+```sql
+(p_actor_id BIGINT, p_case_id BIGINT, p_report_id BIGINT, p_reason TEXT)
+```
+
+Quyền: Admin. Transaction: Có. Admin tiếp nhận căn cứ mới, chuyển needs_review và giữ lịch sử qua báo cáo/audit. Nếu kết luận cũ sai, chỉ Admin được chuyển no_show về confirmed hoặc cancelled theo quyết định có căn cứ.
+
+<a id="sec-097"></a>
+
+### tbl_no_show_responses
+
+sp_no_show_responses_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_no_show_responses_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_no_show_responses_append
+
+```sql
+(p_actor_id BIGINT, p_case_id BIGINT, p_data JSON)
+```
+
+Quyền: Tourist sở hữu. Transaction: Có. Chỉ chủ booking; lưu nhận lỗi/xin ngoại lệ/tranh chấp, minh chứng và cờ trễ. Phản hồi muộn vẫn được lưu.
+
+<a id="sec-098"></a>
+
+### tbl_policy_acceptances
+
+sp_policy_acceptances_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_policy_acceptances_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_policy_acceptances_append
+
+```sql
+(p_actor_id BIGINT, p_booking_id BIGINT, p_purpose VARCHAR(16), p_content_hash CHAR(64))
+```
+
+Quyền: Tourist sở hữu. Transaction: Có. Chỉ chủ booking, đúng phiên bản đã hiển thị; số tiền snapshot lấy từ server. Chặn tích sẵn/gửi thiếu xác nhận; dùng lại chỉ khi nội dung và số tiền không đổi.
+
+<a id="sec-099"></a>
+
+### tbl_audit_logs
+
+sp_audit_logs_get
+
+```sql
+(p_actor_id BIGINT, p_id BIGINT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Đọc một bản ghi theo quyền. Trả mã NOT_FOUND nếu không tồn tại/không được phép; không lộ hash hoặc dữ liệu riêng ra API công khai.
+
+sp_audit_logs_list
+
+```sql
+(p_actor_id BIGINT, p_filters JSON, p_page INT, p_page_size INT)
+```
+
+Quyền: Theo vai trò và sở hữu. Transaction: Không. Danh sách có phân trang, phạm vi quyền tại server; page_size 1..100. JSON chỉ chứa bộ lọc được cho phép; không chứa SQL.
+
+sp_audit_logs_append
+
+```sql
+(p_actor_id BIGINT, p_event_key VARCHAR(160), p_action VARCHAR(80), p_entity_type VARCHAR(50), p_entity_id BIGINT, p_details JSON)
+```
+
+Quyền: Nội bộ. Transaction: Kế thừa. Ghi một lần và lọc khóa/thông tin nhạy cảm; chỉ thủ tục nội bộ, không COMMIT riêng.
+
+<a id="sec-100"></a>
+
+## 8 4 Thuật toán nguyên tử quan trọng
+
+Ví dụ duyệt dùng READ COMMITTED để phép tổng hợp sức chứa đọc dữ liệu đã commit sau khi lấy khóa lịch [S17]. Luôn lấy thời gian kiểm tra sau khi đã chờ khóa, tránh dùng mốc cũ để duyệt quá hạn. Có thể chọn isolation khác khi triển khai nếu vẫn chứng minh được current read và khóa đúng trên mọi đường thay đổi chỗ.
+
+| Nghiệp vụ | Khóa và thay đổi cùng transaction |
+| --- | --- |
+| Tạo booking | Khóa dữ liệu tour/lịch đủ để đọc snapshot nhất quán, kiểm tra chính sách/khuyến mãi; tạo booking và acceptance; không giữ chỗ pending. |
+| Duyệt | Lịch -> booking; kiểm tra hạn/chỗ; cập nhật trạng thái, event, notification, audit. |
+| Áp dụng payment | Lịch -> booking -> payment; xác minh kết quả đã qua backend; áp dụng một lần hoặc needs_review, receipt và nghĩa vụ hoàn khi cần. |
+| Hủy lịch | Lịch -> các booking theo id -> các payment liên quan; hủy, refund request, event, notification; không gọi mạng. |
+| Hoàn tiền | Chuẩn bị attempt và commit; gọi mạng; transaction ngắn khác ghi kết quả. Unknown tra cứu lại cùng yêu cầu. |
+| Xác minh vắng mặt | Khóa booking/case; lưu phản hồi hoặc kết luận, chuyển booking/refund nếu phù hợp, thông báo và audit. |
+| Công bố vận hành | Khóa lịch để kiểm tra mốc/quyền; thêm update và notification chống lặp; giữ snapshot. |
+
+<a id="sec-101"></a>
+
