@@ -19,6 +19,8 @@ CREATE TABLE tbl_users (
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(32) NULL,
     avatar VARCHAR(255) NULL,
+    living_area VARCHAR(255) NULL,
+    bio TEXT NULL,
     status ENUM('active', 'inactive', 'locked') NOT NULL DEFAULT 'active',
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
@@ -40,7 +42,7 @@ CREATE TABLE tbl_categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 3. BẢNG tbl_services: Gói tour trải nghiệm do Local Host đăng ký
+-- 3. BẢNG tbl_services: Trải nghiệm bản địa do Local Host đăng ký (tọa độ Maps)
 -- ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS tbl_services;
 CREATE TABLE tbl_services (
@@ -55,6 +57,8 @@ CREATE TABLE tbl_services (
     min_price DECIMAL(14,0) NOT NULL DEFAULT 0,
     max_price DECIMAL(14,0) NOT NULL DEFAULT 0,
     location VARCHAR(255) NOT NULL,
+    latitude DECIMAL(10, 8) NULL,
+    longitude DECIMAL(11, 8) NULL,
     duration_days INT NOT NULL DEFAULT 1,
     banner_image VARCHAR(255) NULL,
     status ENUM('draft', 'pending', 'approved', 'rejected', 'archived') NOT NULL DEFAULT 'draft',
@@ -68,13 +72,16 @@ CREATE TABLE tbl_services (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 4. BẢNG tbl_service_images: Bộ sưu tập hình ảnh chi tiết của tour
+-- 4. BẢNG tbl_service_images: Các Trạm Trình Chiếu 3D (Three.js Stops)
 -- ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS tbl_service_images;
 CREATE TABLE tbl_service_images (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     service_id BIGINT UNSIGNED NOT NULL,
     image_url VARCHAR(255) NOT NULL,
+    caption VARCHAR(255) NOT NULL DEFAULT '',
+    story_text TEXT NULL,
+    video_url VARCHAR(255) NULL,
     sort_order INT NOT NULL DEFAULT 0,
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     CONSTRAINT fk_service_images_service FOREIGN KEY (service_id) REFERENCES tbl_services(id) ON DELETE CASCADE,
@@ -82,12 +89,12 @@ CREATE TABLE tbl_service_images (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
--- 5. BẢNG tbl_service_accommodations: Khối thông tin lưu trú kèm theo tour (1-1)
+-- 5. BẢNG tbl_service_accommodations: Lưu trú Homestay nhà dân bản địa (1-1)
 -- ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS tbl_service_accommodations;
 CREATE TABLE tbl_service_accommodations (
     service_id BIGINT UNSIGNED PRIMARY KEY,
-    hotel_name VARCHAR(200) NOT NULL,
+    homestay_name VARCHAR(200) NOT NULL,
     address VARCHAR(255) NOT NULL,
     room_type VARCHAR(100) NOT NULL,
     nights INT NOT NULL DEFAULT 1,

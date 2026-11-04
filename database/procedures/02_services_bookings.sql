@@ -6,7 +6,7 @@
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 6. sp_services_create: Local Host tạo gói tour mới (trạng thái draft / pending)
+-- 6. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Google Maps)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_services_create$$
 CREATE PROCEDURE sp_services_create(
@@ -20,6 +20,8 @@ CREATE PROCEDURE sp_services_create(
     IN p_min_price DECIMAL(14,0),
     IN p_max_price DECIMAL(14,0),
     IN p_location VARCHAR(255),
+    IN p_latitude DECIMAL(10, 8),
+    IN p_longitude DECIMAL(11, 8),
     IN p_duration_days INT,
     IN p_banner_image VARCHAR(255)
 )
@@ -34,12 +36,12 @@ BEGIN
     INSERT INTO tbl_services (
         host_id, category_id, title, slug, description,
         price_mode, base_price, min_price, max_price,
-        location, duration_days, banner_image, status,
+        location, latitude, longitude, duration_days, banner_image, status,
         created_at, updated_at
     ) VALUES (
         p_host_id, p_category_id, p_title, p_slug, p_description,
         p_price_mode, p_base_price, p_min_price, p_max_price,
-        p_location, p_duration_days, p_banner_image, 'pending',
+        p_location, p_latitude, p_longitude, p_duration_days, p_banner_image, 'pending',
         NOW(6), NOW(6)
     );
 
@@ -47,7 +49,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 7. sp_services_update: Local Host cập nhật thông tin gói tour
+-- 7. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_services_update$$
 CREATE PROCEDURE sp_services_update(
@@ -62,6 +64,8 @@ CREATE PROCEDURE sp_services_update(
     IN p_min_price DECIMAL(14,0),
     IN p_max_price DECIMAL(14,0),
     IN p_location VARCHAR(255),
+    IN p_latitude DECIMAL(10, 8),
+    IN p_longitude DECIMAL(11, 8),
     IN p_duration_days INT,
     IN p_banner_image VARCHAR(255)
 )
@@ -86,6 +90,8 @@ BEGIN
         min_price = p_min_price,
         max_price = p_max_price,
         location = p_location,
+        latitude = p_latitude,
+        longitude = p_longitude,
         duration_days = p_duration_days,
         banner_image = COALESCE(p_banner_image, banner_image),
         updated_at = NOW(6)
@@ -124,13 +130,13 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 9. sp_accommodations_save: Thiết lập hoặc cập nhật khối lưu trú cho tour
+-- 9. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_accommodations_save$$
 CREATE PROCEDURE sp_accommodations_save(
     IN p_host_id BIGINT UNSIGNED,
     IN p_service_id BIGINT UNSIGNED,
-    IN p_hotel_name VARCHAR(200),
+    IN p_homestay_name VARCHAR(200),
     IN p_address VARCHAR(255),
     IN p_room_type VARCHAR(100),
     IN p_nights INT,
@@ -147,10 +153,10 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN_NOT_OWNER';
     END IF;
 
-    INSERT INTO tbl_service_accommodations (service_id, hotel_name, address, room_type, nights, notes, created_at)
-    VALUES (p_service_id, p_hotel_name, p_address, p_room_type, p_nights, p_notes, NOW(6))
+    INSERT INTO tbl_service_accommodations (service_id, homestay_name, address, room_type, nights, notes, created_at)
+    VALUES (p_service_id, p_homestay_name, p_address, p_room_type, p_nights, p_notes, NOW(6))
     ON DUPLICATE KEY UPDATE
-        hotel_name = VALUES(hotel_name),
+        homestay_name = VALUES(homestay_name),
         address = VALUES(address),
         room_type = VALUES(room_type),
         nights = VALUES(nights),

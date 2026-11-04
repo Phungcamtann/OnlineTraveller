@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bản Thiết Kế Tinh Chỉnh Hoàn Chỉnh - OnlineTraveller</title>
+    <title>Bản Thiết Kế Tinh Chỉnh Hoàn Chỉnh v2.2 - OnlineTraveller</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -11,18 +11,19 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #0284c7;
-            --primary-dark: #0369a1;
+            --primary-dark: #0f2922;
             --secondary: #0f172a;
             --accent: #10b981;
+            --accent-warm: #d97706;
             --warning-bg: #fffbeb;
             --warning-border: #f59e0b;
             --surface: #ffffff;
-            --background: #f8fafc;
+            --background: #faf9f6;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
@@ -36,6 +37,10 @@
             scroll-behavior: smooth;
         }
 
+        .font-editorial {
+            font-family: 'Playfair Display', serif;
+        }
+
         code, pre {
             font-family: 'JetBrains Mono', monospace;
         }
@@ -43,16 +48,16 @@
         /* Sidebar Navigation */
         .sidebar-sticky {
             position: sticky;
-            top: 2rem;
-            max-height: calc(100vh - 4rem);
+            top: 1.5rem;
+            max-height: calc(100vh - 3rem);
             overflow-y: auto;
         }
 
         .nav-link {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             padding: 0.5rem 0.75rem;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 500;
             transition: all 0.15s ease-in-out;
         }
@@ -67,8 +72,8 @@
         .card-custom {
             background: var(--surface);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.04);
             margin-bottom: 2rem;
             overflow: hidden;
         }
@@ -84,7 +89,7 @@
         }
 
         .badge-pill-soft {
-            padding: 0.35rem 0.75rem;
+            padding: 0.35rem 0.8rem;
             border-radius: 50rem;
             font-size: 0.75rem;
             font-weight: 600;
@@ -99,7 +104,7 @@
             border-left: 4px solid var(--primary);
             background: #f0f9ff;
             padding: 1.25rem;
-            border-radius: 0 8px 8px 0;
+            border-radius: 0 10px 10px 0;
             margin-bottom: 1.5rem;
         }
 
@@ -108,18 +113,23 @@
             background: var(--warning-bg);
         }
 
+        .callout-editorial {
+            border-left-color: var(--primary-dark);
+            background: #f1f5f3;
+        }
+
         .table-custom th {
             background-color: #f1f5f9;
             color: var(--text-main);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.025em;
             border-bottom: 2px solid var(--border-color);
         }
 
         .table-custom td {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             vertical-align: middle;
         }
 
@@ -127,18 +137,27 @@
             background: #0f172a;
             color: #f8fafc;
             padding: 1.25rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            border-radius: 10px;
+            font-size: 0.84rem;
             overflow-x: auto;
         }
 
         .hero-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0f2922 0%, #0f172a 100%);
             color: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 2.5rem 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+            box-shadow: 0 12px 28px -6px rgba(15, 41, 34, 0.25);
+        }
+
+        .color-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid rgba(0,0,0,0.1);
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -153,22 +172,23 @@
                     <i class="bi bi-compass text-primary fs-4"></i>
                     <div>
                         <h6 class="mb-0 fw-bold">OnlineTraveller</h6>
-                        <small class="text-muted">Kiến Trúc Tinh Chỉnh v2.0</small>
+                        <small class="text-muted">Kiến Trúc Tinh Chỉnh v2.2</small>
                     </div>
                 </div>
                 <nav class="nav flex-column gap-1">
-                    <a class="nav-link" href="#tong-quan"><i class="bi bi-flag me-2"></i>1. Tổng quan & So sánh</a>
-                    <a class="nav-link" href="#kien-truc-mvc"><i class="bi bi-diagram-3 me-2"></i>2. Kiến trúc OOP + MVC</a>
-                    <a class="nav-link" href="#co-so-du-lieu"><i class="bi bi-database me-2"></i>3. CSDL 15 Bảng chuẩn</a>
-                    <a class="nav-link" href="#stored-procedures"><i class="bi bi-cpu me-2"></i>4. Danh mục 22 Procedures</a>
-                    <a class="nav-link" href="#webservices"><i class="bi bi-cloud-arrow-down me-2"></i>5. Webservices (XML & JSON)</a>
-                    <a class="nav-link" href="#admin-scope"><i class="bi bi-shield-lock me-2"></i>6. Phân hệ Admin cơ bản</a>
-                    <a class="nav-link" href="#free-hosting"><i class="bi bi-server me-2"></i>7. Chiến lược Deploy Free Host</a>
-                    <a class="nav-link" href="#phan-cong"><i class="bi bi-people me-2"></i>8. Phân công 4 Thành viên</a>
+                    <a class="nav-link" href="#tong-quan"><i class="bi bi-flag me-2"></i>1. Tổng quan & Định vị đề tài</a>
+                    <a class="nav-link" href="#thiet-ke-giao-dien"><i class="bi bi-palette me-2"></i>2. Thiết kế UI/UX & Three.js</a>
+                    <a class="nav-link" href="#kien-truc-mvc"><i class="bi bi-diagram-3 me-2"></i>3. Kiến trúc OOP + MVC</a>
+                    <a class="nav-link" href="#co-so-du-lieu"><i class="bi bi-database me-2"></i>4. CSDL 15 Bảng chuẩn</a>
+                    <a class="nav-link" href="#stored-procedures"><i class="bi bi-cpu me-2"></i>5. Danh mục 22 Procedures</a>
+                    <a class="nav-link" href="#webservices"><i class="bi bi-cloud-arrow-down me-2"></i>6. Webservices & Google Maps</a>
+                    <a class="nav-link" href="#admin-scope"><i class="bi bi-shield-lock me-2"></i>7. Phân hệ Host & Admin</a>
+                    <a class="nav-link" href="#free-hosting"><i class="bi bi-server me-2"></i>8. Chiến lược Deploy Free Host</a>
+                    <a class="nav-link" href="#phan-cong"><i class="bi bi-people me-2"></i>9. Phân công 4 Thành viên</a>
                 </nav>
                 <div class="mt-4 pt-3 border-top text-center">
                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 w-100">
-                        <i class="bi bi-check-circle-fill me-1"></i> Bám sát 100% Yêu Cầu Đồ Án
+                        <i class="bi bi-check-circle-fill me-1"></i> Chuẩn 100% Đề Tài & Kỹ Thuật
                     </span>
                 </div>
             </div>
@@ -181,30 +201,34 @@
             <div class="hero-banner">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <div>
-                        <span class="badge bg-primary px-3 py-2 mb-2 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Đồ án Web Chuyên Sâu</span>
-                        <h2 class="fw-bold mb-1">OnlineTraveller: Ứng dụng kết nối dân bản địa và khách du lịch từ xa</h2>
-                        <p class="text-slate-300 mb-0 opacity-75">Bản thiết kế kỹ thuật tinh chỉnh: Tối ưu quy mô, bảo toàn điểm số tối đa, sẵn sàng triển khai thực tế.</p>
+                        <span class="badge bg-warning text-dark px-3 py-2 mb-2 text-uppercase fw-bold" style="letter-spacing: 0.05em;">Đồ án Web Chuyên Sâu • Phiên bản Chốt v2.2</span>
+                        <h2 class="fw-bold mb-2 font-editorial">OnlineTraveller: Kết nối dân bản địa và khách du lịch từ xa</h2>
+                        <p class="text-light mb-0 opacity-75">Trải nghiệm thị giác từ xa bằng Three.js Z-Scroll • Định vị Google Maps thực tế • Đặt lịch trải nghiệm & lưu trú Homestay cùng người bản xứ.</p>
                     </div>
                     <div class="text-lg-end">
-                        <span class="badge badge-soft-success px-3 py-2 fs-6 mb-1 d-block"><i class="bi bi-check2-all me-1"></i> Đúng 100% Tiêu chí Đồ án</span>
-                        <small class="text-light opacity-50">Ngày chốt: Tháng 11/2026</small>
+                        <span class="badge badge-soft-success px-3 py-2 fs-6 mb-1 d-block"><i class="bi bi-check2-all me-1"></i> Khớp 100% Tên Đề Tài & Tiêu Chí</span>
+                        <small class="text-light opacity-50">Cập nhật: Tháng 11/2026</small>
                     </div>
                 </div>
             </div>
 
-            <!-- SECTION 1: TỔNG QUAN & SO SÁNH -->
+            <!-- SECTION 1: TỔNG QUAN & ĐỊNH VỊ ĐỀ TÀI -->
             <section id="tong-quan" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-flag-fill text-primary"></i>
-                    <h5 class="mb-0">1. Đánh Giá Khách Quan & Định Hướng Tinh Chỉnh</h5>
+                    <h5 class="mb-0">1. Định Vị Bản Chất Đề Tài "Online Traveller" & Bảng Đối Chiếu Tiêu Chí</h5>
                 </div>
                 <div class="card-body p-4">
-                    <div class="callout-box">
-                        <h6 class="fw-bold text-primary mb-1"><i class="bi bi-lightbulb-fill me-2"></i>Tại sao cần tinh chỉnh lại bản thiết kế gốc?</h6>
-                        <p class="mb-0 text-muted">Bản thiết kế ban đầu trong README mang tầm vóc một hệ thống thương mại cấp doanh nghiệp (25 bảng, 117 Stored Procedures, các quy trình tranh chấp đa cấp). Điều này <strong>vượt quá 400% yêu cầu đồ án</strong>, gây áp lực bảo trì CSDL cực lớn và gây rủi ro thất bại khi triển khai lên các dịch vụ <strong>Free Hosting</strong> (do hosting miễn phí chặn quyền tạo procedure phức tạp hoặc không cho chạy CLI Cronjob). Bản tinh chỉnh này đưa đồ án về đúng điểm rơi hoàn hảo: <em>Vừa đủ vượt chuẩn để lấy điểm tối đa, vừa tinh gọn để làm chủ 100% mã nguồn.</em></p>
+                    <div class="callout-box callout-editorial">
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-compass-fill text-success me-2"></i>Giải mã trọn vẹn tinh thần: "Kết nối dân bản địa và khách du lịch từ xa"</h6>
+                        <p class="mb-2 text-muted small">Để dự án hoàn toàn khác biệt với một trang bán tour công nghiệp truyền thống và trả lời xuất sắc mọi câu hỏi phản biện từ giảng viên, <strong>OnlineTraveller</strong> định hình luồng giá trị cốt lõi gồm 2 giai đoạn liền mạch:</p>
+                        <ol class="small text-muted mb-0 ps-3">
+                            <li><strong>Giai đoạn 1 – Du lịch & Kết nối từ xa (Online Traveller):</strong> Du khách ngồi tại nhà vẫn có thể khám phá điểm đến qua <strong>Không gian trình chiếu 3D có chiều sâu (Three.js Z-Axis Camera Scroll)</strong> đi qua từng trạm ảnh thực tế, đọc câu chuyện văn hóa bản địa, xem video thực tế, kiểm tra vị trí trên <strong>Google Maps API</strong>, xem dự báo thời tiết <strong>OpenWeather</strong> và <strong>hỏi đáp trực tiếp từ xa</strong> với chính người dân bản địa (<code>tbl_discussions</code>).</li>
+                            <li><strong>Giai đoạn 2 – Đặt lịch trải nghiệm thực tế cùng Dân bản địa (Local Host Connection):</strong> Khi đã ưng ý sau khi xem từ xa, du khách đặt lịch để người dân bản địa trực tiếp dẫn đi trải nghiệm văn hóa, ẩm thực, làng nghề và nghỉ ngơi tại <strong>Homestay nhà dân (<code>homestay_name</code>)</strong>, thanh toán giữ chỗ an toàn qua <strong>MoMo Sandbox</strong>.</li>
+                        </ol>
                     </div>
 
-                    <h6 class="fw-bold mb-3">Bảng đối chiếu Đồ án Yêu Cầu vs Bản Thiết Kế Tinh Chỉnh</h6>
+                    <h6 class="fw-bold mb-3">Bảng đối chiếu Yêu Cầu Giảng Viên vs Bản Thiết Kế Tinh Chỉnh v2.2</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-custom">
                             <thead>
@@ -212,7 +236,7 @@
                                     <th>Tiêu chí</th>
                                     <th>Yêu cầu từ Giảng viên</th>
                                     <th>Bản thiết kế ban đầu</th>
-                                    <th>Bản tinh chỉnh (Đề xuất chốt)</th>
+                                    <th>Bản tinh chỉnh v2.2 (Chốt triển khai)</th>
                                     <th>Đánh giá</th>
                                 </tr>
                             </thead>
@@ -220,50 +244,50 @@
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-layout-text-window me-1"></i> Giao diện UI</td>
                                     <td>Dùng <strong>Bootstrap</strong></td>
-                                    <td>Bootstrap 5 + Fetch API</td>
-                                    <td>Bootstrap 5 + Fetch API (AJAX)</td>
-                                    <td><span class="badge badge-soft-success">Đạt tối đa</span></td>
+                                    <td>Bootstrap 5 cơ bản</td>
+                                    <td><strong>Bootstrap 5 + Editorial Travel UI + Three.js 3D Scroll</strong> (Responsive đa màn hình)</td>
+                                    <td><span class="badge badge-soft-success">Ấn tượng thị giác mạnh</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-code-slash me-1"></i> Kiến trúc Backend</td>
                                     <td>Hướng đối tượng (OOP), ưu tiên <strong>OOP + MVC</strong></td>
                                     <td>Custom MVC + Service + Repository</td>
-                                    <td><strong>Custom OOP + MVC + Services</strong></td>
+                                    <td><strong>Custom OOP + MVC + Services</strong> (Tinh gọn, dễ giải thích code)</td>
                                     <td><span class="badge badge-soft-success">Điểm cộng tối đa</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-cloud-arrow-down me-1"></i> Webservice / AJAX</td>
                                     <td>Dùng service bên thứ 3, ưu tiên <strong>XML / JSON</strong></td>
-                                    <td>OpenWeather (JSON) + RSS (XML) + MoMo (JSON)</td>
-                                    <td><strong>OpenWeather (JSON) + RSS (XML) + MoMo Sandbox (JSON)</strong></td>
-                                    <td><span class="badge badge-soft-success">Vũ khí ghi điểm</span></td>
+                                    <td>OpenWeather + RSS + MoMo</td>
+                                    <td><strong>4 Services: Google Maps API (JSON) + OpenWeather (JSON) + RSS (XML) + MoMo (JSON)</strong></td>
+                                    <td><span class="badge badge-soft-success">Vũ khí ghi điểm tuyệt đối</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-table me-1"></i> Số bảng CSDL</td>
                                     <td>Tối thiểu <strong>12 bảng</strong></td>
-                                    <td>25 bảng (rất cồng kềnh)</td>
-                                    <td><strong>15 bảng chuẩn hóa</strong></td>
+                                    <td>25 bảng (quá cồng kềnh)</td>
+                                    <td><strong>15 bảng chuẩn hóa</strong> (hỗ trợ Trạm 3D, Tọa độ Map, Homestay bản địa)</td>
                                     <td><span class="badge badge-soft-primary">Vượt chuẩn (15 &ge; 12)</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-cpu me-1"></i> Stored Procedures</td>
                                     <td>Tối thiểu <strong>20 Procedures</strong></td>
                                     <td>117 Procedures (quá tải)</td>
-                                    <td><strong>22 Procedures nghiệp vụ lõi</strong></td>
+                                    <td><strong>22 Procedures nghiệp vụ lõi</strong> (phân chia đều cho 4 thành viên)</td>
                                     <td><span class="badge badge-soft-success">Chuẩn xác (22 &ge; 20)</span></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold text-nowrap"><i class="bi bi-shield-lock me-1"></i> Quản trị Admin</td>
-                                    <td><strong>Mức cơ bản</strong> (Danh mục, tour, bài viết...)</td>
-                                    <td>Xử lý No-show 48h, hoàn tiền batch, audit log...</td>
-                                    <td><strong>Cơ bản</strong>: Quản lý danh mục, tour, blog, xem booking</td>
-                                    <td><span class="badge badge-soft-success">Đúng trọng tâm</span></td>
+                                    <td class="fw-bold text-nowrap"><i class="bi bi-shield-lock me-1"></i> Quản trị Admin & Host</td>
+                                    <td><strong>Mức cơ bản</strong> (Danh mục, sản phẩm, bài viết...)</td>
+                                    <td>No-show 48h, batch refund, audit log...</td>
+                                    <td><strong>Thực dụng, đầy đủ ô nhập</strong>: Host đăng trạm 3D + tọa độ; Admin duyệt bài & CRUD cơ bản</td>
+                                    <td><span class="badge badge-soft-success">Tiết kiệm 70% công sức</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><i class="bi bi-server me-1"></i> Triển khai Hosting</td>
                                     <td>Nên đăng ký <strong>Free Hosting</strong></td>
                                     <td>Đòi hỏi CLI Worker chạy nền</td>
-                                    <td><strong>Lazy Expiration</strong> (chạy mượt trên shared host)</td>
+                                    <td><strong>Lazy Expiration</strong> (chạy mượt trên mọi shared host không cần SSH/Cron)</td>
                                     <td><span class="badge badge-soft-success">Deploy an toàn 100%</span></td>
                                 </tr>
                             </tbody>
@@ -272,26 +296,127 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: KIẾN TRÚC OOP + MVC -->
+            <!-- SECTION 2: THIẾT KẾ GIAO DIỆN UI/UX & THREE.JS -->
+            <section id="thiet-ke-giao-dien" class="card-custom">
+                <div class="card-header-custom">
+                    <i class="bi bi-palette-fill text-primary"></i>
+                    <h5 class="mb-0">2. Thiết Kế Giao Diện (UI/UX), Trình Chiếu Three.js & Đa Màn Hình (Responsive)</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted">Chiến lược phân bổ nguồn lực giao diện: <strong>Tập trung 80% độ trau chuốt thẩm mỹ cho Giao diện Du khách (Tourist Storefront)</strong> theo phong cách tạp chí du lịch quốc tế (<em>Roamora, Aeline, Mr L Production</em>); trong khi <strong>Giao diện Dân bản địa (Host) và Quản trị (Admin) giữ ở mức cơ bản, sạch sẽ, đầy đủ ô nhập liệu</strong> bằng Bootstrap 5 thuần.</p>
+
+                    <!-- 2.1 Style Guide -->
+                    <h6 class="fw-bold text-primary mt-3 mb-3"><i class="bi bi-brush me-2"></i>2.1. Hệ thống Style Chủ Đạo (Design System)</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <div class="fw-bold mb-2">Bộ Font Chữ Kết Hợp (Typography Pairing)</div>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Tiêu đề lớn (Hero / Section Titles):</strong> <code>'Playfair Display', serif</code> — tạo vẻ đẹp sang trọng, giàu cảm xúc khám phá. Điểm nhấn 1–2 từ khóa bằng chữ nghiêng hoặc màu vàng đất.</li>
+                                    <li><strong>Nội dung & Điều hướng (Body / UI / Form):</strong> <code>'Plus Jakarta Sans', sans-serif</code> — hiện đại, rõ nét trên mọi kích thước màn hình.</li>
+                                    <li><strong>Bo góc & Nút bấm:</strong> Card trải nghiệm bo góc lớn (<code>border-radius: 20px</code>); Nút bấm & Thanh menu bo tròn dạng viên thuốc (<code>rounded-pill</code>) kèm icon mũi tên <code>&rarr;</code>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <div class="fw-bold mb-2">Bảng Màu "Thiên Nhiên & Bản Địa" (Color Palette)</div>
+                                <div class="d-flex flex-column gap-2 small">
+                                    <div><span class="color-swatch me-2" style="background: #FAF9F6;"></span> <code>#FAF9F6</code> (Warm Alabaster) — Nền trang chính êm dịu, không chói mắt.</div>
+                                    <div><span class="color-swatch me-2" style="background: #0F2922;"></span> <code>#0F2922</code> (Deep Forest) — Nút CTA chính, khối nhấn đậm chất thiên nhiên.</div>
+                                    <div><span class="color-swatch me-2" style="background: #10B981;"></span> <code>#10B981</code> (Local Emerald) — Huy hiệu "Dân bản địa", trạng thái hoạt động.</div>
+                                    <div><span class="color-swatch me-2" style="background: #D97706;"></span> <code>#D97706</code> (Sunset Amber) — Điểm đánh giá sao (<code>★ 4.9</code>) & từ khóa nổi bật.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.2 Cấu trúc Trang chủ & Trang chi tiết của Khách -->
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-window-fullscreen me-2"></i>2.2. Bố cục Trang Chủ & Luồng Trải Nghiệm Của Du Khách (Tourist Views)</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <span class="badge bg-dark mb-2">1. Top Navigation Bar & Hero Banner Điểm Hot</span>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Top-Nav-Bar nổi (Floating Glass Navbar):</strong> Hiển thị đầy đủ các mục đúng trọng tâm dự án: <em>Trang chủ | Khám phá bản địa | Trải nghiệm 3D từ xa | Bản tin Du lịch (RSS) | Trở thành Host bản địa</em>.</li>
+                                    <li><strong>Hero Banner trình chiếu Điểm Hot đánh giá cao:</strong> Lấy Top trải nghiệm có <code>rating</code> cao nhất làm слайд nền toàn màn hình. Hiển thị tên trải nghiệm, tên người dân bản địa, điểm sao và nút bấm nổi bật <strong>"Khám phá &rarr;"</strong> đưa khách đi thẳng vào trang chi tiết và tự động cuộn tới <strong>Không gian 3D xem trạm của tour</strong>.</li>
+                                    <li><strong>Thanh Tìm Kiếm Nổi (Floating Search Bar):</strong> Đặt vắt ngang mép dưới Banner (chọn Khu vực bản địa, Danh mục, Mức giá).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <span class="badge bg-success mb-2">2. Không Gian Cuộn Trình Chiếu 3D (Three.js Z-Scroll)</span>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Thiết kế kỹ thuật gọn nhẹ, có chiều sâu:</strong> Sử dụng <code>THREE.PerspectiveCamera</code> + sương mù nhẹ (<code>THREE.FogExp2</code>), không dùng hạt sáng rườm rà hay ảnh 360 cầu kỳ.</li>
+                                    <li><strong>Cơ chế hoạt động:</strong> Các bức ảnh thực tế của từng trạm (<code>tbl_service_images</code>) được đặt trên các tấm phẳng 3D dọc theo trục chiều sâu <code>Z</code> theo thứ tự <code>sort_order</code>. Khi người dùng lăn chuột (hoặc bấm <em>Trạm tiếp / Quay lại</em>), Camera bay xuyên không gian (Fly-through) tiến thẳng tới từng trạm.</li>
+                                    <li><strong>Overlay Câu chuyện & Video:</strong> Tại mỗi điểm dừng, một khung thông tin Bootstrap 5 nổi lên hiển thị <strong>Tên trạm (<code>caption</code>)</strong>, <strong>Câu chuyện của dân bản địa (<code>story_text</code>)</strong> và khung phát <strong>Video thực tế (<code>video_url</code>)</strong> nếu có.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.3 Quy tắc Responsive Đa màn hình -->
+                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-phone-landscape me-2"></i>2.3. Quy Tắc Đảm Bảo Hoạt Động Tốt Trên Nhiều Kích Thước Màn Hình (Responsive)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Thành phần UI</th>
+                                    <th>Desktop / Laptop lớn (&ge; 992px)</th>
+                                    <th>Tablet (768px – 991px)</th>
+                                    <th>Mobile Điện thoại (&lt; 768px)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">Top Navigation Bar</td>
+                                    <td>Menu ngang dạng viên thuốc ở giữa + Cụm nút tài khoản bên phải</td>
+                                    <td colspan="2">Thu gọn vào nút <strong>Hamburger Menu (Bootstrap 5 Offcanvas)</strong> trượt mượt từ cạnh phải</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Hero Banner & Thanh Tìm Kiếm</td>
+                                    <td>Chữ tiêu đề lớn (<code>3.8rem</code>), thanh Search nằm ngang 4 cột</td>
+                                    <td>Chữ tự co bằng <code>clamp()</code>, thanh Search chia 2x2</td>
+                                    <td>Banner cao <code>80vh</code>, nút "Khám phá" rộng 100%, thanh Search xếp dọc 1 cột</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Danh sách Card Điểm Đến</td>
+                                    <td>Hiển thị <strong>4 Card / hàng</strong> (<code>col-lg-3</code>), ảnh dọc tỷ lệ 3:4</td>
+                                    <td>Hiển thị <strong>2 Card / hàng</strong> (<code>col-md-6</code>)</td>
+                                    <td>Hiển thị <strong>1 Card / hàng</strong> (<code>col-12</code>) rõ ràng, dễ chạm</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Khung Trình Chiếu 3D Three.js</td>
+                                    <td>Khung <code>75vh</code>, cuộn chuột để bay qua các trạm, thẻ Story nổi góc phải</td>
+                                    <td colspan="2">Tự động cập nhật <code>renderer.setSize()</code> khi xoay màn hình; hỗ trợ nút bấm <strong>"◀ Trạm trước | Trạm tiếp ▶"</strong> cỡ lớn cho màn hình cảm ứng; thẻ Story neo gọn dưới đáy khung</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: KIẾN TRÚC OOP + MVC -->
             <section id="kien-truc-mvc" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-diagram-3-fill text-primary"></i>
-                    <h5 class="mb-0">2. Kiến Trúc Backend OOP + MVC Tinh Gọn</h5>
+                    <h5 class="mb-0">3. Kiến Trúc Backend OOP + MVC Tinh Gọn</h5>
                 </div>
                 <div class="card-body p-4">
                     <p class="text-muted">Hệ thống áp dụng mô hình <strong>Front Controller + Custom MVC</strong> viết bằng PHP 8 thuần theo chuẩn OOP, không dùng framework nặng nề để giảng viên thấy rõ năng lực lập trình hướng đối tượng của nhóm:</p>
                     
-                    <div class="row g-4 my-2">
+                    <div class="row g-4 my-1">
                         <div class="col-md-4">
                             <div class="p-3 border rounded bg-light h-100">
                                 <h6 class="fw-bold text-primary"><i class="bi bi-window-sidebar me-2"></i>Controller Layer</h6>
-                                <p class="small text-muted mb-0">Tiếp nhận Request từ Front Controller (`Router`), xác thực quyền (`Middleware`), gọi Service xử lý và điều phối trả về HTML View hoặc JSON Response (cho AJAX).</p>
+                                <p class="small text-muted mb-0">Tiếp nhận Request từ Front Controller (<code>Router</code>), kiểm tra phân quyền (<code>Middleware</code>), gọi Service xử lý và trả về HTML View hoặc JSON Response (cho AJAX Three.js, Map, MoMo).</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="p-3 border rounded bg-light h-100">
                                 <h6 class="fw-bold text-primary"><i class="bi bi-gear-wide-connected me-2"></i>Service Layer</h6>
-                                <p class="small text-muted mb-0">Chứa toàn bộ logic nghiệp vụ (Tính giá tour, tích hợp MoMo Sandbox, đọc OpenWeather JSON, phân tích XML RSS). Đảm bảo Controller không bị phình to (Fat Controller).</p>
+                                <p class="small text-muted mb-0">Chứa toàn bộ logic nghiệp vụ (Quản lý trạm trải nghiệm 3D, tính giá tour, gọi Google Maps Geocoding, đọc OpenWeather JSON, phân tích XML RSS, tạo đơn MoMo).</p>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -308,37 +433,37 @@
 │   ├── controllers/      # Auth, Service, Schedule, Booking, Payment, Review, Post, Admin, Home
 │   ├── services/         # AuthService, TourService, BookingService, PricingService, PaymentService...
 │   ├── models/           # User, Service, Schedule, Booking, Payment, Category, Review, Post...
-│   ├── integrations/     # MoMoClient (JSON), OpenWeatherClient (JSON), RssReader (XML)
+│   ├── integrations/     # GoogleMapsClient (JSON), OpenWeatherClient (JSON), RssReader (XML), MoMoClient (JSON)
 │   ├── middleware/       # AuthMiddleware, HostMiddleware, AdminMiddleware, CsrfMiddleware
 │   ├── helpers/          # FormatHelper (tiền tệ VND, ngày tháng), SecurityHelper
-│   └── views/            # Bootstrap 5 layouts, partials và các trang theo phân hệ (auth, tours, host, admin)
+│   └── views/            # Giao diện Tourist (Editorial UI + Three.js), Host & Admin (Bootstrap 5 cơ bản)
 ├── bootstrap/            # app.php (Nạp cấu hình, kích hoạt autoloader, session)
 ├── core/                 # Router, BaseController, BaseModel, Database (PDO Singleton), Request, Response
-├── config/               # app.php, database.php, payment.php, integrations.php, local.php
+├── config/               # app.php, database.php, payment.php, integrations.php, local.php (chứa API Keys)
 ├── database/             # schema.sql, seed_data.sql và 4 file Stored Procedures (01 -> 04)
-├── public/               # index.php (Front Controller duy nhất), assets/ (css, js), uploads/
+├── public/               # index.php, assets/ (css/custom-theme.css, js/virtual-tour-3d.js, js/map-init.js), uploads/
 ├── routes/               # web.php (HTML routes), api.php (AJAX JSON routes), callbacks.php (MoMo IPN)
 └── scripts/              # expire_bookings.php (CLI test)</code></pre>
                 </div>
             </section>
 
-            <!-- SECTION 3: THIẾT KẾ CƠ SỞ DỮ LIỆU (15 BẢNG) -->
+            <!-- SECTION 4: THIẾT KẾ CƠ SỞ DỮ LIỆU (15 BẢNG) -->
             <section id="co-so-du-lieu" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-database-fill text-primary"></i>
-                    <h5 class="mb-0">3. Thiết Kế Cơ Sở Dữ Liệu Tinh Chỉnh (15 Bảng Chuẩn Hóa)</h5>
+                    <h5 class="mb-0">4. Thiết Kế Cơ Sở Dữ Liệu Tinh Chỉnh (15 Bảng Chuẩn Hóa)</h5>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-muted">Rút gọn từ 25 bảng ban đầu về <strong>15 bảng</strong> bằng cách loại bỏ các bảng log trung gian vụn vặt và gộp các trường trạng thái vào bảng chính. Đạt chuẩn <strong>&ge; 12 bảng</strong> của đề bài, hỗ trợ khóa ngoại chặt chẽ (InnoDB, utf8mb4).</p>
+                    <p class="text-muted">Giữ nguyên quy mô <strong>15 bảng</strong> (đạt chuẩn <strong>&ge; 12 bảng</strong> của đề bài), đồng thời tinh chỉnh các cột trong bảng <code>tbl_users</code>, <code>tbl_services</code>, <code>tbl_service_images</code> và <code>tbl_service_accommodations</code> để phục vụ hoàn hảo cho <strong>Trình chiếu 3D Three.js</strong>, <strong>Định vị Google Maps</strong> và chất <strong>Dân bản địa (Local Host)</strong>:</p>
 
                     <div class="table-responsive">
                         <table class="table table-bordered table-custom">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">STT</th>
+                                    <th style="width: 45px;">STT</th>
                                     <th>Tên Bảng</th>
-                                    <th>Mục đích nghiệp vụ</th>
-                                    <th>Các trường cốt lõi</th>
+                                    <th>Mục đích nghiệp vụ (Chuẩn đề tài)</th>
+                                    <th>Các trường cốt lõi (Đã nâng cấp v2.2)</th>
                                     <th>Khóa ngoại (FK)</th>
                                 </tr>
                             </thead>
@@ -346,63 +471,63 @@
                                 <tr>
                                     <td>1</td>
                                     <td class="fw-bold">tbl_users</td>
-                                    <td>Tài khoản người dùng 3 vai trò</td>
-                                    <td><code>id, role (tourist|host|admin), name, email, password_hash, phone, status, created_at</code></td>
+                                    <td>Tài khoản Du khách, Dân bản địa (Host) & Admin</td>
+                                    <td><code>id, role (tourist|host|admin), name, email, password_hash, phone, living_area, bio, status, created_at</code></td>
                                     <td>-</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
                                     <td class="fw-bold">tbl_categories</td>
-                                    <td>Danh mục phân loại tour</td>
+                                    <td>Danh mục trải nghiệm văn hóa/bản địa</td>
                                     <td><code>id, name, slug, description, icon, is_active</code></td>
                                     <td>-</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
                                     <td class="fw-bold">tbl_services</td>
-                                    <td>Gói tour du lịch trải nghiệm</td>
-                                    <td><code>id, host_id, category_id, title, price_mode, base_price, location, duration_days, banner_image, status</code></td>
+                                    <td>Trải nghiệm bản địa (hỗ trợ xem 3D & Google Maps)</td>
+                                    <td><code>id, host_id, category_id, title, price_mode, base_price, location, latitude, longitude, duration_days, banner_image, status</code></td>
                                     <td><code>host_id &rarr; tbl_users, category_id &rarr; tbl_categories</code></td>
                                 </tr>
-                                <tr>
+                                <tr class="table-info">
                                     <td>4</td>
                                     <td class="fw-bold">tbl_service_images</td>
-                                    <td>Bộ sưu tập ảnh chi tiết tour</td>
-                                    <td><code>id, service_id, image_url, sort_order</code></td>
+                                    <td><strong>Các Trạm Trình Chiếu 3D (Three.js Stops)</strong></td>
+                                    <td><code>id, service_id, sort_order, image_url, caption, story_text, video_url</code></td>
                                     <td><code>service_id &rarr; tbl_services</code></td>
                                 </tr>
-                                <tr>
+                                <tr class="table-info">
                                     <td>5</td>
                                     <td class="fw-bold">tbl_service_accommodations</td>
-                                    <td>Khối lưu trú đính kèm tour (1-1)</td>
-                                    <td><code>service_id (PK), hotel_name, address, room_type, nights, notes</code></td>
+                                    <td><strong>Lưu trú Homestay nhà dân bản địa (1-1)</strong></td>
+                                    <td><code>service_id (PK), homestay_name, address, room_type, nights, notes</code></td>
                                     <td><code>service_id &rarr; tbl_services</code></td>
                                 </tr>
                                 <tr>
                                     <td>6</td>
                                     <td class="fw-bold">tbl_service_schedules</td>
-                                    <td>Lịch khởi hành cụ thể của tour</td>
+                                    <td>Lịch đón khách của người dân bản địa</td>
                                     <td><code>id, service_id, starts_at, ends_at, booking_closes_at, capacity, booked_seats, meeting_point, status</code></td>
                                     <td><code>service_id &rarr; tbl_services</code></td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
                                     <td class="fw-bold">tbl_promotions</td>
-                                    <td>Mã khuyến mãi giảm giá tour</td>
+                                    <td>Mã khuyến mãi kích cầu du lịch</td>
                                     <td><code>id, code, title, discount_percent, starts_at, ends_at, is_active</code></td>
                                     <td>-</td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
                                     <td class="fw-bold">tbl_promotion_services</td>
-                                    <td>Gắn mã khuyến mãi vào tour (n-n)</td>
+                                    <td>Gắn mã khuyến mãi vào trải nghiệm (n-n)</td>
                                     <td><code>promotion_id, service_id (Composite PK)</code></td>
                                     <td><code>promotion_id &rarr; tbl_promotions, service_id &rarr; tbl_services</code></td>
                                 </tr>
                                 <tr>
                                     <td>9</td>
                                     <td class="fw-bold">tbl_bookings</td>
-                                    <td>Hồ sơ đặt chỗ của du khách</td>
+                                    <td>Hồ sơ đặt lịch trải nghiệm thực tế của du khách</td>
                                     <td><code>id, booking_code, tourist_id, schedule_id, participants_count, total_price, deposit_amount, status, payment_expires_at</code></td>
                                     <td><code>tourist_id &rarr; tbl_users, schedule_id &rarr; tbl_service_schedules</code></td>
                                 </tr>
@@ -416,7 +541,7 @@
                                 <tr>
                                     <td>11</td>
                                     <td class="fw-bold">tbl_receipts</td>
-                                    <td>Biên nhận thanh toán SANDBOX</td>
+                                    <td>Biên nhận thanh toán điện tử</td>
                                     <td><code>id, receipt_code, payment_id, booking_id, issued_at, total_amount</code></td>
                                     <td><code>payment_id &rarr; tbl_payments, booking_id &rarr; tbl_bookings</code></td>
                                 </tr>
@@ -430,21 +555,21 @@
                                 <tr>
                                     <td>13</td>
                                     <td class="fw-bold">tbl_reviews</td>
-                                    <td>Đánh giá & sao sau chuyến đi</td>
+                                    <td>Đánh giá sao sau chuyến đi (lọc điểm Hot lên Banner)</td>
                                     <td><code>id, booking_id, tourist_id, service_id, rating (1..5), comment, created_at</code></td>
                                     <td><code>booking_id &rarr; tbl_bookings, tourist_id &rarr; tbl_users</code></td>
                                 </tr>
-                                <tr>
+                                <tr class="table-info">
                                     <td>14</td>
                                     <td class="fw-bold">tbl_discussions</td>
-                                    <td>Thảo luận & hỏi đáp 1 cấp dưới tour</td>
-                                    <td><code>id, service_id, user_id, parent_id (NULL = gốc), message, created_at</code></td>
+                                    <td><strong>Kênh kết nối & Hỏi đáp trực tiếp từ xa (Du khách &harr; Dân bản địa)</strong></td>
+                                    <td><code>id, service_id, user_id, parent_id (NULL = câu hỏi gốc), message, created_at</code></td>
                                     <td><code>service_id &rarr; tbl_services, user_id &rarr; tbl_users</code></td>
                                 </tr>
                                 <tr>
                                     <td>15</td>
                                     <td class="fw-bold">tbl_posts</td>
-                                    <td>Bài viết tin tức blog du lịch</td>
+                                    <td>Bài viết cẩm nang văn hóa & du lịch bản địa</td>
                                     <td><code>id, author_id, title, slug, content, thumbnail, is_published, created_at</code></td>
                                     <td><code>author_id &rarr; tbl_users</code></td>
                                 </tr>
@@ -454,15 +579,15 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: DANH MỤC 22 STORED PROCEDURES -->
+            <!-- SECTION 5: DANH MỤC 22 STORED PROCEDURES -->
             <section id="stored-procedures" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-cpu-fill text-primary"></i>
-                    <h5 class="mb-0">4. Danh Mục 22 Stored Procedures Cốt Lõi (Đủ &ge; 20 Yêu Cầu)</h5>
+                    <h5 class="mb-0">5. Danh Mục 22 Stored Procedures Cốt Lõi (Đủ &ge; 20 Yêu Cầu)</h5>
                 </div>
                 <div class="card-body p-4">
                     <div class="callout-box">
-                        <strong>Tiết kiệm 80% công sức lập trình:</strong> Thay vì viết 117 procedure tràn lan cho cả những thao tác SELECT tầm thường, nhóm tập trung toàn lực vào <strong>22 Procedures quan trọng nhất</strong>. Toàn bộ các thao tác nghiệp vụ phức tạp (khóa chỗ đồng thời, áp dụng thanh toán, xử lý hoàn tiền, duyệt tour) đều được thực thi nguyên tử trong CSDL.
+                        <strong>Phân bổ đồng đều, dễ bảo vệ trước hội đồng:</strong> 22 Stored Procedures bao quát toàn bộ các thao tác nghiệp vụ quan trọng nhất (từ đăng ký thông tin dân bản địa, lưu tọa độ Google Maps, lưu thông tin Homestay nhà dân, khóa chỗ booking đến thanh toán MoMo và hỏi đáp từ xa).
                     </div>
 
                     <div class="row g-3">
@@ -472,11 +597,11 @@
                                 <span class="badge bg-primary mb-2">Phân hệ TV1: Users & Categories (5 SPs)</span>
                                 <p class="small text-muted mb-2">File: <code>database/procedures/01_users_categories.sql</code></p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_users_register(p_email, p_name, p_hash, p_phone)</code>: Đăng ký Tourist mới.</li>
+                                    <li><code>sp_users_register(p_email, p_name, p_hash, p_phone, p_role)</code>: Đăng ký tài khoản Du khách / Dân bản địa.</li>
                                     <li><code>sp_users_find_login(p_email)</code>: Lấy thông tin xác thực để PHP verify password.</li>
-                                    <li><code>sp_users_update_profile(p_user_id, p_name, p_phone)</code>: Cập nhật hồ sơ cá nhân.</li>
+                                    <li><code>sp_users_update_profile(p_user_id, p_name, p_phone, p_living_area, p_bio)</code>: Cập nhật hồ sơ & câu chuyện bản địa.</li>
                                     <li><code>sp_users_set_status(p_admin_id, p_user_id, p_status)</code>: Admin khóa/mở tài khoản.</li>
-                                    <li><code>sp_categories_save(p_admin_id, p_id, p_name, p_slug, p_desc, p_icon)</code>: Thêm/sửa danh mục.</li>
+                                    <li><code>sp_categories_save(p_admin_id, p_id, p_name, p_slug, p_desc, p_icon)</code>: Thêm/sửa danh mục trải nghiệm.</li>
                                 </ol>
                             </div>
                         </div>
@@ -484,15 +609,15 @@
                         <!-- TV2 Procedures -->
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
-                                <span class="badge bg-success mb-2">Phân hệ TV2: Tour & Sức Chứa (6 SPs)</span>
+                                <span class="badge bg-success mb-2">Phân hệ TV2: Trải Nghiệm, Map & Homestay (6 SPs)</span>
                                 <p class="small text-muted mb-2">File: <code>database/procedures/02_services_bookings.sql</code></p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_services_create(p_host_id, p_cat_id, p_title, p_mode, p_price, ...)</code>: Host tạo tour.</li>
-                                    <li><code>sp_services_update(p_host_id, p_id, p_title, p_desc, ...)</code>: Host cập nhật thông tin tour.</li>
-                                    <li><code>sp_services_moderate(p_admin_id, p_id, p_status)</code>: Admin duyệt tour mở bán.</li>
-                                    <li><code>sp_accommodations_save(p_host_id, p_service_id, p_hotel, ...)</code>: Thiết lập lưu trú.</li>
-                                    <li><code>sp_schedules_create(p_host_id, p_service_id, p_starts, p_ends, p_cap)</code>: Mở lịch khởi hành.</li>
-                                    <li><code>sp_schedules_cancel(p_host_id, p_schedule_id, p_reason)</code>: Host hủy lịch có hoàn tiền.</li>
+                                    <li><code>sp_services_create(p_host_id, p_cat_id, p_title, p_location, p_lat, p_lng, ...)</code>: Dân bản địa tạo trải nghiệm kèm tọa độ Map.</li>
+                                    <li><code>sp_services_update(p_host_id, p_id, p_title, p_location, p_lat, p_lng, ...)</code>: Cập nhật trải nghiệm & tọa độ.</li>
+                                    <li><code>sp_services_moderate(p_admin_id, p_id, p_status)</code>: Admin duyệt trải nghiệm mở bán.</li>
+                                    <li><code>sp_accommodations_save(p_host_id, p_service_id, p_homestay_name, ...)</code>: Thiết lập Homestay nhà dân bản địa.</li>
+                                    <li><code>sp_schedules_create(p_host_id, p_service_id, p_starts, p_ends, p_cap, p_meeting)</code>: Mở lịch đón khách.</li>
+                                    <li><code>sp_schedules_cancel(p_host_id, p_schedule_id, p_reason)</code>: Host hủy lịch & kích hoạt hoàn tiền.</li>
                                 </ol>
                             </div>
                         </div>
@@ -500,15 +625,15 @@
                         <!-- TV3 Procedures -->
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
-                                <span class="badge bg-warning text-dark mb-2">Phân hệ TV3: Booking & MoMo (6 SPs)</span>
+                                <span class="badge bg-warning text-dark mb-2">Phân hệ TV3: Đặt Lịch & Thanh Toán MoMo (6 SPs)</span>
                                 <p class="small text-muted mb-2">File: <code>database/procedures/03_promotions_payments.sql</code></p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_bookings_quote(p_schedule_id, p_count, p_plan)</code>: Tính tổng tiền & giảm giá.</li>
-                                    <li><code>sp_bookings_create(p_tourist_id, p_schedule_id, p_count, ...)</code>: Tạo booking pending.</li>
-                                    <li><code>sp_bookings_approve(p_host_id, p_booking_id)</code>: Host duyệt giữ chỗ có hạn 15 phút.</li>
-                                    <li><code>sp_bookings_cancel(p_actor_id, p_booking_id, p_reason)</code>: Hủy chỗ & nhả capacity.</li>
-                                    <li><code>sp_payments_apply_verified(p_booking_id, p_order_id, p_amount, ...)</code>: Áp dụng IPN MoMo thành công, confirmed booking.</li>
-                                    <li><code>sp_refunds_create_and_approve(p_admin_id, p_payment_id, p_amount, ...)</code>: Admin duyệt lệnh hoàn tiền.</li>
+                                    <li><code>sp_bookings_quote(p_schedule_id, p_count, p_promo_code)</code>: Tính tổng tiền & áp mã giảm giá.</li>
+                                    <li><code>sp_bookings_create(p_tourist_id, p_schedule_id, p_count, ...)</code>: Tạo booking đặt lịch trải nghiệm.</li>
+                                    <li><code>sp_bookings_approve(p_host_id, p_booking_id)</code>: Dân bản địa duyệt giữ chỗ (hạn thanh toán 15 phút).</li>
+                                    <li><code>sp_bookings_cancel(p_actor_id, p_booking_id, p_reason)</code>: Hủy chỗ & hoàn trả ghế trống.</li>
+                                    <li><code>sp_payments_apply_verified(p_booking_id, p_order_id, p_amount, ...)</code>: Xác nhận IPN MoMo thành công & xuất biên nhận.</li>
+                                    <li><code>sp_refunds_create_and_approve(p_admin_id, p_payment_id, p_amount, ...)</code>: Duyệt lệnh hoàn tiền cho khách.</li>
                                 </ol>
                             </div>
                         </div>
@@ -516,14 +641,14 @@
                         <!-- TV4 Procedures -->
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
-                                <span class="badge bg-info text-dark mb-2">Phân hệ TV4: Cộng Đồng & Blog (5 SPs)</span>
+                                <span class="badge bg-info text-dark mb-2">Phân hệ TV4: Hỏi Đáp Từ Xa, Đánh Giá & Blog (5 SPs)</span>
                                 <p class="small text-muted mb-2">File: <code>database/procedures/04_community_content.sql</code></p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_discussions_create(p_user_id, p_service_id, p_parent_id, p_msg)</code>: Bình luận hỏi đáp.</li>
-                                    <li><code>sp_reviews_create(p_tourist_id, p_booking_id, p_rating, p_comment)</code>: Đánh giá tour.</li>
-                                    <li><code>sp_posts_save(p_admin_id, p_id, p_title, p_slug, p_content, p_thumb)</code>: Viết/sửa bài blog.</li>
-                                    <li><code>sp_posts_delete(p_admin_id, p_id)</code>: Xóa bài blog du lịch.</li>
-                                    <li><code>sp_promotions_save(p_admin_id, p_id, p_code, p_title, p_percent, ...)</code>: Tạo mã giảm giá.</li>
+                                    <li><code>sp_discussions_create(p_user_id, p_service_id, p_parent_id, p_msg)</code>: Gửi câu hỏi/phản hồi giữa Du khách và Dân bản địa.</li>
+                                    <li><code>sp_reviews_create(p_tourist_id, p_booking_id, p_rating, p_comment)</code>: Đánh giá sao sau chuyến đi thực tế.</li>
+                                    <li><code>sp_posts_save(p_admin_id, p_id, p_title, p_slug, p_content, p_thumb)</code>: Viết/sửa bài cẩm nang du lịch.</li>
+                                    <li><code>sp_posts_delete(p_admin_id, p_id)</code>: Xóa bài viết blog.</li>
+                                    <li><code>sp_promotions_save(p_admin_id, p_id, p_code, p_title, p_percent, ...)</code>: Tạo/cập nhật mã giảm giá.</li>
                                 </ol>
                             </div>
                         </div>
@@ -531,50 +656,79 @@
                 </div>
             </section>
 
-            <!-- SECTION 5: WEBSERVICES (XML & JSON) -->
+            <!-- SECTION 6: WEBSERVICES (XML & JSON) & GOOGLE MAPS -->
             <section id="webservices" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-cloud-arrow-down-fill text-primary"></i>
-                    <h5 class="mb-0">5. Tích Hợp Webservices Bên Thứ 3 (Vũ Khí Lấy Điểm Cộng XML/JSON)</h5>
+                    <h5 class="mb-0">6. Hệ Sinh Thái 4 Webservices Bên Thứ 3 (JSON & XML)</h5>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-muted">Đề bài yêu cầu: <em>"Sẽ được đánh giá cao nếu có tích hợp AJAX/Webservice (mức sử dụng service, không tạo ra service). Ưu tiên dữ liệu truyền tải XML/JSON"</em>. Hệ thống thiết kế sẵn 3 Webservice cực kỳ thực tế:</p>
+                    <p class="text-muted">Đáp ứng vượt mức yêu cầu: <em>"Sẽ được đánh giá cao nếu có tích hợp AJAX/Webservice (mức sử dụng service, ưu tiên dữ liệu truyền tải XML/JSON)"</em>. Hệ thống tích hợp <strong>4 Webservices chính thức</strong> phục vụ trực tiếp cho trải nghiệm du lịch từ xa:</p>
 
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-danger">
+                                <div class="card-header bg-danger text-white fw-bold">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> 1. Google Maps Official API (JSON + JS SDK)
+                                </div>
+                                <div class="card-body">
+                                    <span class="badge bg-danger-subtle text-danger mb-2">Định dạng JSON & Bản đồ thực</span>
+                                    <p class="small text-muted mb-2">Sử dụng tài khoản Google Cloud (miễn phí 100% trong hạn mức $200 Free Tier hàng tháng):</p>
+                                    <ul class="small text-muted ps-3 mb-2">
+                                        <li><strong>Lúc Dân bản địa đăng bài:</strong> Bấm nút <em>"Lấy tọa độ"</em> &rarr; gọi AJAX qua <code>GoogleMapsClient.php</code> (Geocoding REST API trả về JSON) để tự động điền <code>latitude, longitude</code>.</li>
+                                        <li><strong>Lúc Du khách xem từ xa:</strong> Ấn vào địa điểm hiển thị ngay vị trí thực tế trên bản đồ Google Maps (hỗ trợ cả chế độ Vệ tinh & Street View).</li>
+                                    </ul>
+                                    <div class="small fw-bold text-dark">File: <code>app/integrations/GoogleMapsClient.php</code></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
                             <div class="card h-100 border-primary">
                                 <div class="card-header bg-primary text-white fw-bold">
-                                    <i class="bi bi-sun me-1"></i> OpenWeather API (JSON)
+                                    <i class="bi bi-sun-fill me-1"></i> 2. OpenWeather API (JSON)
                                 </div>
                                 <div class="card-body">
                                     <span class="badge bg-primary-subtle text-primary mb-2">Định dạng JSON</span>
-                                    <p class="small text-muted">Khi xem chi tiết tour, hệ thống tự động gọi API OpenWeather theo địa điểm tour (`location`), lấy nhiệt độ, độ ẩm, thời tiết 3 ngày tới.</p>
+                                    <p class="small text-muted mb-2">Giúp khách du lịch ở xa nắm bắt thời tiết thực tế tại điểm đến của người dân bản địa:</p>
+                                    <ul class="small text-muted ps-3 mb-2">
+                                        <li>Truy vấn trực tiếp theo tọa độ <code>latitude, longitude</code> (hoặc tên vùng <code>location</code>) của gói trải nghiệm.</li>
+                                        <li>Hiển thị nhiệt độ hiện tại, độ ẩm, mô tả thời tiết kèm icon trực quan ngay cạnh bản đồ Google Maps.</li>
+                                    </ul>
                                     <div class="small fw-bold text-dark">File: <code>app/integrations/OpenWeatherClient.php</code></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card h-100 border-success">
                                 <div class="card-header bg-success text-white fw-bold">
-                                    <i class="bi bi-rss me-1"></i> RSS Tin Du Lịch (XML)
+                                    <i class="bi bi-rss-fill me-1"></i> 3. RSS Tin Du Lịch Việt Nam (XML)
                                 </div>
                                 <div class="card-body">
                                     <span class="badge bg-success-subtle text-success mb-2">Định dạng XML</span>
-                                    <p class="small text-muted">Trang chủ và blog tích hợp đọc RSS XML từ báo Du lịch (VnExpress Du lịch / Tổng cục Du lịch) bằng <code>SimpleXML</code> của PHP.</p>
+                                    <p class="small text-muted mb-2">Đảm bảo tiêu chí xử lý dữ liệu <strong>XML</strong> song song với JSON:</p>
+                                    <ul class="small text-muted ps-3 mb-2">
+                                        <li>Tự động nạp và phân tích cú pháp luồng RSS XML từ chuyên mục Du lịch (VnExpress Du lịch) bằng <code>SimpleXML</code> của PHP.</li>
+                                        <li>Hiển thị tin tức du lịch mới nhất trên trang chủ và chuyên mục Cẩm nang.</li>
+                                    </ul>
                                     <div class="small fw-bold text-dark">File: <code>app/integrations/RssReader.php</code></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card h-100 border-warning">
                                 <div class="card-header bg-warning text-dark fw-bold">
-                                    <i class="bi bi-wallet2 me-1"></i> MoMo Sandbox API (JSON)
+                                    <i class="bi bi-wallet2 me-1"></i> 4. MoMo Sandbox Payment API (JSON)
                                 </div>
                                 <div class="card-body">
-                                    <span class="badge bg-warning-subtle text-dark mb-2">Định dạng JSON & AJAX</span>
-                                    <p class="small text-muted">Tạo link thanh toán mã QR trực tuyến, xác minh chữ ký HMAC SHA256 và tiếp nhận Webhook IPN tự động xác nhận đơn hàng.</p>
+                                    <span class="badge bg-warning-subtle text-dark mb-2">Định dạng JSON & Webhook IPN</span>
+                                    <p class="small text-muted mb-2">Khi khách xem trình chiếu 3D từ xa và quyết định đặt lịch trải nghiệm thực tế:</p>
+                                    <ul class="small text-muted ps-3 mb-2">
+                                        <li>Gửi bản tin JSON ký số HMAC-SHA256 sang cổng MoMo Sandbox để nhận link thanh toán QR.</li>
+                                        <li>Xử lý callback & IPN tự động cập nhật trạng thái đơn đặt chỗ và xuất biên nhận.</li>
+                                    </ul>
                                     <div class="small fw-bold text-dark">File: <code>app/integrations/MoMoClient.php</code></div>
                                 </div>
                             </div>
@@ -583,122 +737,110 @@
                 </div>
             </section>
 
-            <!-- SECTION 6: PHÂN HỆ QUẢN TRỊ ADMIN CƠ BẢN -->
+            <!-- SECTION 7: PHÂN HỆ HOST & ADMIN CƠ BẢN -->
             <section id="admin-scope" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-shield-lock-fill text-primary"></i>
-                    <h5 class="mb-0">6. Phân Hệ Quản Trị Admin Chuẩn Mực (Không Lan Man)</h5>
+                    <h5 class="mb-0">7. Phân Hệ Nghiệp Vụ Host & Quản Trị Admin (Tối Giản, Thực Dụng, Đủ Ô Nhập)</h5>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-muted">Bám sát chỉ đạo đề bài: <em>"Phần quản trị, chỉ cần dừng ở mức cơ bản (Thêm được danh mục, sản phẩm, bài viết, v.v.)"</em>. Admin tập trung vào 5 màn hình CRUD rõ ràng:</p>
+                    <p class="text-muted">Tuân thủ định hướng: <strong>Không tốn thời gian làm màu giao diện Host và Admin</strong>. Cả hai phân hệ này sử dụng form và bảng tiêu chuẩn của Bootstrap 5, miễn sao <strong>đảm bảo đầy đủ các ô nhập liệu</strong> để phục vụ luồng trình chiếu 3D, bản đồ Google Maps ở trang khách và đáp ứng yêu cầu quản trị cơ bản của giảng viên:</p>
 
-                    <div class="row g-3">
-                        <div class="col-md-6 col-lg-4">
-                            <div class="p-3 border rounded bg-white">
-                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-folder-check me-2"></i>1. Quản lý Danh mục</h6>
-                                <small class="text-muted">Xem danh sách, thêm danh mục mới, chỉnh sửa tên/mô tả/icon, ẩn danh mục không sử dụng.</small>
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <h6 class="fw-bold text-success mb-2"><i class="bi bi-person-badge-fill me-2"></i>A. Giao Diện Dân Bản Địa Đăng Bài (Host Dashboard)</h6>
+                                <p class="small text-muted mb-2">Form đăng/cập nhật trải nghiệm được thiết kế 1 trang rõ ràng gồm 4 cụm ô nhập liệu:</p>
+                                <ol class="small text-muted mb-0 ps-3">
+                                    <li><strong>Thông tin trải nghiệm cơ bản:</strong> Tên trải nghiệm, Danh mục văn hóa, Giá, Thời lượng, Ảnh bìa chính (<code>banner_image</code> - dùng để hiện lên Hero Banner nếu đạt sao cao).</li>
+                                    <li><strong>Định vị Google Maps:</strong> Ô nhập địa điểm + Nút bấm <code>Lấy tọa độ tự động</code> (gọi Geocoding API điền vào 2 ô <code>latitude</code> và <code>longitude</code>).</li>
+                                    <li><strong>Khối Lưu trú Homestay nhà dân:</strong> Ô nhập Tên nhà dân/Homestay (<code>homestay_name</code>), địa chỉ, loại phòng, số đêm.</li>
+                                    <li><strong>Danh sách các Trạm Trải Nghiệm 3D (Dynamic Rows):</strong> Cho phép Host bấm nút <code>+ Thêm trạm trình chiếu</code>. Mỗi trạm có đủ 4 ô: <em>Thứ tự trạm (<code>sort_order</code>), Ảnh thực tế (<code>image_url</code>), Tiêu đề trạm (<code>caption</code>), Câu chuyện bản địa (<code>story_text</code>) và Link Video (<code>video_url</code>)</em>.</li>
+                                </ol>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="p-3 border rounded bg-white">
-                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-map me-2"></i>2. Quản lý & Duyệt Tour</h6>
-                                <small class="text-muted">Xem danh sách tất cả các tour do Host đăng lên, bấm duyệt (Approved) hoặc từ chối (Rejected) trước khi mở bán công khai.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="p-3 border rounded bg-white">
-                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-newspaper me-2"></i>3. Quản lý Bài viết (Blog)</h6>
-                                <small class="text-muted">Viết bài chia sẻ kinh nghiệm du lịch, chỉnh sửa nội dung, upload ảnh đại diện và đăng tải/xóa bài viết.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="p-3 border rounded bg-white">
-                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-ticket-perforated me-2"></i>4. Quản lý Mã giảm giá</h6>
-                                <small class="text-muted">Tạo coupon khuyến mãi (ví dụ: `HE2026` giảm 10%), đặt ngày bắt đầu và kết thúc.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="p-3 border rounded bg-white">
-                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-calendar2-check me-2"></i>5. Thống kê Booking & Users</h6>
-                                <small class="text-muted">Xem danh sách đặt chỗ trên toàn hệ thống (Pending, Confirmed, Cancelled) và khóa tài khoản vi phạm nếu cần.</small>
+
+                        <div class="col-lg-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-sliders me-2"></i>B. Giao Diện Quản Trị Viên (Admin Dashboard Cơ Bản)</h6>
+                                <p class="small text-muted mb-2">Gồm 5 màn hình bảng dữ liệu (CRUD) cơ bản đúng yêu cầu đề bài:</p>
+                                <ol class="small text-muted mb-0 ps-3">
+                                    <li><strong>Quản lý Danh mục (Categories):</strong> Thêm, sửa, ẩn/hiện các danh mục trải nghiệm bản địa.</li>
+                                    <li><strong>Duyệt Trải nghiệm (Services Moderation):</strong> Xem danh sách bài đăng của Dân bản địa, bấm Duyệt (<code>approved</code>) hoặc Từ chối (<code>rejected</code>).</li>
+                                    <li><strong>Quản lý Bài viết (Blog Posts):</strong> Thêm, sửa, xóa bài viết cẩm nang du lịch.</li>
+                                    <li><strong>Quản lý Khuyến mãi (Promotions):</strong> Tạo mã giảm giá theo phần trăm và thời hạn áp dụng.</li>
+                                    <li><strong>Quản lý Người dùng & Xem Booking:</strong> Xem danh sách đặt chỗ toàn hệ thống, duyệt hoàn tiền và khóa tài khoản vi phạm.</li>
+                                </ol>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 7: CHIẾN LƯỢC DEPLOY FREE HOSTING -->
+            <!-- SECTION 8: CHIẾN LƯỢC DEPLOY FREE HOSTING -->
             <section id="free-hosting" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-server text-primary"></i>
-                    <h5 class="mb-0">7. Chiến Lược Triển Khai Tuyệt Đối An Toàn Trên Free Hosting</h5>
+                    <h5 class="mb-0">8. Chiến Lược Triển Khai An Toàn Trên Free Hosting & Bảo Vệ API Keys</h5>
                 </div>
                 <div class="card-body p-4">
                     <div class="callout-box callout-warning">
-                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Cảnh giác các cạm bẫy của Free Hosting (InfinityFree, 000webhost, ByetHost...)</h6>
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-warning me-2"></i>Kỹ thuật vượt rào cản Free Hosting & Bảo vệ Google Cloud Billing</h6>
                         <ul class="small mb-0 text-muted ps-3">
-                            <li>Free Hosting <strong>KHÔNG hỗ trợ SSH / Terminal</strong>: Do đó tuyệt đối không thiết kế các script CLI chạy nền bắt buộc.</li>
-                            <li>Free Hosting thường giới hạn quyền CSDL <code>SUPER / DEFINER</code>: Do đó toàn bộ 22 Procedure đều được viết cú pháp tiêu chuẩn MySQL 8 / MariaDB, không dùng DEFINER đặc quyền.</li>
-                            <li><strong>Giải pháp Lazy Expiration</strong>: Thay vì cần một cronjob chạy mỗi 1 phút để hủy các booking quá 15 phút chưa thanh toán, ta xử lý tự động ngay khi có người dùng truy cập trang danh sách hoặc chi tiết booking (Query UPDATE trạng thái các record hết hạn trước khi SELECT).</li>
+                            <li><strong>Không phụ thuộc SSH / Cronjob:</strong> Sử dụng kỹ thuật <strong>Lazy Expiration</strong> (tự động giải phóng các booking quá hạn 15 phút chưa thanh toán ngay trong câu truy vấn trước khi tải danh sách lịch trình).</li>
+                            <li><strong>Tương thích 100% phpMyAdmin trên Free Host:</strong> Toàn bộ 22 Stored Procedures không sử dụng mệnh đề <code>DEFINER</code> đặc quyền, import một lần chạy ngay trên InfinityFree, 000webhost, ByetHost...</li>
+                            <li><strong>An toàn tuyệt đối cho Google Maps API có Billing:</strong> Lưu <code>GOOGLE_MAPS_API_KEY</code> và <code>OPENWEATHER_API_KEY</code> trong file <code>config/local.php</code> (nằm trong <code>.gitignore</code>, không đẩy lên GitHub công khai) và giới hạn Quota hàng ngày trên Google Cloud Console để đảm bảo chi phí luôn bằng <strong>0đ</strong>.</li>
                         </ul>
                     </div>
-
-                    <h6 class="fw-bold mb-2">Quy trình Deploy nhanh lên Free Hosting (cPanel / DirectAdmin):</h6>
-                    <ol class="small text-muted ps-3 mb-0">
-                        <li>Nén thư mục dự án (ngoại trừ <code>.git</code> và <code>config/local.php</code>) thành file <code>.zip</code>.</li>
-                        <li>Upload lên thư mục <code>htdocs/</code> hoặc <code>public_html/</code> của hosting.</li>
-                        <li>Tạo MySQL Database trên cPanel, import lần lượt <code>schema.sql</code>, 4 file procedures và <code>seed_data.sql</code> bằng <strong>phpMyAdmin</strong>.</li>
-                        <li>Tạo file <code>config/local.php</code> trên File Manager với thông số DB vừa tạo. Trang web sẽ chạy ngay lập tức!</li>
-                    </ol>
                 </div>
             </section>
 
-            <!-- SECTION 8: PHÂN CÔNG 4 THÀNH VIÊN -->
+            <!-- SECTION 9: PHÂN CÔNG 4 THÀNH VIÊN -->
             <section id="phan-cong" class="card-custom">
                 <div class="card-header-custom">
                     <i class="bi bi-people-fill text-primary"></i>
-                    <h5 class="mb-0">8. Ma Trận Phân Công Rõ Ràng Cho 4 Thành Viên (TV1 – TV4)</h5>
+                    <h5 class="mb-0">9. Ma Trận Phân Công Rõ Ràng Cho 4 Thành Viên (TV1 – TV4)</h5>
                 </div>
                 <div class="card-body p-4">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-custom">
+                        <table class="table table-bordered table-custom mb-0">
                             <thead>
                                 <tr>
                                     <th>Thành viên</th>
                                     <th>Phân hệ phụ trách</th>
-                                    <th>Controllers & Views</th>
+                                    <th>Controllers & Tích hợp</th>
                                     <th>File Stored Procedure</th>
-                                    <th>Trách nhiệm chính</th>
+                                    <th>Trách nhiệm chi tiết (Backend + UI)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><span class="badge bg-primary">TV1</span></td>
-                                    <td>Tài khoản & Danh mục</td>
+                                    <td>Tài khoản, Hồ sơ Bản địa & Danh mục</td>
                                     <td><code>AuthController</code>, <code>CategoryController</code>, <code>AdminController</code></td>
                                     <td><code>01_users_categories.sql</code> (5 SPs)</td>
-                                    <td>Đăng ký, Đăng nhập, Quản lý session, Phân quyền Middleware, CRUD Danh mục cho Admin.</td>
+                                    <td>Đăng ký/Đăng nhập, cập nhật hồ sơ Dân bản địa (<code>living_area, bio</code>), Phân quyền Middleware, Layout Top-Navbar & CRUD Danh mục cho Admin.</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><span class="badge bg-success">TV2</span></td>
-                                    <td>Tour, Lưu trú & Lịch trình</td>
-                                    <td><code>ServiceController</code>, <code>ScheduleController</code>, <code>HostController</code></td>
+                                    <td>Trải nghiệm, Trạm 3D, Homestay & Google Maps</td>
+                                    <td><code>ServiceController</code>, <code>ScheduleController</code>, <code>HostController</code>, <code>GoogleMapsClient</code></td>
                                     <td><code>02_services_bookings.sql</code> (6 SPs)</td>
-                                    <td>Host đăng tour, tải ảnh, khai báo khách sạn/lưu trú, mở lịch khởi hành và quản lý số chỗ.</td>
+                                    <td>Form Host đăng trải nghiệm (nhập các Trạm 3D, Homestay nhà dân, lấy tọa độ Google Maps), Xây dựng <strong>Không gian cuộn 3D Three.js</strong> & hiển thị Bản đồ ở trang chi tiết.</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><span class="badge bg-warning text-dark">TV3</span></td>
-                                    <td>Đặt chỗ, Thanh toán & Khuyến mãi</td>
-                                    <td><code>BookingController</code>, <code>PaymentController</code>, <code>PromotionController</code></td>
+                                    <td>Đặt lịch thực tế, Thanh toán MoMo & Khuyến mãi</td>
+                                    <td><code>BookingController</code>, <code>PaymentController</code>, <code>PromotionController</code>, <code>MoMoClient</code></td>
                                     <td><code>03_promotions_payments.sql</code> (6 SPs)</td>
-                                    <td>Tính giá làm tròn half-up, tích hợp MoMo Sandbox, tạo biên nhận PDF/HTML, quản lý booking.</td>
+                                    <td>Luồng đặt lịch trải nghiệm thực tế sau khi khách xem từ xa, áp mã giảm giá, tích hợp thanh toán MoMo Sandbox (JSON + IPN), xuất biên nhận & hoàn tiền.</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-nowrap"><span class="badge bg-info text-dark">TV4</span></td>
-                                    <td>Cộng đồng, Blog & Webservices</td>
-                                    <td><code>DiscussionController</code>, <code>ReviewController</code>, <code>PostController</code>, <code>HomeController</code></td>
+                                    <td>Trang chủ Editorial, Hỏi đáp từ xa, Thời tiết & RSS</td>
+                                    <td><code>HomeController</code>, <code>DiscussionController</code>, <code>ReviewController</code>, <code>PostController</code>, <code>OpenWeatherClient</code>, <code>RssReader</code></td>
                                     <td><code>04_community_content.sql</code> (5 SPs)</td>
-                                    <td>Tích hợp OpenWeather JSON, RSS XML, Viết bình luận hỏi đáp, Viết đánh giá sao và Blog du lịch.</td>
+                                    <td>Giao diện Trang chủ (Hero Banner điểm Hot có nút "Khám phá" đi thẳng vào trạm 3D), Kênh hỏi đáp từ xa Du khách &harr; Dân bản địa, Đánh giá sao, OpenWeather JSON & RSS XML.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -708,8 +850,8 @@
 
             <!-- FOOTER -->
             <div class="text-center py-4 text-muted border-top">
-                <p class="mb-1 fw-semibold">OnlineTraveller - Đồ Án Chuyên Đề Web (OOP + MVC + Bootstrap 5)</p>
-                <small>Bản thiết kế được biên soạn và tối ưu hóa để sẵn sàng bắt tay vào lập trình ngay.</small>
+                <p class="mb-1 fw-semibold">OnlineTraveller v2.2 — Kết nối dân bản địa và khách du lịch từ xa</p>
+                <small>Kiến trúc OOP + MVC • Bootstrap 5 Editorial UI • Three.js Z-Axis Scroll • Google Maps & Webservices (XML/JSON)</small>
             </div>
 
         </div>

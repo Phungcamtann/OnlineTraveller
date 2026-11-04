@@ -1,1 +1,309 @@
-/* TODO: app styles. */
+/* ==============================================================================
+   OnlineTraveller v2.2 — Editorial Travel UI Design System
+   ============================================================================== */
+
+:root {
+    --primary: #0284c7;
+    --primary-dark: #0f2922;
+    --secondary: #0f172a;
+    --accent: #10b981;
+    --accent-warm: #d97706;
+    --surface: #ffffff;
+    --background: #faf9f6;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-soft: 0 4px 20px -2px rgba(15, 41, 34, 0.08);
+    --shadow-elevated: 0 16px 32px -4px rgba(15, 41, 34, 0.14);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--background);
+    color: var(--text-main);
+    line-height: 1.65;
+    scroll-behavior: smooth;
+}
+
+.font-editorial {
+    font-family: 'Playfair Display', Georgia, serif;
+}
+
+code, pre {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* 1. FLOATING GLASS NAVBAR */
+.navbar-floating {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    border-radius: 50rem;
+    padding: 0.65rem 1.4rem;
+    box-shadow: var(--shadow-soft);
+    margin-top: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-floating .nav-link {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0.45rem 0.95rem;
+    border-radius: 50rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-floating .nav-link:hover,
+.navbar-floating .nav-link.active {
+    color: var(--primary);
+    background: #e0f2fe;
+}
+
+/* 2. BUTTONS & PILLS */
+.btn-editorial {
+    background: var(--primary-dark);
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 50rem;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.btn-editorial:hover {
+    background: #173f35;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -4px rgba(15, 41, 34, 0.3);
+}
+
+.btn-pill-amber {
+    background: var(--accent-warm);
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 50rem;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.btn-pill-amber:hover {
+    background: #b45309;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* 3. HERO BANNER */
+.hero-editorial {
+    background: linear-gradient(135deg, rgba(15, 41, 34, 0.92) 0%, rgba(15, 23, 42, 0.88) 100%),
+                url('/assets/images/tours/dalat-san-may.jpg') center/cover no-repeat;
+    color: #ffffff;
+    border-radius: 28px;
+    padding: 4.5rem 3rem;
+    position: relative;
+    box-shadow: var(--shadow-elevated);
+    margin-bottom: 3rem;
+    overflow: hidden;
+}
+
+.hero-editorial h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.15;
+    font-weight: 700;
+}
+
+.hero-editorial .hero-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: 50rem;
+    font-size: 0.85rem;
+}
+
+/* 4. FLOATING SEARCH BAR */
+.floating-search-bar {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow-elevated);
+    margin-top: -3.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.floating-search-bar .form-control,
+.floating-search-bar .form-select {
+    border: none;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    font-size: 0.92rem;
+}
+
+.floating-search-bar .form-control:focus,
+.floating-search-bar .form-select:focus {
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    background: #ffffff;
+}
+
+/* 5. TRAVEL CARDS */
+.card-tour {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-tour:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-elevated);
+    border-color: #cbd5e1;
+}
+
+.card-tour .tour-thumbnail {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+
+.card-tour .tour-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.card-tour:hover .tour-thumbnail img {
+    transform: scale(1.06);
+}
+
+.card-tour .tour-badge-category {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(15, 41, 34, 0.8);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+    border-radius: 50rem;
+}
+
+.card-tour .tour-rating {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+    color: var(--accent-warm);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 50rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card-tour .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-tour .tour-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.card-tour .tour-title:hover {
+    color: var(--primary);
+}
+
+.card-tour .host-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.card-tour .tour-price {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+/* 6. BADGES */
+.badge-soft-success { background: #dcfce7; color: #166534; }
+.badge-soft-primary { background: #e0f2fe; color: #075985; }
+.badge-soft-warning { background: #fef3c7; color: #92400e; }
+.badge-soft-danger  { background: #fee2e2; color: #991b1b; }
+
+/* 7. THREE.JS 3D VIRTUAL TOUR CONTAINER */
+.threejs-tour-viewport {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    min-height: 480px;
+    background: #0f172a;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-elevated);
+}
+
+.threejs-tour-viewport canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.tour-station-overlay {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-elevated);
+    z-index: 15;
+    transition: all 0.3s ease;
+}
+
+.tour-controls-floating {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    gap: 0.6rem;
+    z-index: 15;
+}
+
+/* 8. FOOTER */
+.footer-editorial {
+    background: #ffffff;
+    border-top: 1px solid var(--border-color);
+    padding: 3rem 0 2rem;
+    color: var(--text-muted);
+}

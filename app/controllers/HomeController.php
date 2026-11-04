@@ -2,9 +2,30 @@
 
 declare(strict_types=1);
 
-/**
- * Public home page.
- *
- * Scaffold only; implementation is pending.
- */
-// TODO: Implement actions with the route policy in docs/architecture.md; keep cross-model business logic in app/services/.
+namespace App\Controllers;
+
+use Core\BaseController;
+use App\Models\Service;
+
+class HomeController extends BaseController
+{
+    public function index(): void
+    {
+        $serviceModel = new Service();
+
+        $heroService = $serviceModel->getHeroFeatured();
+        $categories = $serviceModel->getCategories();
+        $services = $serviceModel->getAllApproved();
+
+        $this->view('home/index', [
+            'title' => 'OnlineTraveller — Kết Nối Dân Bản Địa & Khách Du Lịch Từ Xa',
+            'heroService' => $heroService,
+            'categories' => $categories,
+            'services' => $services,
+        ]);
+    }
+}
+
+if (!class_exists('HomeController', false)) {
+    class_alias(HomeController::class, 'HomeController');
+}

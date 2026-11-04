@@ -39,31 +39,35 @@ CREATE PROCEDURE sp_users_find_login(
     IN p_email VARCHAR(254)
 )
 BEGIN
-    SELECT id, role, name, email, password_hash, phone, avatar, status
+    SELECT id, role, name, email, password_hash, phone, avatar, living_area, bio, status
     FROM tbl_users
     WHERE email = p_email
     LIMIT 1;
 END$$
 
 -- ------------------------------------------------------------------------------
--- 3. sp_users_update_profile: Cập nhật thông tin cá nhân của người dùng
+-- 3. sp_users_update_profile: Cập nhật hồ sơ & câu chuyện của dân bản địa
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_users_update_profile$$
 CREATE PROCEDURE sp_users_update_profile(
     IN p_user_id BIGINT UNSIGNED,
     IN p_name VARCHAR(150),
     IN p_phone VARCHAR(32),
+    IN p_living_area VARCHAR(255),
+    IN p_bio TEXT,
     IN p_avatar VARCHAR(255)
 )
 BEGIN
     UPDATE tbl_users
     SET name = p_name,
         phone = p_phone,
+        living_area = p_living_area,
+        bio = p_bio,
         avatar = COALESCE(p_avatar, avatar),
         updated_at = NOW(6)
     WHERE id = p_user_id;
 
-    SELECT id, role, name, email, phone, avatar, status
+    SELECT id, role, name, email, phone, avatar, living_area, bio, status
     FROM tbl_users
     WHERE id = p_user_id;
 END$$
