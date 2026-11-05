@@ -49,6 +49,23 @@ if (php_sapi_name() !== 'cli' && session_status() === PHP_SESSION_NONE) {
 // 5. Initialize database connection singleton
 if (!empty($config['database'])) {
     \Core\Database::init($config['database']);
+
+    // Keep session user synchronized with latest database state
+    if (!empty($_SESSION['user']['id'])) {
+        try {
+            $freshUser = \Core\Database::getInstance()->fetchOne(
+                "SELECT id, role, name, email, phone, avatar, living_area, bio, status FROM tbl_users WHERE id = ? AND status = 'active' LIMIT 1",
+                [(int)$_SESSION['user']['id']]
+            );
+            if ($freshUser) {
+                $_SESSION['user'] = $freshUser;
+            } else {
+                unset($_SESSION['user']);
+            }
+        } catch (\Throwable $e) {
+            // Non-blocking fallback if database query fails during early bootstrap
+        }
+    }
 }
 
 // 6. Initialize Router and register application routes

@@ -22,7 +22,8 @@ INSERT INTO tbl_categories (id, name, slug, description, icon, is_active) VALUES
 (1, 'Khám Phá Văn Hóa & Lịch Sử', 'van-hoa-lich-su', 'Trải nghiệm đời sống bản địa, làng nghề cổ truyền và di tích văn hóa lâu đời.', 'bi-bank', 1),
 (2, 'Ẩm Thực Bản Địa Độc Đáo', 'am-thuc-ban-dia', 'Thưởng thức các món ngon truyền thống cùng người dân địa phương tại chợ và hẻm phố.', 'bi-cup-hot', 1),
 (3, 'Trekking & Vùng Cao Hùng Vĩ', 'trekking-vung-cao', 'Chinh phục cung đường núi, đèo ngoạn mục, cắm trại săn mây tại Tây Bắc và Tây Nguyên.', 'bi-tree', 1),
-(4, 'Biển Đảo & Nghỉ Dưỡng Sinh Thái', 'bien-dao-sinh-thai', 'Lặn ngắm san hô, du thuyền trên vịnh và trải nghiệm làng chài ven biển mộc mạc.', 'bi-water', 1);
+(4, 'Biển Đảo & Nghỉ Dưỡng Sinh Thái', 'bien-dao-sinh-thai', 'Lặn ngắm san hô, du thuyền trên vịnh và trải nghiệm làng chài ven biển mộc mạc.', 'bi-water', 1),
+(5, 'Làng Nghề Cổ Truyền', 'lang-nghe-co-truyen', 'Khám phá các làng nghề dệt lụa, gốm sứ, tranh dân gian và chạm khắc truyền thống.', 'bi-palette', 1);
 
 -- 3. Trải nghiệm bản địa mẫu (hỗ trợ 3D & Google Maps)
 TRUNCATE TABLE tbl_services;
@@ -63,6 +64,7 @@ INSERT INTO tbl_promotions (id, code, title, discount_percent, starts_at, ends_a
 (1, 'CHAO2026', 'Ưu Đãi Chào Bạn Mới Khám Phá', 10.00, '2026-10-01 00:00:00', '2026-12-31 23:59:59', 1),
 (2, 'VIPLOCAL', 'Tri Ân Khách Đi Tour Lần 2', 15.00, '2026-11-01 00:00:00', '2026-12-31 23:59:59', 1);
 
+TRUNCATE TABLE tbl_promotion_services;
 INSERT INTO tbl_promotion_services (promotion_id, service_id) VALUES
 (1, 1),
 (1, 2),
