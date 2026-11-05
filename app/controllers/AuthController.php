@@ -6,16 +6,17 @@ namespace App\Controllers;
 
 use Core\BaseController;
 use Core\Request;
-use App\Models\User;
+use App\Services\AuthService;
+use Exception;
 
 class AuthController extends BaseController
 {
-    private User $userModel;
+    private AuthService $authService;
 
     public function __construct(?Request $request = null)
     {
         parent::__construct($request);
-        $this->userModel = new User();
+        $this->authService = new AuthService();
     }
 
     public function loginForm(): void
@@ -28,38 +29,23 @@ class AuthController extends BaseController
 
     public function login(Request $request): void
     {
-        $email = trim((string)$request->post('email', ''));
+        $email = (string)$request->post('email', '');
         $password = (string)$request->post('password', '');
 
-        if ($email === '' || $password === '') {
-            $this->flash('danger', 'Vui lòng nhập đầy đủ email và mật khẩu.');
+        try {
+            $user = $this->authService->authenticate($email, $password);
+            $this->flash('success', 'Chào mừng ' . htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') . ' đã quay trở lại!');
+
+            if ($user['role'] === 'admin') {
+                $this->redirect('/admin');
+            } elseif ($user['role'] === 'host') {
+                $this->redirect('/host');
+            } else {
+                $this->redirect('/');
+            }
+        } catch (Exception $e) {
+            $this->flash('danger', $e->getMessage());
             $this->redirect('/login');
-        }
-
-        $user = $this->userModel->findLogin($email);
-
-        if (!$user || !password_verify($password, $user['password_hash'])) {
-            $this->flash('danger', 'Email hoặc mật khẩu không chính xác.');
-            $this->redirect('/login');
-        }
-
-        if ($user['status'] !== 'active') {
-            $this->flash('danger', 'Tài khoản của bạn đang bị khóa hoặc chưa kích hoạt.');
-            $this->redirect('/login');
-        }
-
-        // Exclude password_hash from session
-        unset($user['password_hash']);
-        $_SESSION['user'] = $user;
-
-        $this->flash('success', 'Chào mừng ' . $user['name'] . ' đã quay trở lại!');
-
-        if ($user['role'] === 'admin') {
-            $this->redirect('/admin');
-        } elseif ($user['role'] === 'host') {
-            $this->redirect('/host');
-        } else {
-            $this->redirect('/');
         }
     }
 
@@ -73,53 +59,68 @@ class AuthController extends BaseController
 
     public function register(Request $request): void
     {
-        $name = trim((string)$request->post('name', ''));
-        $email = trim((string)$request->post('email', ''));
-        $phone = trim((string)$request->post('phone', ''));
+        $name = (string)$request->post('name', '');
+        $email = (string)$request->post('email', '');
+        $phone = (string)$request->post('phone', '');
         $password = (string)$request->post('password', '');
         $role = (string)$request->post('role', 'tourist');
 
-        if (!in_array($role, ['tourist', 'host'], true)) {
-            $role = 'tourist';
-        }
-
-        if ($name === '' || $email === '' || $password === '') {
-            $this->flash('danger', 'Vui lòng điền đầy đủ các thông tin bắt buộc.');
-            $this->redirect('/register');
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->flash('danger', 'Định dạng email không hợp lệ.');
-            $this->redirect('/register');
-        }
-
-        $existing = $this->userModel->findLogin($email);
-        if ($existing) {
-            $this->flash('danger', 'Email này đã được sử dụng. Vui lòng chọn email khác.');
-            $this->redirect('/register');
-        }
-
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-
         try {
-            $newUser = $this->userModel->register($email, $name, $passwordHash, $phone, $role);
-            if ($newUser) {
-                unset($newUser['password_hash']);
-                $_SESSION['user'] = $newUser;
-                $this->flash('success', 'Đăng ký tài khoản thành công!');
-                $this->redirect($role === 'host' ? '/host' : '/');
-            }
-        } catch (\Exception $e) {
-            $this->flash('danger', 'Có lỗi xảy ra trong quá trình đăng ký: ' . $e->getMessage());
+            $newUser = $this->authService->register($name, $email, $password, $phone, $role);
+            $this->flash('success', 'Đăng ký tài khoản thành công!');
+            $this->redirect($newUser['role'] === 'host' ? '/host' : '/');
+        } catch (Exception $e) {
+            $this->flash('danger', $e->getMessage());
             $this->redirect('/register');
         }
     }
 
+    /**
+     * Display user profile and Local Host story editor.
+     */
+    public function profile(): void
+    {
+        $currentUser = $this->user();
+        if (!$currentUser) {
+            $this->redirect('/login');
+        }
+
+        $freshUser = $this->authService->getUser((int)$currentUser['id']) ?? $currentUser;
+
+        $this->view('profile/index', [
+            'title' => 'Hồ Sơ Của Tôi — OnlineTraveller',
+            'user' => $freshUser,
+        ]);
+    }
+
+    /**
+     * Update user profile, living area, and host bio.
+     */
+    public function updateProfile(Request $request): void
+    {
+        $currentUser = $this->user();
+        if (!$currentUser) {
+            $this->redirect('/login');
+        }
+
+        $name = (string)$request->post('name', '');
+        $phone = (string)$request->post('phone', '');
+        $livingArea = (string)$request->post('living_area', '');
+        $bio = (string)$request->post('bio', '');
+
+        try {
+            $this->authService->updateProfile((int)$currentUser['id'], $name, $phone, $livingArea, $bio);
+            $this->flash('success', 'Thông tin hồ sơ và câu chuyện bản địa đã được cập nhật thành công!');
+        } catch (Exception $e) {
+            $this->flash('danger', $e->getMessage());
+        }
+
+        $this->redirect('/profile');
+    }
+
     public function logout(): void
     {
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            unset($_SESSION['user']);
-        }
+        $this->authService->logout();
         $this->flash('info', 'Bạn đã đăng xuất thành công.');
         $this->redirect('/login');
     }

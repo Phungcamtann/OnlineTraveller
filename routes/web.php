@@ -24,6 +24,8 @@ return function (Router $router): void {
     $router->post('/login', [AuthController::class, 'login'], [CsrfMiddleware::class]);
     $router->get('/register', [AuthController::class, 'registerForm']);
     $router->post('/register', [AuthController::class, 'register'], [CsrfMiddleware::class]);
+    $router->get('/profile', [AuthController::class, 'profile'], [AuthMiddleware::class]);
+    $router->post('/profile', [AuthController::class, 'updateProfile'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/logout', [AuthController::class, 'logout']);
 
     // 3. HOST DASHBOARD & TOURS (TV2)

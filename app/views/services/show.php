@@ -1,6 +1,8 @@
 <?php
 /** @var array $service */
 /** @var array $stops */
+$service = $service ?? [];
+$stops = $stops ?? [];
 ?>
 
 <div class="container py-3">

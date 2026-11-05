@@ -6,17 +6,25 @@
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 1. sp_users_register: Đăng ký tài khoản Tourist mới
+-- 1. sp_users_register: Đăng ký tài khoản Du khách hoặc Dân bản địa
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_users_register$$
 CREATE PROCEDURE sp_users_register(
     IN p_email VARCHAR(254),
     IN p_name VARCHAR(150),
     IN p_password_hash VARCHAR(255),
-    IN p_phone VARCHAR(32)
+    IN p_phone VARCHAR(32),
+    IN p_role VARCHAR(16)
 )
 BEGIN
     DECLARE v_count INT DEFAULT 0;
+    DECLARE v_role VARCHAR(16) DEFAULT 'tourist';
+
+    IF p_role = 'host' THEN
+        SET v_role = 'host';
+    ELSE
+        SET v_role = 'tourist';
+    END IF;
 
     SELECT COUNT(*) INTO v_count FROM tbl_users WHERE email = p_email;
     IF v_count > 0 THEN
@@ -24,9 +32,9 @@ BEGIN
     END IF;
 
     INSERT INTO tbl_users (role, name, email, password_hash, phone, status, created_at, updated_at)
-    VALUES ('tourist', p_name, p_email, p_password_hash, p_phone, 'active', NOW(6), NOW(6));
+    VALUES (v_role, p_name, p_email, p_password_hash, p_phone, 'active', NOW(6), NOW(6));
 
-    SELECT id, role, name, email, phone, status, created_at
+    SELECT id, role, name, email, phone, avatar, living_area, bio, status, created_at
     FROM tbl_users
     WHERE id = LAST_INSERT_ID();
 END$$

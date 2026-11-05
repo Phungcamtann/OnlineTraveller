@@ -86,6 +86,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
                                         <li><h6 class="dropdown-header">Vai trò: <span class="badge bg-primary text-uppercase"><?= htmlspecialchars($currentUser['role'] ?? 'tourist') ?></span></h6></li>
+                                        <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-gear me-2"></i>Hồ sơ của tôi</a></li>
                                         <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
                                             <li><a class="dropdown-item" href="/admin"><i class="bi bi-speedometer2 me-2"></i>Quản trị Admin</a></li>
                                         <?php elseif (($currentUser['role'] ?? '') === 'host'): ?>
@@ -105,29 +106,6 @@
                 </div>
             </div>
         </nav>
-    </div>
-
-    <!-- FLASH MESSAGES -->
-    <div class="container mt-3">
-        <?php if (!empty($_SESSION['flash'])): ?>
-            <?php foreach ($_SESSION['flash'] as $type => $messages): ?>
-                <?php
-                    $alertClass = match($type) {
-                        'success' => 'alert-success',
-                        'warning' => 'alert-warning',
-                        'danger', 'error' => 'alert-danger',
-                        default => 'alert-info',
-                    };
-                ?>
-                <?php foreach ((array)$messages as $msg): ?>
-                    <div class="alert <?= $alertClass ?> alert-dismissible fade show rounded-4 shadow-sm" role="alert">
-                        <?= htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') ?>
-                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endforeach; ?>
-            <?php endforeach; ?>
-            <?php unset($_SESSION['flash']); ?>
-        <?php endif; ?>
     </div>
 
     <!-- MAIN BODY CONTENT -->
@@ -189,5 +167,8 @@
 
     <!-- Bootstrap 5.3.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Global Reusable Notification Pop-up Modal -->
+    <?php include dirname(__DIR__) . '/partials/notification-modal.php'; ?>
 </body>
 </html>

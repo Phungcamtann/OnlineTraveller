@@ -3,6 +3,10 @@
 /** @var array $categories */
 /** @var int $selectedCategoryId */
 /** @var string $keyword */
+$services = $services ?? [];
+$categories = $categories ?? [];
+$selectedCategoryId = $selectedCategoryId ?? 0;
+$keyword = $keyword ?? '';
 ?>
 
 <div class="container py-3">

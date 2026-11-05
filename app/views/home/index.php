@@ -2,6 +2,9 @@
 /** @var array|null $heroService */
 /** @var array $categories */
 /** @var array $services */
+$heroService = $heroService ?? null;
+$categories = $categories ?? [];
+$services = $services ?? [];
 ?>
 
 <div class="container">
