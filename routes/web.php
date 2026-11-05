@@ -8,6 +8,7 @@ use App\Controllers\ServiceController;
 use App\Controllers\AuthController;
 use App\Controllers\HostController;
 use App\Controllers\AdminController;
+use App\Controllers\CategoryController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -33,4 +34,10 @@ return function (Router $router): void {
 
     // 4. ADMIN DASHBOARD & MODERATION (TV1 & TV4)
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/categories', [CategoryController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/categories/create', [CategoryController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/categories', [CategoryController::class, 'store'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/admin/categories/{id}/edit', [CategoryController::class, 'edit'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/categories/{id}/edit', [CategoryController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/categories/{id}/toggle', [CategoryController::class, 'toggle'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 };
