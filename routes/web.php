@@ -32,6 +32,11 @@ return function (Router $router): void {
 
     // 3. HOST DASHBOARD, TOURS & SCHEDULES (TV2)
     $router->get('/host', [HostController::class, 'dashboard'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/services', [HostController::class, 'services'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/services/create', [HostController::class, 'createService'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->post('/host/services', [HostController::class, 'storeService'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/host/services/{id}/edit', [HostController::class, 'editService'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->post('/host/services/{id}/edit', [HostController::class, 'updateService'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
     $router->get('/host/schedules', [ScheduleController::class, 'index'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->get('/host/schedules/create', [ScheduleController::class, 'create'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->post('/host/schedules', [ScheduleController::class, 'store'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);

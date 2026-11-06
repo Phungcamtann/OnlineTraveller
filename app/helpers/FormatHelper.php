@@ -16,15 +16,14 @@ class FormatHelper
     }
 
     /**
-     * Format UTC date time to Asia/Ho_Chi_Minh display.
+     * Format date time to Asia/Ho_Chi_Minh display.
      */
     public static function formatDateTime(string $datetime, string $format = 'd/m/Y H:i'): string
     {
         try {
-            $date = new DateTime($datetime, new DateTimeZone('UTC'));
-            $date->setTimezone(new DateTimeZone('Asia/Ho_Chi_Minh'));
-            return $date->format($format);
-        } catch (Exception) {
+            $timestamp = strtotime($datetime);
+            return $timestamp ? date($format, $timestamp) : $datetime;
+        } catch (\Throwable) {
             return $datetime;
         }
     }
