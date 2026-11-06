@@ -153,7 +153,7 @@ class Service extends BaseModel
     }
 
     /**
-     * Create a new tour package via Stored Procedure sp_services_create.
+     * Create a new tour package via Stored Procedure ptl_sp_services_create.
      */
     public function create(
         int $hostId,
@@ -171,7 +171,7 @@ class Service extends BaseModel
         int $durationDays,
         ?string $bannerImage
     ): array {
-        $rows = $this->callProcedure('sp_services_create', [
+        $rows = $this->callProcedure('ptl_sp_services_create', [
             $hostId,
             $categoryId,
             $title,
@@ -192,7 +192,7 @@ class Service extends BaseModel
     }
 
     /**
-     * Update an existing tour package via Stored Procedure sp_services_update.
+     * Update an existing tour package via Stored Procedure ptl_sp_services_update.
      */
     public function update(
         int $hostId,
@@ -211,7 +211,7 @@ class Service extends BaseModel
         int $durationDays,
         ?string $bannerImage
     ): array {
-        $rows = $this->callProcedure('sp_services_update', [
+        $rows = $this->callProcedure('ptl_sp_services_update', [
             $hostId,
             $id,
             $categoryId,
@@ -233,11 +233,11 @@ class Service extends BaseModel
     }
 
     /**
-     * Admin review / moderate tour status via Stored Procedure sp_services_moderate.
+     * Admin review / moderate tour status via Stored Procedure ptl_sp_services_moderate.
      */
     public function moderate(int $adminId, int $id, string $status, ?string $rejectionReason = null): array
     {
-        $rows = $this->callProcedure('sp_services_moderate', [
+        $rows = $this->callProcedure('ptl_sp_services_moderate', [
             $adminId,
             $id,
             $status,

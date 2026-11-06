@@ -19,12 +19,12 @@ function runTest(string $title, callable $fn): void {
 
 // 1. Kiểm tra 6 thủ tục tồn tại trong Database
 $expectedProcs = [
-    'sp_services_create' => 'Tạo gói trải nghiệm bản địa (kèm tọa độ Maps)',
-    'sp_services_update' => 'Cập nhật tour & tọa độ Maps',
-    'sp_services_moderate' => 'Admin kiểm duyệt mở bán tour',
-    'sp_accommodations_save' => 'Thiết lập thông tin Homestay nhà dân bản địa (1-1)',
-    'sp_schedules_create' => 'Host mở lịch khởi hành mới',
-    'sp_schedules_cancel' => 'Host hủy lịch trình và tự hủy booking chờ',
+    'ptl_sp_services_create' => 'Tạo gói trải nghiệm bản địa (kèm tọa độ Maps)',
+    'ptl_sp_services_update' => 'Cập nhật tour & tọa độ Maps',
+    'ptl_sp_services_moderate' => 'Admin kiểm duyệt mở bán tour',
+    'ptl_sp_accommodations_save' => 'Thiết lập thông tin Homestay nhà dân bản địa (1-1)',
+    'ptl_sp_schedules_create' => 'Host mở lịch khởi hành mới',
+    'ptl_sp_schedules_cancel' => 'Host hủy lịch trình và tự hủy booking chờ',
 ];
 
 echo "--- 1. KIỂM TRA SỰ TỒN TẠI CỦA 6 THỦ TỤC TRONG MARIADB ---\n";
@@ -46,7 +46,7 @@ $testScheduleId = null;
 // Test 1: Chặn Tourist tạo Tour
 runTest("Chặn tài khoản Tourist (id=4) tự tạo tour", function() use ($pdo) {
     try {
-        $stmt = $pdo->prepare("CALL sp_services_create(?, 1, 'Test', 'slug-tourist', 'Desc', 'fixed_choice', 100000, 0, 0, 'Da Lat', 12.0, 108.0, 1, null)");
+        $stmt = $pdo->prepare("CALL ptl_sp_services_create(?, 1, 'Test', 'slug-tourist', 'Desc', 'fixed_choice', 100000, 0, 0, 'Da Lat', 12.0, 108.0, 1, null)");
         $stmt->execute([4]);
         throw new \Exception("Lẽ ra phải chặn nhưng lại cho phép tạo!");
     } catch (\PDOException $e) {
@@ -59,7 +59,7 @@ runTest("Chặn tài khoản Tourist (id=4) tự tạo tour", function() use ($p
 
 // Test 2: Host tạo Tour hợp lệ
 runTest("Host (id=2) tạo tour trải nghiệm mới kèm tọa độ Maps", function() use ($pdo, &$testTourId) {
-    $stmt = $pdo->prepare("CALL sp_services_create(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("CALL ptl_sp_services_create(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         2, 1, 'Tour Test TV2 Checklist', 'tour-test-tv2-checklist-' . time(),
         'Mô tả tour kiểm thử tự động', 'fixed_choice', 650000, 0, 0,
@@ -75,7 +75,7 @@ runTest("Host (id=2) tạo tour trải nghiệm mới kèm tọa độ Maps", fu
 // Test 3: Chặn Host khác sửa tour không phải của mình
 runTest("Chặn Host khác (id=3) sửa tour của Host 2", function() use ($pdo, &$testTourId) {
     try {
-        $stmt = $pdo->prepare("CALL sp_services_update(?, ?, 1, 'Update title', 'slug-up', 'Desc', 'fixed_choice', 700000, 0, 0, 'Da Lat', 12.0, 108.0, 1, null)");
+        $stmt = $pdo->prepare("CALL ptl_sp_services_update(?, ?, 1, 'Update title', 'slug-up', 'Desc', 'fixed_choice', 700000, 0, 0, 'Da Lat', 12.0, 108.0, 1, null)");
         $stmt->execute([3, $testTourId]);
         throw new \Exception("Lẽ ra phải chặn nhưng lại cho phép sửa!");
     } catch (\PDOException $e) {
@@ -88,7 +88,7 @@ runTest("Chặn Host khác (id=3) sửa tour của Host 2", function() use ($pdo
 
 // Test 4: Host chính chủ cập nhật thông tin tour
 runTest("Host chính chủ (id=2) cập nhật giá và địa điểm", function() use ($pdo, &$testTourId) {
-    $stmt = $pdo->prepare("CALL sp_services_update(?, ?, 1, 'Tour Test TV2 Cập Nhật', ?, 'Mô tả mới', 'fixed_choice', 750000, 0, 0, 'Đà Lạt', 11.95, 108.46, 2, null)");
+    $stmt = $pdo->prepare("CALL ptl_sp_services_update(?, ?, 1, 'Tour Test TV2 Cập Nhật', ?, 'Mô tả mới', 'fixed_choice', 750000, 0, 0, 'Đà Lạt', 11.95, 108.46, 2, null)");
     $stmt->execute([2, $testTourId, 'slug-updated-' . time()]);
     $updated = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
@@ -97,7 +97,7 @@ runTest("Host chính chủ (id=2) cập nhật giá và địa điểm", functio
 
 // Test 5: Admin duyệt tour
 runTest("Admin (id=1) phê duyệt mở bán tour (approved)", function() use ($pdo, &$testTourId) {
-    $stmt = $pdo->prepare("CALL sp_services_moderate(?, ?, ?, ?)");
+    $stmt = $pdo->prepare("CALL ptl_sp_services_moderate(?, ?, ?, ?)");
     $stmt->execute([1, $testTourId, 'approved', null]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
@@ -106,7 +106,7 @@ runTest("Admin (id=1) phê duyệt mở bán tour (approved)", function() use ($
 
 // Test 6: Lưu Homestay nhà dân bản địa (1-1)
 runTest("Host thiết lập lưu trú Homestay đính kèm tour", function() use ($pdo, &$testTourId) {
-    $stmt = $pdo->prepare("CALL sp_accommodations_save(?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("CALL ptl_sp_accommodations_save(?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([2, $testTourId, 'Homestay Cầu Đất View Mây', 'Đồi Chè Cầu Đất, Đà Lạt', 'Phòng Đơn Ấm Cúng', 1, 'Bao gồm bữa sáng']);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
@@ -115,7 +115,7 @@ runTest("Host thiết lập lưu trú Homestay đính kèm tour", function() use
 
 // Test 7: Mở lịch khởi hành mới
 runTest("Host mở lịch khởi hành mới cho tour", function() use ($pdo, &$testTourId, &$testScheduleId) {
-    $stmt = $pdo->prepare("CALL sp_schedules_create(?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("CALL ptl_sp_schedules_create(?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         2, $testTourId, '2026-12-10 05:00:00', '2026-12-10 11:30:00',
         '2026-12-09 18:00:00', 10, 'Cổng chợ Cầu Đất'
@@ -128,7 +128,7 @@ runTest("Host mở lịch khởi hành mới cho tour", function() use ($pdo, &$
 
 // Test 8: Hủy lịch khởi hành
 runTest("Host hủy lịch trình do thời tiết bất khả kháng", function() use ($pdo, &$testScheduleId) {
-    $stmt = $pdo->prepare("CALL sp_schedules_cancel(?, ?, ?)");
+    $stmt = $pdo->prepare("CALL ptl_sp_schedules_cancel(?, ?, ?)");
     $stmt->execute([2, $testScheduleId, 'Bão gió lớn trên đỉnh núi']);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();

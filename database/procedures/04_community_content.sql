@@ -1,15 +1,16 @@
 -- ==============================================================================
--- PHÂN HỆ TV4: COMMUNITY, REVIEWS, POSTS & PROMOTIONS STORED PROCEDURES
+-- PHÂN HỆ TV4 (Phùng Cẩm Tân): COMMUNITY, REVIEWS, POSTS & PROMOTIONS STORED PROCEDURES
 -- File: database/procedures/04_community_content.sql
+-- Naming: pct_sp_*
 -- ==============================================================================
 
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 18. sp_discussions_create: Thảo luận hỏi đáp 1 cấp dưới tour
+-- 1. pct_sp_discussions_create: Thảo luận hỏi đáp 1 cấp dưới tour
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_discussions_create$$
-CREATE PROCEDURE sp_discussions_create(
+DROP PROCEDURE IF EXISTS pct_sp_discussions_create$$
+CREATE PROCEDURE pct_sp_discussions_create(
     IN p_user_id BIGINT UNSIGNED,
     IN p_service_id BIGINT UNSIGNED,
     IN p_parent_id BIGINT UNSIGNED,
@@ -36,10 +37,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 19. sp_reviews_create: Du khách gửi đánh giá sau khi hoàn thành chuyến đi
+-- 2. pct_sp_reviews_create: Du khách gửi đánh giá sau khi hoàn thành chuyến đi
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_reviews_create$$
-CREATE PROCEDURE sp_reviews_create(
+DROP PROCEDURE IF EXISTS pct_sp_reviews_create$$
+CREATE PROCEDURE pct_sp_reviews_create(
     IN p_tourist_id BIGINT UNSIGNED,
     IN p_booking_id BIGINT UNSIGNED,
     IN p_rating TINYINT,
@@ -73,10 +74,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 20. sp_posts_save: Admin thêm mới hoặc chỉnh sửa bài viết blog du lịch
+-- 3. pct_sp_posts_save: Admin thêm mới hoặc chỉnh sửa bài viết blog du lịch
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_posts_save$$
-CREATE PROCEDURE sp_posts_save(
+DROP PROCEDURE IF EXISTS pct_sp_posts_save$$
+CREATE PROCEDURE pct_sp_posts_save(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED,
     IN p_title VARCHAR(255),
@@ -113,10 +114,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 21. sp_posts_delete: Admin xóa bài viết blog du lịch
+-- 4. pct_sp_posts_delete: Admin xóa bài viết blog du lịch
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_posts_delete$$
-CREATE PROCEDURE sp_posts_delete(
+DROP PROCEDURE IF EXISTS pct_sp_posts_delete$$
+CREATE PROCEDURE pct_sp_posts_delete(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED
 )
@@ -133,10 +134,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 22. sp_promotions_save: Admin tạo mới hoặc cập nhật mã giảm giá coupon
+-- 5. pct_sp_promotions_save: Admin tạo mới hoặc cập nhật mã giảm giá coupon
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_promotions_save$$
-CREATE PROCEDURE sp_promotions_save(
+DROP PROCEDURE IF EXISTS pct_sp_promotions_save$$
+CREATE PROCEDURE pct_sp_promotions_save(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED,
     IN p_code VARCHAR(50),

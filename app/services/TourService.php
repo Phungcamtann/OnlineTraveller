@@ -51,7 +51,7 @@ class TourService
         $suggestedSlug = !empty($data['slug']) ? (string)$data['slug'] : $validated['title'];
         $slug = $this->serviceModel->generateUniqueSlug($suggestedSlug);
 
-        // Call Stored Procedure sp_services_create
+        // Call Stored Procedure ptl_sp_services_create
         $created = $this->serviceModel->create(
             $hostId,
             $validated['category_id'],
@@ -141,7 +141,7 @@ class TourService
         // Retain existing banner if new banner is not uploaded
         $bannerImage = $validated['banner_image'] ?: $existing['banner_image'];
 
-        // Call Stored Procedure sp_services_update
+        // Call Stored Procedure ptl_sp_services_update
         $this->serviceModel->update(
             $hostId,
             $tourId,
@@ -224,7 +224,7 @@ class TourService
     }
 
     /**
-     * Admin review / moderate tour status (sp_services_moderate).
+     * Admin review / moderate tour status (ptl_sp_services_moderate).
      */
     public function moderateTour(int $adminId, int $tourId, string $status, ?string $rejectionReason = null): array
     {

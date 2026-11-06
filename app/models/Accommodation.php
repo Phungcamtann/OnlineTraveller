@@ -29,7 +29,7 @@ class Accommodation extends BaseModel
     }
 
     /**
-     * Save or update Homestay accommodation via Stored Procedure sp_accommodations_save.
+     * Save or update Homestay accommodation via Stored Procedure ptl_sp_accommodations_save.
      */
     public function save(
         int $hostId,
@@ -40,7 +40,7 @@ class Accommodation extends BaseModel
         int $nights = 1,
         ?string $notes = null
     ): array {
-        $rows = $this->callProcedure('sp_accommodations_save', [
+        $rows = $this->callProcedure('ptl_sp_accommodations_save', [
             $hostId,
             $serviceId,
             $homestayName,

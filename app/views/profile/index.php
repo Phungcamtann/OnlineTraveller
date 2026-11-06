@@ -157,7 +157,7 @@ $role = $user['role'] ?? 'tourist';
                                       data-original-val="<?= htmlspecialchars($user['bio'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
                                       placeholder="Chia sẻ đôi nét về bạn, sự gắn bó với quê hương, làng nghề truyền thống hoặc lý do bạn mong muốn dẫn dắt khách du lịch khám phá mảnh đất của mình..." 
                                       readonly><?= htmlspecialchars($user['bio'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
-                            <small class="text-muted d-block mt-1" style="font-size: 0.78rem;">Được lưu trữ qua thủ tục <code>sp_users_update_profile</code> trong CSDL.</small>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.78rem;">Được lưu trữ qua thủ tục <code>dhs_sp_users_update_profile</code> trong CSDL.</small>
                         </div>
                     </div>
 

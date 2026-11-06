@@ -36,7 +36,7 @@ $categories = $categories ?? [];
             <h5 class="fw-bold text-dark font-editorial mb-0">
                 Danh Sách Danh Mục Hiện Có (<?= count($categories) ?>)
             </h5>
-            <small class="text-muted">Cập nhật qua thủ tục <code>sp_categories_save</code></small>
+            <small class="text-muted">Cập nhật qua thủ tục <code>dhs_sp_categories_save</code></small>
         </div>
 
         <?php if (empty($categories)): ?>

@@ -23,7 +23,7 @@ $category = $category ?? [];
                             <i class="bi bi-pencil-square me-1"></i> Admin Phân Hệ TV1
                         </span>
                         <h3 class="font-editorial fw-bold text-dark mb-1">Chỉnh Sửa Danh Mục: <?= htmlspecialchars($category['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></h3>
-                        <p class="text-muted small mb-0">Cập nhật qua thủ tục <code>sp_categories_save</code></p>
+                        <p class="text-muted small mb-0">Cập nhật qua thủ tục <code>dhs_sp_categories_save</code></p>
                     </div>
                 </div>
 

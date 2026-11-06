@@ -51,11 +51,11 @@ class Category extends BaseModel
     }
 
     /**
-     * Save category (Insert if $id is null/0, Update if $id > 0) via sp_categories_save.
+     * Save category (Insert if $id is null/0, Update if $id > 0) via dhs_sp_categories_save.
      */
     public function save(int $adminId, ?int $id, string $name, string $slug, ?string $description, ?string $icon, int $isActive = 1): ?array
     {
-        $rows = $this->callProcedure('sp_categories_save', [
+        $rows = $this->callProcedure('dhs_sp_categories_save', [
             $adminId,
             $id ?? 0,
             $name,

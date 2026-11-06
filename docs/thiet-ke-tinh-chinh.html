@@ -595,13 +595,13 @@
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
                                 <span class="badge bg-primary mb-2">Phân hệ TV1: Users & Categories (5 SPs)</span>
-                                <p class="small text-muted mb-2">File: <code>database/procedures/01_users_categories.sql</code></p>
+                                <p class="small text-muted mb-2">File: <code>database/procedures/01_users_categories.sql</code> (Prefix: <code>dhs_sp_*</code>)</p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_users_register(p_email, p_name, p_hash, p_phone, p_role)</code>: Đăng ký tài khoản Du khách / Dân bản địa.</li>
-                                    <li><code>sp_users_find_login(p_email)</code>: Lấy thông tin xác thực để PHP verify password.</li>
-                                    <li><code>sp_users_update_profile(p_user_id, p_name, p_phone, p_living_area, p_bio)</code>: Cập nhật hồ sơ & câu chuyện bản địa.</li>
-                                    <li><code>sp_users_set_status(p_admin_id, p_user_id, p_status)</code>: Admin khóa/mở tài khoản.</li>
-                                    <li><code>sp_categories_save(p_admin_id, p_id, p_name, p_slug, p_desc, p_icon)</code>: Thêm/sửa danh mục trải nghiệm.</li>
+                                    <li><code>dhs_sp_users_register(p_email, p_name, p_hash, p_phone, p_role)</code>: Đăng ký tài khoản Du khách / Dân bản địa.</li>
+                                    <li><code>dhs_sp_users_find_login(p_email)</code>: Lấy thông tin xác thực để PHP verify password.</li>
+                                    <li><code>dhs_sp_users_update_profile(p_user_id, p_name, p_phone, p_living_area, p_bio)</code>: Cập nhật hồ sơ & câu chuyện bản địa.</li>
+                                    <li><code>dhs_sp_users_set_status(p_admin_id, p_user_id, p_status)</code>: Admin khóa/mở tài khoản.</li>
+                                    <li><code>dhs_sp_categories_save(p_admin_id, p_id, p_name, p_slug, p_desc, p_icon)</code>: Thêm/sửa danh mục trải nghiệm.</li>
                                 </ol>
                             </div>
                         </div>
@@ -610,14 +610,14 @@
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
                                 <span class="badge bg-success mb-2">Phân hệ TV2: Trải Nghiệm, Map & Homestay (6 SPs)</span>
-                                <p class="small text-muted mb-2">File: <code>database/procedures/02_services_bookings.sql</code></p>
+                                <p class="small text-muted mb-2">File: <code>database/procedures/02_services_bookings.sql</code> (Prefix: <code>ptl_sp_*</code>)</p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_services_create(p_host_id, p_cat_id, p_title, p_location, p_lat, p_lng, ...)</code>: Dân bản địa tạo trải nghiệm kèm tọa độ Map.</li>
-                                    <li><code>sp_services_update(p_host_id, p_id, p_title, p_location, p_lat, p_lng, ...)</code>: Cập nhật trải nghiệm & tọa độ.</li>
-                                    <li><code>sp_services_moderate(p_admin_id, p_id, p_status)</code>: Admin duyệt trải nghiệm mở bán.</li>
-                                    <li><code>sp_accommodations_save(p_host_id, p_service_id, p_homestay_name, ...)</code>: Thiết lập Homestay nhà dân bản địa.</li>
-                                    <li><code>sp_schedules_create(p_host_id, p_service_id, p_starts, p_ends, p_cap, p_meeting)</code>: Mở lịch đón khách.</li>
-                                    <li><code>sp_schedules_cancel(p_host_id, p_schedule_id, p_reason)</code>: Host hủy lịch & kích hoạt hoàn tiền.</li>
+                                    <li><code>ptl_sp_services_create(p_host_id, p_cat_id, p_title, p_location, p_lat, p_lng, ...)</code>: Dân bản địa tạo trải nghiệm kèm tọa độ Map.</li>
+                                    <li><code>ptl_sp_services_update(p_host_id, p_id, p_title, p_location, p_lat, p_lng, ...)</code>: Cập nhật trải nghiệm & tọa độ.</li>
+                                    <li><code>ptl_sp_services_moderate(p_admin_id, p_id, p_status)</code>: Admin duyệt trải nghiệm mở bán.</li>
+                                    <li><code>ptl_sp_accommodations_save(p_host_id, p_service_id, p_homestay_name, ...)</code>: Thiết lập Homestay nhà dân bản địa.</li>
+                                    <li><code>ptl_sp_schedules_create(p_host_id, p_service_id, p_starts, p_ends, p_cap, p_meeting)</code>: Mở lịch đón khách.</li>
+                                    <li><code>ptl_sp_schedules_cancel(p_host_id, p_schedule_id, p_reason)</code>: Host hủy lịch & kích hoạt hoàn tiền.</li>
                                 </ol>
                             </div>
                         </div>
@@ -626,14 +626,14 @@
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
                                 <span class="badge bg-warning text-dark mb-2">Phân hệ TV3: Đặt Lịch & Thanh Toán MoMo (6 SPs)</span>
-                                <p class="small text-muted mb-2">File: <code>database/procedures/03_promotions_payments.sql</code></p>
+                                <p class="small text-muted mb-2">File: <code>database/procedures/03_promotions_payments.sql</code> (Prefix: <code>ndtt_sp_*</code>)</p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_bookings_quote(p_schedule_id, p_count, p_promo_code)</code>: Tính tổng tiền & áp mã giảm giá.</li>
-                                    <li><code>sp_bookings_create(p_tourist_id, p_schedule_id, p_count, ...)</code>: Tạo booking đặt lịch trải nghiệm.</li>
-                                    <li><code>sp_bookings_approve(p_host_id, p_booking_id)</code>: Dân bản địa duyệt giữ chỗ (hạn thanh toán 15 phút).</li>
-                                    <li><code>sp_bookings_cancel(p_actor_id, p_booking_id, p_reason)</code>: Hủy chỗ & hoàn trả ghế trống.</li>
-                                    <li><code>sp_payments_apply_verified(p_booking_id, p_order_id, p_amount, ...)</code>: Xác nhận IPN MoMo thành công & xuất biên nhận.</li>
-                                    <li><code>sp_refunds_create_and_approve(p_admin_id, p_payment_id, p_amount, ...)</code>: Duyệt lệnh hoàn tiền cho khách.</li>
+                                    <li><code>ndtt_sp_bookings_quote(p_schedule_id, p_count, p_promo_code)</code>: Tính tổng tiền & áp mã giảm giá.</li>
+                                    <li><code>ndtt_sp_bookings_create(p_tourist_id, p_schedule_id, p_count, ...)</code>: Tạo booking đặt lịch trải nghiệm.</li>
+                                    <li><code>ndtt_sp_bookings_approve(p_host_id, p_booking_id)</code>: Dân bản địa duyệt giữ chỗ (hạn thanh toán 15 phút).</li>
+                                    <li><code>ndtt_sp_bookings_cancel(p_actor_id, p_booking_id, p_reason)</code>: Hủy chỗ & hoàn trả ghế trống.</li>
+                                    <li><code>ndtt_sp_payments_apply_verified(p_booking_id, p_order_id, p_amount, ...)</code>: Xác nhận IPN MoMo thành công & xuất biên nhận.</li>
+                                    <li><code>ndtt_sp_refunds_create_and_approve(p_admin_id, p_payment_id, p_amount, ...)</code>: Duyệt lệnh hoàn tiền cho khách.</li>
                                 </ol>
                             </div>
                         </div>
@@ -642,13 +642,13 @@
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-white">
                                 <span class="badge bg-info text-dark mb-2">Phân hệ TV4: Hỏi Đáp Từ Xa, Đánh Giá & Blog (5 SPs)</span>
-                                <p class="small text-muted mb-2">File: <code>database/procedures/04_community_content.sql</code></p>
+                                <p class="small text-muted mb-2">File: <code>database/procedures/04_community_content.sql</code> (Prefix: <code>pct_sp_*</code>)</p>
                                 <ol class="small mb-0 ps-3">
-                                    <li><code>sp_discussions_create(p_user_id, p_service_id, p_parent_id, p_msg)</code>: Gửi câu hỏi/phản hồi giữa Du khách và Dân bản địa.</li>
-                                    <li><code>sp_reviews_create(p_tourist_id, p_booking_id, p_rating, p_comment)</code>: Đánh giá sao sau chuyến đi thực tế.</li>
-                                    <li><code>sp_posts_save(p_admin_id, p_id, p_title, p_slug, p_content, p_thumb)</code>: Viết/sửa bài cẩm nang du lịch.</li>
-                                    <li><code>sp_posts_delete(p_admin_id, p_id)</code>: Xóa bài viết blog.</li>
-                                    <li><code>sp_promotions_save(p_admin_id, p_id, p_code, p_title, p_percent, ...)</code>: Tạo/cập nhật mã giảm giá.</li>
+                                    <li><code>pct_sp_discussions_create(p_user_id, p_service_id, p_parent_id, p_msg)</code>: Gửi câu hỏi/phản hồi giữa Du khách và Dân bản địa.</li>
+                                    <li><code>pct_sp_reviews_create(p_tourist_id, p_booking_id, p_rating, p_comment)</code>: Đánh giá sao sau chuyến đi thực tế.</li>
+                                    <li><code>pct_sp_posts_save(p_admin_id, p_id, p_title, p_slug, p_content, p_thumb)</code>: Viết/sửa bài cẩm nang du lịch.</li>
+                                    <li><code>pct_sp_posts_delete(p_admin_id, p_id)</code>: Xóa bài viết blog.</li>
+                                    <li><code>pct_sp_promotions_save(p_admin_id, p_id, p_code, p_title, p_percent, ...)</code>: Tạo/cập nhật mã giảm giá.</li>
                                 </ol>
                             </div>
                         </div>

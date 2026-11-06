@@ -2,23 +2,24 @@
 -- PHÂN HỆ TV2 (Phạm Thiên Long): QUẢN LÝ TOUR, LƯU TRÚ & LỊCH KHỞI HÀNH
 -- Mã Commit: TV2-01
 -- File: database/procedures/02_services_bookings.sql
+-- Naming: ptl_sp_*
 -- Gồm 6 Stored Procedures:
---   1. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Maps)
---   2. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
---   3. sp_services_moderate: Admin kiểm duyệt tour (approved, rejected, pending)
---   4. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
---   5. sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
---   6. sp_schedules_cancel: Host hủy lịch khởi hành (tự hủy booking pending)
+--   1. ptl_sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Maps)
+--   2. ptl_sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
+--   3. ptl_sp_services_moderate: Admin kiểm duyệt tour (approved, rejected, pending)
+--   4. ptl_sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
+--   5. ptl_sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
+--   6. ptl_sp_schedules_cancel: Host hủy lịch khởi hành (tự hủy booking pending)
 -- ==============================================================================
 
 SET NAMES utf8mb4;
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 1. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Google Maps)
+-- 1. ptl_sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Google Maps)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_services_create$$
-CREATE PROCEDURE sp_services_create(
+DROP PROCEDURE IF EXISTS ptl_sp_services_create$$
+CREATE PROCEDURE ptl_sp_services_create(
     IN p_host_id BIGINT UNSIGNED,
     IN p_category_id BIGINT UNSIGNED,
     IN p_title VARCHAR(255),
@@ -66,10 +67,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 2. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
+-- 2. ptl_sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_services_update$$
-CREATE PROCEDURE sp_services_update(
+DROP PROCEDURE IF EXISTS ptl_sp_services_update$$
+CREATE PROCEDURE ptl_sp_services_update(
     IN p_host_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED,
     IN p_category_id BIGINT UNSIGNED,
@@ -130,10 +131,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 3. sp_services_moderate: Admin kiểm duyệt tour (Duyệt / Từ chối mở bán)
+-- 3. ptl_sp_services_moderate: Admin kiểm duyệt tour (Duyệt / Từ chối mở bán)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_services_moderate$$
-CREATE PROCEDURE sp_services_moderate(
+DROP PROCEDURE IF EXISTS ptl_sp_services_moderate$$
+CREATE PROCEDURE ptl_sp_services_moderate(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED,
     IN p_status VARCHAR(20),
@@ -167,10 +168,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 4. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
+-- 4. ptl_sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_accommodations_save$$
-CREATE PROCEDURE sp_accommodations_save(
+DROP PROCEDURE IF EXISTS ptl_sp_accommodations_save$$
+CREATE PROCEDURE ptl_sp_accommodations_save(
     IN p_host_id BIGINT UNSIGNED,
     IN p_service_id BIGINT UNSIGNED,
     IN p_homestay_name VARCHAR(200),
@@ -211,10 +212,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 5. sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
+-- 5. ptl_sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_schedules_create$$
-CREATE PROCEDURE sp_schedules_create(
+DROP PROCEDURE IF EXISTS ptl_sp_schedules_create$$
+CREATE PROCEDURE ptl_sp_schedules_create(
     IN p_host_id BIGINT UNSIGNED,
     IN p_service_id BIGINT UNSIGNED,
     IN p_starts_at DATETIME(6),
@@ -258,10 +259,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 6. sp_schedules_cancel: Host hủy một lịch khởi hành (do thời tiết/bất khả kháng)
+-- 6. ptl_sp_schedules_cancel: Host hủy một lịch khởi hành (do thời tiết/bất khả kháng)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_schedules_cancel$$
-CREATE PROCEDURE sp_schedules_cancel(
+DROP PROCEDURE IF EXISTS ptl_sp_schedules_cancel$$
+CREATE PROCEDURE ptl_sp_schedules_cancel(
     IN p_host_id BIGINT UNSIGNED,
     IN p_schedule_id BIGINT UNSIGNED,
     IN p_cancel_reason TEXT

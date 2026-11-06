@@ -1,15 +1,16 @@
 -- ==============================================================================
--- PHÂN HỆ TV1: USERS & CATEGORIES STORED PROCEDURES
+-- PHÂN HỆ TV1 (Dương Hoàng Sâm): USERS & CATEGORIES STORED PROCEDURES
 -- File: database/procedures/01_users_categories.sql
+-- Naming: dhs_sp_*
 -- ==============================================================================
 
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 1. sp_users_register: Đăng ký tài khoản Du khách hoặc Dân bản địa
+-- 1. dhs_sp_users_register: Đăng ký tài khoản Du khách hoặc Dân bản địa
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_users_register$$
-CREATE PROCEDURE sp_users_register(
+DROP PROCEDURE IF EXISTS dhs_sp_users_register$$
+CREATE PROCEDURE dhs_sp_users_register(
     IN p_email VARCHAR(254),
     IN p_name VARCHAR(150),
     IN p_password_hash VARCHAR(255),
@@ -40,10 +41,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 2. sp_users_find_login: Lấy thông tin đăng nhập theo email để PHP verify mật khẩu
+-- 2. dhs_sp_users_find_login: Lấy thông tin đăng nhập theo email để PHP verify mật khẩu
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_users_find_login$$
-CREATE PROCEDURE sp_users_find_login(
+DROP PROCEDURE IF EXISTS dhs_sp_users_find_login$$
+CREATE PROCEDURE dhs_sp_users_find_login(
     IN p_email VARCHAR(254)
 )
 BEGIN
@@ -54,10 +55,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 3. sp_users_update_profile: Cập nhật hồ sơ & câu chuyện của dân bản địa
+-- 3. dhs_sp_users_update_profile: Cập nhật hồ sơ & câu chuyện của dân bản địa
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_users_update_profile$$
-CREATE PROCEDURE sp_users_update_profile(
+DROP PROCEDURE IF EXISTS dhs_sp_users_update_profile$$
+CREATE PROCEDURE dhs_sp_users_update_profile(
     IN p_user_id BIGINT UNSIGNED,
     IN p_name VARCHAR(150),
     IN p_phone VARCHAR(32),
@@ -81,10 +82,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 4. sp_users_set_status: Admin khóa / mở tài khoản người dùng
+-- 4. dhs_sp_users_set_status: Admin khóa / mở tài khoản người dùng
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_users_set_status$$
-CREATE PROCEDURE sp_users_set_status(
+DROP PROCEDURE IF EXISTS dhs_sp_users_set_status$$
+CREATE PROCEDURE dhs_sp_users_set_status(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_user_id BIGINT UNSIGNED,
     IN p_status VARCHAR(16)
@@ -108,10 +109,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 5. sp_categories_save: Admin thêm mới hoặc cập nhật danh mục tour
+-- 5. dhs_sp_categories_save: Admin thêm mới hoặc cập nhật danh mục tour
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_categories_save$$
-CREATE PROCEDURE sp_categories_save(
+DROP PROCEDURE IF EXISTS dhs_sp_categories_save$$
+CREATE PROCEDURE dhs_sp_categories_save(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_id BIGINT UNSIGNED,
     IN p_name VARCHAR(100),

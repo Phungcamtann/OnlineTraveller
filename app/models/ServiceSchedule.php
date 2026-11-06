@@ -13,7 +13,7 @@ use Core\BaseModel;
 class ServiceSchedule extends BaseModel
 {
     /**
-     * Create a new departure schedule via Stored Procedure sp_schedules_create.
+     * Create a new departure schedule via Stored Procedure ptl_sp_schedules_create.
      */
     public function create(
         int $hostId,
@@ -24,7 +24,7 @@ class ServiceSchedule extends BaseModel
         int $capacity,
         string $meetingPoint
     ): array {
-        $rows = $this->callProcedure('sp_schedules_create', [
+        $rows = $this->callProcedure('ptl_sp_schedules_create', [
             $hostId,
             $serviceId,
             $startsAt,
@@ -38,11 +38,11 @@ class ServiceSchedule extends BaseModel
     }
 
     /**
-     * Cancel an existing departure schedule via Stored Procedure sp_schedules_cancel.
+     * Cancel an existing departure schedule via Stored Procedure ptl_sp_schedules_cancel.
      */
     public function cancel(int $hostId, int $scheduleId, ?string $cancelReason = null): array
     {
-        $rows = $this->callProcedure('sp_schedules_cancel', [
+        $rows = $this->callProcedure('ptl_sp_schedules_cancel', [
             $hostId,
             $scheduleId,
             $cancelReason,

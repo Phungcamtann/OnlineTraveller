@@ -45,7 +45,7 @@ class CategoryController extends BaseController
     }
 
     /**
-     * Store new category via sp_categories_save.
+     * Store new category via dhs_sp_categories_save.
      */
     public function store(Request $request): void
     {
@@ -106,7 +106,7 @@ class CategoryController extends BaseController
     }
 
     /**
-     * Update category via sp_categories_save.
+     * Update category via dhs_sp_categories_save.
      */
     public function update(Request $request, string $id): void
     {

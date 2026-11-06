@@ -29,9 +29,9 @@ foreach ($tables as $t) {
 $procedures = $db->fetchAll("SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = DATABASE() AND ROUTINE_TYPE = 'PROCEDURE' ORDER BY ROUTINE_NAME");
 echo "4. Stored Procedures Count: " . count($procedures) . " procedures (Target: 22)\n";
 
-// 5. Test Calling a Stored Procedure (sp_users_find_login)
-$loginTest = $db->callProcedure('sp_users_find_login', ['admin@onlinetraveller.vn']);
-echo "5. Procedure Call (sp_users_find_login): " . (!empty($loginTest) ? 'SUCCESS (Found ' . $loginTest[0]['name'] . ')' : 'FAILED') . "\n";
+// 5. Test Calling a Stored Procedure (dhs_sp_users_find_login)
+$loginTest = $db->callProcedure('dhs_sp_users_find_login', ['admin@onlinetraveller.vn']);
+echo "5. Procedure Call (dhs_sp_users_find_login): " . (!empty($loginTest) ? 'SUCCESS (Found ' . $loginTest[0]['name'] . ')' : 'FAILED') . "\n";
 
 // 6. Test Service Model & 3D Stops
 $serviceModel = new \App\Models\Service();

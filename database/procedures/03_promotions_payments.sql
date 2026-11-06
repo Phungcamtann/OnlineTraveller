@@ -1,15 +1,25 @@
 -- ==============================================================================
--- PHÂN HỆ TV3: BOOKINGS, PAYMENTS & REFUNDS STORED PROCEDURES
+-- PHÂN HỆ TV3 (Nguyễn Duy Thành Tài): ĐẶT CHỖ, BÁO GIÁ & THANH TOÁN MOMO
+-- Mã Commit: TV3-01
 -- File: database/procedures/03_promotions_payments.sql
+-- Naming: ndtt_sp_*
+-- Gồm 6 Stored Procedures:
+--   1. ndtt_sp_bookings_quote: Tính toán báo giá, khuyến mãi áp dụng và chia khoản trả (50%/100%)
+--   2. ndtt_sp_bookings_create: Du khách gửi yêu cầu đặt tour (trạng thái pending)
+--   3. ndtt_sp_bookings_approve: Host duyệt booking và giữ chỗ 15 phút (khóa concurrency)
+--   4. ndtt_sp_bookings_cancel: Hủy booking và nhả lại số chỗ đã giữ vào lịch trình
+--   5. ndtt_sp_payments_apply_verified: Áp dụng MoMo IPN thành công và sinh biên nhận điện tử
+--   6. ndtt_sp_refunds_create_and_approve: Admin duyệt lệnh hoàn tiền MoMo Sandbox
 -- ==============================================================================
 
+SET NAMES utf8mb4;
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 12. sp_bookings_quote: Tính toán báo giá, khuyến mãi áp dụng và chia khoản trả
+-- 1. ndtt_sp_bookings_quote: Tính toán báo giá, khuyến mãi áp dụng và chia khoản trả
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_bookings_quote$$
-CREATE PROCEDURE sp_bookings_quote(
+DROP PROCEDURE IF EXISTS ndtt_sp_bookings_quote$$
+CREATE PROCEDURE ndtt_sp_bookings_quote(
     IN p_schedule_id BIGINT UNSIGNED,
     IN p_count INT,
     IN p_plan VARCHAR(20)
@@ -25,13 +35,21 @@ BEGIN
     DECLARE v_deposit_amount DECIMAL(14,0) DEFAULT 0;
     DECLARE v_remaining_amount DECIMAL(14,0) DEFAULT 0;
 
+    IF p_count < 1 THEN
+        SET p_count = 1;
+    END IF;
+
     SELECT s.id, s.base_price, s.price_mode
     INTO v_service_id, v_base_price, v_price_mode
     FROM tbl_services s
     JOIN tbl_service_schedules sch ON s.id = sch.service_id
     WHERE sch.id = p_schedule_id;
 
-    -- Tìm khuyến mãi cao nhất còn hiệu lực
+    IF v_service_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SCHEDULE_NOT_FOUND';
+    END IF;
+
+    -- Tìm khuyến mãi cao nhất còn hiệu lực cho dịch vụ này
     SELECT COALESCE(MAX(p.discount_percent), 0) INTO v_discount_percent
     FROM tbl_promotions p
     JOIN tbl_promotion_services ps ON p.id = ps.promotion_id
@@ -42,6 +60,7 @@ BEGIN
     IF v_price_mode = 'free' THEN
         SET v_base_price = 0;
         SET v_gross_total = 0;
+        SET v_discount_amount = 0;
         SET v_total_price = 0;
     ELSE
         SET v_gross_total = v_base_price * p_count;
@@ -74,10 +93,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 13. sp_bookings_create: Du khách gửi yêu cầu đặt tour (trạng thái pending)
+-- 2. ndtt_sp_bookings_create: Du khách gửi yêu cầu đặt tour (trạng thái pending)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_bookings_create$$
-CREATE PROCEDURE sp_bookings_create(
+DROP PROCEDURE IF EXISTS ndtt_sp_bookings_create$$
+CREATE PROCEDURE ndtt_sp_bookings_create(
     IN p_tourist_id BIGINT UNSIGNED,
     IN p_schedule_id BIGINT UNSIGNED,
     IN p_participants_count INT,
@@ -86,6 +105,7 @@ CREATE PROCEDURE sp_bookings_create(
 BEGIN
     DECLARE v_service_id BIGINT UNSIGNED;
     DECLARE v_base_price DECIMAL(14,0);
+    DECLARE v_price_mode VARCHAR(20);
     DECLARE v_discount_percent DECIMAL(5,2) DEFAULT 0;
     DECLARE v_gross_total DECIMAL(14,0);
     DECLARE v_discount_amount DECIMAL(14,0) DEFAULT 0;
@@ -96,17 +116,25 @@ BEGIN
     DECLARE v_sched_status VARCHAR(16);
     DECLARE v_closes_at DATETIME(6);
 
+    IF p_participants_count < 1 THEN
+        SET p_participants_count = 1;
+    END IF;
+
     -- Kiểm tra lịch trình còn nhận đăng ký không
     SELECT service_id, status, booking_closes_at
     INTO v_service_id, v_sched_status, v_closes_at
     FROM tbl_service_schedules
     WHERE id = p_schedule_id;
 
+    IF v_service_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SCHEDULE_NOT_FOUND';
+    END IF;
+
     IF v_sched_status != 'open' OR NOW(6) >= v_closes_at THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SCHEDULE_CLOSED';
     END IF;
 
-    SELECT base_price INTO v_base_price FROM tbl_services WHERE id = v_service_id;
+    SELECT base_price, price_mode INTO v_base_price, v_price_mode FROM tbl_services WHERE id = v_service_id;
 
     SELECT COALESCE(MAX(p.discount_percent), 0) INTO v_discount_percent
     FROM tbl_promotions p
@@ -115,9 +143,16 @@ BEGIN
       AND p.is_active = 1
       AND NOW(6) BETWEEN p.starts_at AND p.ends_at;
 
-    SET v_gross_total = v_base_price * p_participants_count;
-    SET v_discount_amount = ROUND(v_gross_total * (v_discount_percent / 100));
-    SET v_total_price = v_gross_total - v_discount_amount;
+    IF v_price_mode = 'free' THEN
+        SET v_base_price = 0;
+        SET v_gross_total = 0;
+        SET v_discount_amount = 0;
+        SET v_total_price = 0;
+    ELSE
+        SET v_gross_total = v_base_price * p_participants_count;
+        SET v_discount_amount = ROUND(v_gross_total * (v_discount_percent / 100));
+        SET v_total_price = v_gross_total - v_discount_amount;
+    END IF;
 
     IF p_payment_plan = 'deposit_50' THEN
         SET v_deposit_amount = ROUND(v_total_price / 2);
@@ -148,10 +183,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 14. sp_bookings_approve: Host duyệt booking và giữ chỗ (có khóa concurrency)
+-- 3. ndtt_sp_bookings_approve: Host duyệt booking và giữ chỗ (có khóa concurrency)
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_bookings_approve$$
-CREATE PROCEDURE sp_bookings_approve(
+DROP PROCEDURE IF EXISTS ndtt_sp_bookings_approve$$
+CREATE PROCEDURE ndtt_sp_bookings_approve(
     IN p_host_id BIGINT UNSIGNED,
     IN p_booking_id BIGINT UNSIGNED
 )
@@ -163,20 +198,29 @@ BEGIN
     DECLARE v_capacity INT;
     DECLARE v_booked INT;
     DECLARE v_plan VARCHAR(20);
+    DECLARE v_status VARCHAR(20);
     DECLARE v_new_status VARCHAR(20);
     DECLARE v_expires DATETIME(6) DEFAULT NULL;
 
-    -- Khóa hàng lịch trình để kiểm tra sức chứa đồng thời
-    SELECT b.schedule_id, b.service_id, b.participants_count, b.payment_plan, s.host_id
-    INTO v_schedule_id, v_service_id, v_count, v_plan, v_owner
+    SELECT b.schedule_id, b.service_id, b.participants_count, b.payment_plan, b.status, s.host_id
+    INTO v_schedule_id, v_service_id, v_count, v_plan, v_status, v_owner
     FROM tbl_bookings b
     JOIN tbl_services s ON b.service_id = s.id
     WHERE b.id = p_booking_id;
+
+    IF v_schedule_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'BOOKING_NOT_FOUND';
+    END IF;
 
     IF v_owner != p_host_id THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN_NOT_HOST';
     END IF;
 
+    IF v_status != 'pending' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'BOOKING_NOT_PENDING';
+    END IF;
+
+    -- Khóa hàng lịch trình để kiểm tra sức chứa đồng thời chống overbooking
     SELECT capacity, booked_seats INTO v_capacity, v_booked
     FROM tbl_service_schedules
     WHERE id = v_schedule_id
@@ -210,10 +254,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 15. sp_bookings_cancel: Hủy booking và nhả lại số chỗ đã giữ
+-- 4. ndtt_sp_bookings_cancel: Hủy booking và nhả lại số chỗ đã giữ
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_bookings_cancel$$
-CREATE PROCEDURE sp_bookings_cancel(
+DROP PROCEDURE IF EXISTS ndtt_sp_bookings_cancel$$
+CREATE PROCEDURE ndtt_sp_bookings_cancel(
     IN p_actor_id BIGINT UNSIGNED,
     IN p_booking_id BIGINT UNSIGNED,
     IN p_reason TEXT
@@ -221,20 +265,33 @@ CREATE PROCEDURE sp_bookings_cancel(
 BEGIN
     DECLARE v_tourist_id BIGINT UNSIGNED;
     DECLARE v_schedule_id BIGINT UNSIGNED;
+    DECLARE v_owner BIGINT UNSIGNED;
     DECLARE v_count INT;
     DECLARE v_status VARCHAR(20);
+    DECLARE v_role VARCHAR(16);
 
-    SELECT tourist_id, schedule_id, participants_count, status
-    INTO v_tourist_id, v_schedule_id, v_count, v_status
-    FROM tbl_bookings
-    WHERE id = p_booking_id
+    SELECT b.tourist_id, b.schedule_id, b.participants_count, b.status, s.host_id
+    INTO v_tourist_id, v_schedule_id, v_count, v_status, v_owner
+    FROM tbl_bookings b
+    JOIN tbl_services s ON b.service_id = s.id
+    WHERE b.id = p_booking_id
     FOR UPDATE;
+
+    IF v_schedule_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'BOOKING_NOT_FOUND';
+    END IF;
+
+    SELECT role INTO v_role FROM tbl_users WHERE id = p_actor_id;
+
+    IF p_actor_id != v_tourist_id AND p_actor_id != v_owner AND v_role != 'admin' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN';
+    END IF;
 
     IF v_status = 'cancelled' OR v_status = 'completed' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_BOOKING_STATUS';
     END IF;
 
-    -- Nếu đã từng giữ chỗ thì nhả lại chỗ
+    -- Nếu đã từng giữ chỗ thì nhả lại số chỗ trống vào lịch
     IF v_status IN ('awaiting_payment', 'confirmed') THEN
         UPDATE tbl_service_schedules
         SET booked_seats = GREATEST(0, booked_seats - v_count)
@@ -253,10 +310,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 16. sp_payments_apply_verified: Áp dụng kết quả MoMo IPN thành công và phát hành biên nhận
+-- 5. ndtt_sp_payments_apply_verified: Áp dụng kết quả MoMo IPN thành công và phát hành biên nhận
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_payments_apply_verified$$
-CREATE PROCEDURE sp_payments_apply_verified(
+DROP PROCEDURE IF EXISTS ndtt_sp_payments_apply_verified$$
+CREATE PROCEDURE ndtt_sp_payments_apply_verified(
     IN p_booking_id BIGINT UNSIGNED,
     IN p_order_id VARCHAR(64),
     IN p_request_id VARCHAR(64),
@@ -266,6 +323,10 @@ CREATE PROCEDURE sp_payments_apply_verified(
 BEGIN
     DECLARE v_payment_id BIGINT UNSIGNED;
     DECLARE v_receipt_code VARCHAR(32);
+
+    IF NOT EXISTS(SELECT 1 FROM tbl_bookings WHERE id = p_booking_id) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'BOOKING_NOT_FOUND';
+    END IF;
 
     -- Cập nhật hoặc tạo bản ghi payment thành công
     INSERT INTO tbl_payments (
@@ -285,6 +346,7 @@ BEGIN
     -- Chuyển trạng thái booking sang confirmed
     UPDATE tbl_bookings
     SET status = 'confirmed',
+        payment_expires_at = NULL,
         updated_at = NOW(6)
     WHERE id = p_booking_id;
 
@@ -302,10 +364,10 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 17. sp_refunds_create_and_approve: Admin duyệt lệnh hoàn tiền MoMo Sandbox
+-- 6. ndtt_sp_refunds_create_and_approve: Admin duyệt lệnh hoàn tiền MoMo Sandbox
 -- ------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_refunds_create_and_approve$$
-CREATE PROCEDURE sp_refunds_create_and_approve(
+DROP PROCEDURE IF EXISTS ndtt_sp_refunds_create_and_approve$$
+CREATE PROCEDURE ndtt_sp_refunds_create_and_approve(
     IN p_admin_id BIGINT UNSIGNED,
     IN p_payment_id BIGINT UNSIGNED,
     IN p_amount DECIMAL(14,0),
@@ -323,6 +385,10 @@ BEGIN
     END IF;
 
     SELECT booking_id INTO v_booking_id FROM tbl_payments WHERE id = p_payment_id;
+    IF v_booking_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'PAYMENT_NOT_FOUND';
+    END IF;
+
     SET v_refund_code = CONCAT('RF', DATE_FORMAT(NOW(), '%y%m%d'), LPAD(FLOOR(RAND() * 10000), 4, '0'));
 
     INSERT INTO tbl_refunds (

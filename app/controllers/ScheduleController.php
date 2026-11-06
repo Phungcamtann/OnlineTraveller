@@ -95,7 +95,7 @@ class ScheduleController extends BaseController
     }
 
     /**
-     * Store new departure schedule via sp_schedules_create.
+     * Store new departure schedule via ptl_sp_schedules_create.
      */
     public function store(Request $request): void
     {
@@ -137,7 +137,7 @@ class ScheduleController extends BaseController
     }
 
     /**
-     * Host cancels an existing departure schedule (sp_schedules_cancel).
+     * Host cancels an existing departure schedule (ptl_sp_schedules_cancel).
      */
     public function cancel(Request $request, string $id = ''): void
     {
