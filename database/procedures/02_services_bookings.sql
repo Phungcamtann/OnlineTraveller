@@ -1,12 +1,21 @@
 -- ==============================================================================
--- PHÂN HỆ TV2: TOURS, ACCOMMODATIONS & SCHEDULES STORED PROCEDURES
+-- PHÂN HỆ TV2 (Phạm Thiên Long): QUẢN LÝ TOUR, LƯU TRÚ & LỊCH KHỞI HÀNH
+-- Mã Commit: TV2-01
 -- File: database/procedures/02_services_bookings.sql
+-- Gồm 6 Stored Procedures:
+--   1. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Maps)
+--   2. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
+--   3. sp_services_moderate: Admin kiểm duyệt tour (approved, rejected, pending)
+--   4. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
+--   5. sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
+--   6. sp_schedules_cancel: Host hủy lịch khởi hành (tự hủy booking pending)
 -- ==============================================================================
 
+SET NAMES utf8mb4;
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
--- 6. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Google Maps)
+-- 1. sp_services_create: Local Host tạo gói trải nghiệm (kèm tọa độ Google Maps)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_services_create$$
 CREATE PROCEDURE sp_services_create(
@@ -33,6 +42,14 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN_NOT_HOST';
     END IF;
 
+    IF p_price_mode NOT IN ('free', 'host_range', 'fixed_choice', 'prepaid_full') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_PRICE_MODE';
+    END IF;
+
+    IF p_duration_days < 1 THEN
+        SET p_duration_days = 1;
+    END IF;
+
     INSERT INTO tbl_services (
         host_id, category_id, title, slug, description,
         price_mode, base_price, min_price, max_price,
@@ -49,7 +66,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 7. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
+-- 2. sp_services_update: Local Host cập nhật thông tin gói tour & tọa độ Maps
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_services_update$$
 CREATE PROCEDURE sp_services_update(
@@ -74,10 +91,22 @@ BEGIN
     DECLARE v_role VARCHAR(16);
 
     SELECT host_id INTO v_owner FROM tbl_services WHERE id = p_id;
+    IF v_owner IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SERVICE_NOT_FOUND';
+    END IF;
+
     SELECT role INTO v_role FROM tbl_users WHERE id = p_host_id;
 
     IF v_owner != p_host_id AND v_role != 'admin' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN_NOT_OWNER';
+    END IF;
+
+    IF p_price_mode NOT IN ('free', 'host_range', 'fixed_choice', 'prepaid_full') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_PRICE_MODE';
+    END IF;
+
+    IF p_duration_days < 1 THEN
+        SET p_duration_days = 1;
     END IF;
 
     UPDATE tbl_services
@@ -93,7 +122,7 @@ BEGIN
         latitude = p_latitude,
         longitude = p_longitude,
         duration_days = p_duration_days,
-        banner_image = COALESCE(p_banner_image, banner_image),
+        banner_image = CASE WHEN p_banner_image IS NOT NULL AND p_banner_image != '' THEN p_banner_image ELSE banner_image END,
         updated_at = NOW(6)
     WHERE id = p_id;
 
@@ -101,7 +130,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 8. sp_services_moderate: Admin kiểm duyệt tour (Duyệt / Từ chối mở bán)
+-- 3. sp_services_moderate: Admin kiểm duyệt tour (Duyệt / Từ chối mở bán)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_services_moderate$$
 CREATE PROCEDURE sp_services_moderate(
@@ -118,6 +147,14 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN';
     END IF;
 
+    IF NOT EXISTS(SELECT 1 FROM tbl_services WHERE id = p_id) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SERVICE_NOT_FOUND';
+    END IF;
+
+    IF p_status NOT IN ('draft', 'pending', 'approved', 'rejected', 'archived') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_STATUS';
+    END IF;
+
     UPDATE tbl_services
     SET status = p_status,
         rejection_reason = p_rejection_reason,
@@ -130,7 +167,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 9. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
+-- 4. sp_accommodations_save: Thiết lập Homestay nhà dân bản địa (1-1)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_accommodations_save$$
 CREATE PROCEDURE sp_accommodations_save(
@@ -147,10 +184,18 @@ BEGIN
     DECLARE v_role VARCHAR(16);
 
     SELECT host_id INTO v_owner FROM tbl_services WHERE id = p_service_id;
+    IF v_owner IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SERVICE_NOT_FOUND';
+    END IF;
+
     SELECT role INTO v_role FROM tbl_users WHERE id = p_host_id;
 
     IF v_owner != p_host_id AND v_role != 'admin' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'FORBIDDEN_NOT_OWNER';
+    END IF;
+
+    IF p_nights < 1 THEN
+        SET p_nights = 1;
     END IF;
 
     INSERT INTO tbl_service_accommodations (service_id, homestay_name, address, room_type, nights, notes, created_at)
@@ -166,7 +211,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 10. sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
+-- 5. sp_schedules_create: Local Host mở lịch khởi hành mới cho tour
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_schedules_create$$
 CREATE PROCEDURE sp_schedules_create(
@@ -183,6 +228,10 @@ BEGIN
     DECLARE v_role VARCHAR(16);
 
     SELECT host_id INTO v_owner FROM tbl_services WHERE id = p_service_id;
+    IF v_owner IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SERVICE_NOT_FOUND';
+    END IF;
+
     SELECT role INTO v_role FROM tbl_users WHERE id = p_host_id;
 
     IF v_owner != p_host_id AND v_role != 'admin' THEN
@@ -191,6 +240,10 @@ BEGIN
 
     IF p_starts_at >= p_ends_at OR p_booking_closes_at > p_starts_at THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_SCHEDULE_TIME';
+    END IF;
+
+    IF p_capacity < 1 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_CAPACITY';
     END IF;
 
     INSERT INTO tbl_service_schedules (
@@ -205,7 +258,7 @@ BEGIN
 END$$
 
 -- ------------------------------------------------------------------------------
--- 11. sp_schedules_cancel: Host hủy một lịch khởi hành (do thời tiết/bất khả kháng)
+-- 6. sp_schedules_cancel: Host hủy một lịch khởi hành (do thời tiết/bất khả kháng)
 -- ------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_schedules_cancel$$
 CREATE PROCEDURE sp_schedules_cancel(
@@ -219,6 +272,10 @@ BEGIN
     DECLARE v_role VARCHAR(16);
 
     SELECT service_id INTO v_service_id FROM tbl_service_schedules WHERE id = p_schedule_id;
+    IF v_service_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SCHEDULE_NOT_FOUND';
+    END IF;
+
     SELECT host_id INTO v_owner FROM tbl_services WHERE id = v_service_id;
     SELECT role INTO v_role FROM tbl_users WHERE id = p_host_id;
 
