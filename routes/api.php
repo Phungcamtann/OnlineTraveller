@@ -7,6 +7,7 @@ use Core\Request;
 use Core\Response;
 use Core\Database;
 use App\Models\Service;
+use App\Controllers\ScheduleController;
 
 return function (Router $router): void {
     // 1. HEALTH CHECK & ARCHITECTURE STATUS
@@ -36,4 +37,7 @@ return function (Router $router): void {
             'stops' => $stops,
         ]);
     });
+
+    // 3. AVAILABLE DEPARTURE SCHEDULES
+    $router->get('/api/services/{id}/schedules', [ScheduleController::class, 'byService']);
 };

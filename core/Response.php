@@ -36,6 +36,11 @@ class Response
         return $this;
     }
 
+    public function getBody(): string
+    {
+        return $this->body;
+    }
+
     public function json(mixed $data, int $statusCode = 200): void
     {
         $this->setStatusCode($statusCode);

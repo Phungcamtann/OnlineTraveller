@@ -7,6 +7,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ServiceController;
 use App\Controllers\AuthController;
 use App\Controllers\HostController;
+use App\Controllers\ScheduleController;
 use App\Controllers\AdminController;
 use App\Controllers\CategoryController;
 use App\Middleware\AuthMiddleware;
@@ -29,8 +30,12 @@ return function (Router $router): void {
     $router->post('/profile', [AuthController::class, 'updateProfile'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/logout', [AuthController::class, 'logout']);
 
-    // 3. HOST DASHBOARD & TOURS (TV2)
+    // 3. HOST DASHBOARD, TOURS & SCHEDULES (TV2)
     $router->get('/host', [HostController::class, 'dashboard'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/schedules', [ScheduleController::class, 'index'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/schedules/create', [ScheduleController::class, 'create'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->post('/host/schedules', [ScheduleController::class, 'store'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/host/schedules/{id}/cancel', [ScheduleController::class, 'cancel'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
 
     // 4. ADMIN DASHBOARD & MODERATION (TV1 & TV4)
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
