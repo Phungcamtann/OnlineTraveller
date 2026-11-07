@@ -6,16 +6,24 @@ namespace App\Controllers;
 
 use Core\BaseController;
 use Core\Request;
+use Core\Response;
 use App\Models\Service;
+use App\Integrations\OpenWeatherClient;
 
 class ServiceController extends BaseController
 {
     private Service $serviceModel;
+    private OpenWeatherClient $weatherClient;
 
-    public function __construct(?Request $request = null)
-    {
-        parent::__construct($request);
-        $this->serviceModel = new Service();
+    public function __construct(
+        ?Request $request = null,
+        ?Response $response = null,
+        ?Service $serviceModel = null,
+        ?OpenWeatherClient $weatherClient = null
+    ) {
+        parent::__construct($request, $response);
+        $this->serviceModel = $serviceModel ?? new Service();
+        $this->weatherClient = $weatherClient ?? new OpenWeatherClient();
     }
 
     /**
@@ -39,7 +47,7 @@ class ServiceController extends BaseController
     }
 
     /**
-     * Detail page of an experience (including 3D Three.js stops and Google Maps).
+     * Detail page of an experience (including 3D Three.js stops, Google Maps and destination weather).
      */
     public function show(Request $request, string $id): void
     {
@@ -54,10 +62,35 @@ class ServiceController extends BaseController
 
         $stops = $this->serviceModel->getStops($serviceId);
 
+        // Fetch destination weather via OpenWeatherClient (with cache & intelligent regional fallback)
+        $weather = $this->weatherClient->getWeatherForService($service);
+
         $this->view('services/show', [
             'title' => $service['title'] . ' — OnlineTraveller',
             'service' => $service,
             'stops' => $stops,
+            'weather' => $weather,
+        ]);
+    }
+
+    /**
+     * JSON Webservice Endpoint: Return real-time destination weather forecast (GET /api/weather).
+     */
+    public function weather(Request $request): void
+    {
+        $location = (string)($request->query('location') ?? '');
+        $lat = $request->query('lat');
+        $lon = $request->query('lon');
+
+        if ($lat !== null && $lon !== null && is_numeric($lat) && is_numeric($lon)) {
+            $data = $this->weatherClient->getWeatherByCoords((float)$lat, (float)$lon, $location);
+        } else {
+            $data = $this->weatherClient->getWeatherByCity($location !== '' ? $location : 'Đà Lạt');
+        }
+
+        $this->json([
+            'success' => true,
+            'data' => $data,
         ]);
     }
 }

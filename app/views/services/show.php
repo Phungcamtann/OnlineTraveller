@@ -1,8 +1,10 @@
 <?php
 /** @var array $service */
 /** @var array $stops */
+/** @var array $weather */
 $service = $service ?? [];
 $stops = $stops ?? [];
+$weather = $weather ?? [];
 ?>
 
 <div class="container py-3">
@@ -155,25 +157,107 @@ $stops = $stops ?? [];
                 </div>
             <?php endif; ?>
 
-            <!-- Google Maps & OpenWeather Weather Placeholder -->
-            <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold font-editorial text-dark mb-0">
-                        <i class="bi bi-geo-alt text-danger me-1"></i> Bản Đồ Thực Tế & Thời Tiết Điểm Đến
-                    </h5>
+            <!-- Google Maps & OpenWeather Live Weather Forecast -->
+            <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white" id="weather-destination-card">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                    <div>
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-1 mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-cloud-sun-fill me-1"></i> WEBSERVICE OPENWEATHER JSON API
+                        </span>
+                        <h5 class="fw-bold font-editorial text-dark mb-0">
+                            Thời Tiết & Bản Đồ Điểm Đến: <?= htmlspecialchars($service['location'], ENT_QUOTES, 'UTF-8') ?>
+                        </h5>
+                    </div>
                     <?php if (!empty($service['latitude']) && !empty($service['longitude'])): ?>
-                        <span class="badge bg-light text-secondary border">
-                            Tọa độ: <?= number_format((float)$service['latitude'], 4) ?>, <?= number_format((float)$service['longitude'], 4) ?>
+                        <span class="badge bg-light text-secondary border rounded-pill px-3 py-2">
+                            <i class="bi bi-compass me-1 text-primary"></i> <?= number_format((float)$service['latitude'], 4) ?>, <?= number_format((float)$service['longitude'], 4) ?>
                         </span>
                     <?php endif; ?>
                 </div>
 
-                <div class="p-4 rounded-3 text-center border" style="background: #f8fafc; min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <i class="bi bi-map fs-1 text-primary mb-2"></i>
-                    <h6 class="fw-bold text-dark">Google Maps & OpenWeather Official API</h6>
-                    <p class="small text-muted mb-0" style="max-width: 480px;">
-                        Điểm đến tại <strong><?= htmlspecialchars($service['location'], ENT_QUOTES, 'UTF-8') ?></strong>. Tọa độ chính thức sẵn sàng kết nối bản đồ vệ tinh và dự báo thời tiết trực tiếp.
-                    </p>
+                <!-- Weather Banner Widget -->
+                <?php if (!empty($weather)): ?>
+                    <div class="rounded-4 p-3 p-md-4 mb-3 position-relative overflow-hidden shadow-sm" 
+                         style="background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%); border: 1px solid #bae6fd;">
+                        <div class="row align-items-center g-3">
+                            <!-- Left: Big Temperature & Icon -->
+                            <div class="col-sm-5 col-md-4 text-center text-sm-start border-end-md">
+                                <div class="d-flex align-items-center justify-content-center justify-content-sm-start gap-2">
+                                    <img src="<?= htmlspecialchars($weather['icon_url'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
+                                         alt="Weather Icon" 
+                                         style="width: 64px; height: 64px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+                                    <div>
+                                        <div class="display-6 fw-bold text-dark font-editorial mb-0">
+                                            <?= (int)($weather['temp'] ?? 25) ?>°C
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            Cảm giác như: <strong><?= (int)($weather['feels_like'] ?? 25) ?>°C</strong>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Middle: Conditions & Indices -->
+                            <div class="col-sm-7 col-md-8">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="fw-bold text-dark fs-6 font-editorial">
+                                        <?= htmlspecialchars($weather['description'] ?? 'Trời quang mây tạnh', ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
+                                </div>
+
+                                <div class="row g-2 text-center text-sm-start small">
+                                    <div class="col-4">
+                                        <span class="text-muted d-block"><i class="bi bi-droplet-fill text-primary me-1"></i> Độ ẩm</span>
+                                        <strong class="text-dark"><?= (int)($weather['humidity'] ?? 75) ?>%</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="text-muted d-block"><i class="bi bi-wind text-info me-1"></i> Tốc độ gió</span>
+                                        <strong class="text-dark"><?= (float)($weather['wind_speed'] ?? 2.5) ?> m/s</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="text-muted d-block"><i class="bi bi-thermometer-half text-danger me-1"></i> Biên độ</span>
+                                        <strong class="text-dark"><?= (int)($weather['temp_min'] ?? 20) ?>° - <?= (int)($weather['temp_max'] ?? 28) ?>°C</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Advice Box -->
+                        <?php if (!empty($weather['advice'])): ?>
+                            <div class="mt-3 pt-3 border-top border-info border-opacity-25 d-flex align-items-start gap-2 small text-dark">
+                                <i class="bi bi-lightbulb-fill text-warning fs-5 flex-shrink-0"></i>
+                                <div>
+                                    <strong class="text-dark">Lời khuyên chuẩn bị từ Host:</strong>
+                                    <span class="text-secondary"><?= htmlspecialchars($weather['advice'], ENT_QUOTES, 'UTF-8') ?></span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="text-end mt-2">
+                            <span class="text-muted" style="font-size: 0.72rem;">
+                                <i class="bi bi-clock-history me-1"></i> Nguồn: <?= htmlspecialchars($weather['source'] ?? 'OpenWeather', ENT_QUOTES, 'UTF-8') ?> • Cập nhật: <?= htmlspecialchars($weather['updated_at'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Google Maps Interactive Embed -->
+                <div class="rounded-3 overflow-hidden border shadow-sm position-relative" style="height: 260px; background: #e2e8f0;">
+                    <?php 
+                        $mapQuery = urlencode($service['location'] . ', Việt Nam');
+                        if (!empty($service['latitude']) && !empty($service['longitude'])) {
+                            $mapQuery = $service['latitude'] . ',' . $service['longitude'];
+                        }
+                    ?>
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        loading="lazy" 
+                        allowfullscreen 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://maps.google.com/maps?q=<?= $mapQuery ?>&t=&z=13&ie=UTF8&iwloc=&output=embed">
+                    </iframe>
                 </div>
             </div>
 

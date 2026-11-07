@@ -9,6 +9,7 @@ use Core\Database;
 use App\Models\Service;
 use App\Controllers\ScheduleController;
 use App\Controllers\BookingController;
+use App\Controllers\ServiceController;
 
 return function (Router $router): void {
     // 1. HEALTH CHECK & ARCHITECTURE STATUS
@@ -44,4 +45,7 @@ return function (Router $router): void {
 
     // 4. LIVE PRICE QUOTE & PROMOTION CALCULATION (TV3)
     $router->post('/api/bookings/quote', [BookingController::class, 'quote']);
+
+    // 5. DESTINATION WEATHER WEBSERVICE JSON (TV4 OpenWeather)
+    $router->get('/api/weather', [ServiceController::class, 'weather']);
 };
