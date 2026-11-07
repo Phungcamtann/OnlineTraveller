@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Controllers\ScheduleController;
 use App\Controllers\BookingController;
 use App\Controllers\ServiceController;
+use App\Controllers\HomeController;
 
 return function (Router $router): void {
     // 1. HEALTH CHECK & ARCHITECTURE STATUS
@@ -48,4 +49,7 @@ return function (Router $router): void {
 
     // 5. DESTINATION WEATHER WEBSERVICE JSON (TV4 OpenWeather)
     $router->get('/api/weather', [ServiceController::class, 'weather']);
+
+    // 6. TRAVEL NEWS RSS WEBSERVICE XML (TV4 RssClient)
+    $router->get('/api/rss/news', [HomeController::class, 'news']);
 };
