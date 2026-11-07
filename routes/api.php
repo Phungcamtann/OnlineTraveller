@@ -8,6 +8,7 @@ use Core\Response;
 use Core\Database;
 use App\Models\Service;
 use App\Controllers\ScheduleController;
+use App\Controllers\BookingController;
 
 return function (Router $router): void {
     // 1. HEALTH CHECK & ARCHITECTURE STATUS
@@ -40,4 +41,7 @@ return function (Router $router): void {
 
     // 3. AVAILABLE DEPARTURE SCHEDULES
     $router->get('/api/services/{id}/schedules', [ScheduleController::class, 'byService']);
+
+    // 4. LIVE PRICE QUOTE & PROMOTION CALCULATION (TV3)
+    $router->post('/api/bookings/quote', [BookingController::class, 'quote']);
 };

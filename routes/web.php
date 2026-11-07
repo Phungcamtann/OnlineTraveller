@@ -8,6 +8,7 @@ use App\Controllers\ServiceController;
 use App\Controllers\AuthController;
 use App\Controllers\HostController;
 use App\Controllers\ScheduleController;
+use App\Controllers\BookingController;
 use App\Controllers\AdminController;
 use App\Controllers\CategoryController;
 use App\Middleware\AuthMiddleware;
@@ -50,4 +51,11 @@ return function (Router $router): void {
     $router->get('/admin/categories/{id}/edit', [CategoryController::class, 'edit'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/categories/{id}/edit', [CategoryController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->post('/admin/categories/{id}/toggle', [CategoryController::class, 'toggle'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+
+    // 5. TOURIST BOOKINGS & RESERVATION FLOW (TV3)
+    $router->get('/bookings/create', [BookingController::class, 'create'], [AuthMiddleware::class]);
+    $router->post('/bookings', [BookingController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/bookings/{id}', [BookingController::class, 'show'], [AuthMiddleware::class]);
+    $router->post('/bookings/{id}/cancel', [BookingController::class, 'cancel'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/my-bookings', [BookingController::class, 'myBookings'], [AuthMiddleware::class]);
 };
