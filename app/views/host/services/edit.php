@@ -45,7 +45,8 @@ $stops = $tour['stops'] ?? [];
     </div>
 
     <form action="/host/services/<?= (int)$tour['id'] ?>/edit" method="POST" enctype="multipart/form-data" id="editTourForm">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+        <input type="hidden" name="csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
 
         <div class="row g-4">
             <!-- Left Column: Main Tour Information -->

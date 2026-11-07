@@ -163,7 +163,8 @@
 <div class="modal fade" id="cancelScheduleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form action="" method="POST" id="cancelScheduleForm" class="modal-content rounded-4 border-0 shadow">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+            <input type="hidden" name="csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
             <div class="modal-header border-bottom">
                 <h5 class="modal-title fw-bold text-dark font-editorial">Hủy Lịch Khởi Hành</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

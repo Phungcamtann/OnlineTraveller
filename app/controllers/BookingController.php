@@ -77,8 +77,20 @@ class BookingController extends BaseController
         }
 
         $scheduleId = (int)($request->query('schedule_id') ?? 0);
+        $serviceId = (int)($request->query('service_id') ?? 0);
         $count = (int)($request->query('count') ?? 1);
         $plan = (string)($request->query('plan') ?? 'deposit_50');
+
+        if ($scheduleId <= 0 && $serviceId > 0) {
+            $openSchedules = $this->scheduleModel->getByServiceId($serviceId, true);
+            if (!empty($openSchedules)) {
+                $scheduleId = (int)$openSchedules[0]['id'];
+            } else {
+                $this->flash('warning', 'Gói trải nghiệm này hiện chưa có lịch khởi hành nào còn nhận khách.');
+                $this->redirect('/services/' . $serviceId);
+                return;
+            }
+        }
 
         if ($scheduleId <= 0) {
             $this->flash('danger', 'Vui lòng chọn lịch khởi hành của tour trước khi đặt chỗ.');
@@ -88,9 +100,10 @@ class BookingController extends BaseController
 
         try {
             $quote = $this->pricingService->quoteSchedule($scheduleId, $count, $plan);
+            $availableSchedules = $this->scheduleModel->getByServiceId((int)$quote['service_id'], true);
 
             if ($request->isAjax() || $request->query('format') === 'json') {
-                $this->json(['success' => true, 'data' => $quote]);
+                $this->json(['success' => true, 'data' => $quote, 'schedules' => $availableSchedules]);
                 return;
             }
 
@@ -100,6 +113,7 @@ class BookingController extends BaseController
                 $this->view('bookings/create', [
                     'title' => 'Xác Nhận Đặt Chỗ — ' . $quote['service_title'],
                     'quote' => $quote,
+                    'availableSchedules' => $availableSchedules,
                     'user' => $user,
                 ]);
             } else {

@@ -27,7 +27,8 @@
                 </div>
 
                 <form action="/host/schedules" method="POST" id="createScheduleForm">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                    <input type="hidden" name="csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
 
                     <!-- 1. Select Tour -->
                     <div class="mb-3">

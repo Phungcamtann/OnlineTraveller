@@ -53,6 +53,7 @@ return function (Router $router): void {
     $router->post('/admin/categories/{id}/toggle', [CategoryController::class, 'toggle'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 
     // 5. TOURIST BOOKINGS & RESERVATION FLOW (TV3)
+    $router->get('/bookings', [BookingController::class, 'myBookings'], [AuthMiddleware::class]);
     $router->get('/bookings/create', [BookingController::class, 'create'], [AuthMiddleware::class]);
     $router->post('/bookings', [BookingController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/bookings/{id}', [BookingController::class, 'show'], [AuthMiddleware::class]);

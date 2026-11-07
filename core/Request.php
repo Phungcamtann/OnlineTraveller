@@ -178,7 +178,7 @@ class Request
 
     public function csrfToken(): ?string
     {
-        return $this->post('_csrf_token') ?? $this->header('X-CSRF-TOKEN');
+        return $this->post('_csrf_token') ?? $this->post('csrf_token') ?? $this->header('X-CSRF-TOKEN');
     }
 }
 
