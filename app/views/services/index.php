@@ -10,6 +10,14 @@ $keyword = $keyword ?? '';
 ?>
 
 <div class="container py-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted"><i class="bi bi-house"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Trải Nghiệm Bản Địa</li>
+        </ol>
+    </nav>
+
     <!-- Page Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
@@ -42,20 +50,37 @@ $keyword = $keyword ?? '';
             </div>
             <div class="col-lg-3 col-md-2">
                 <button type="submit" class="btn btn-editorial w-100">
-                    Lọc Kết Quả
+                    <i class="bi bi-filter me-1"></i> Lọc Kết Quả
                 </button>
             </div>
         </form>
+
+        <!-- Popular Destination Tags -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top small text-muted">
+            <span class="fw-semibold"><i class="bi bi-geo-alt text-danger me-1"></i> Điểm đến hot:</span>
+            <a href="/services?location=Đà+Lạt" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">Đà Lạt</a>
+            <a href="/services?location=Sa+Pa" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">Sa Pa</a>
+            <a href="/services?location=Hà+Giang" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">Hà Giang</a>
+            <a href="/services?location=Hội+An" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">Hội An</a>
+            <a href="/services?location=Phú+Quốc" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">Phú Quốc</a>
+            <?php if (!empty($keyword) || $selectedCategoryId > 0): ?>
+                <a href="/services" class="badge bg-danger-subtle text-danger text-decoration-none border border-danger-subtle ms-auto">
+                    <i class="bi bi-x-circle me-1"></i> Xóa bộ lọc
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Experiences Grid -->
     <div class="row g-4">
         <?php if (empty($services)): ?>
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-search fs-1 text-muted d-block mb-2"></i>
-                <h5 class="fw-bold text-muted">Không tìm thấy trải nghiệm phù hợp</h5>
-                <p class="small text-muted">Vui lòng thử tìm kiếm với từ khóa khác hoặc bỏ bộ lọc danh mục.</p>
-                <a href="/services" class="btn btn-sm btn-outline-dark rounded-pill px-4">Xem tất cả trải nghiệm</a>
+            <div class="col-12 text-center py-5 bg-white rounded-4 shadow-sm border p-5">
+                <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold text-dark font-editorial mb-2">Không Tìm Thấy Trải Nghiệm Phù Hợp</h5>
+                <p class="small text-muted mb-4">Vui lòng thử tìm kiếm với từ khóa khác hoặc bỏ bộ lọc danh mục hiện tại.</p>
+                <a href="/services" class="btn btn-dark rounded-pill px-4 py-2">
+                    <i class="bi bi-arrow-repeat me-1"></i> Xem Tất Cả Trải Nghiệm
+                </a>
             </div>
         <?php else: ?>
             <?php foreach ($services as $srv): ?>
@@ -90,7 +115,7 @@ $keyword = $keyword ?? '';
                             </div>
 
                             <?php if (!empty($srv['homestay_name'])): ?>
-                                <div class="small text-success bg-success-subtle px-2 py-1 rounded-2 mb-3">
+                                <div class="small text-success bg-success-subtle px-2 py-1 rounded-2 mb-3 text-truncate" title="<?= htmlspecialchars($srv['homestay_name'], ENT_QUOTES, 'UTF-8') ?>">
                                     <i class="bi bi-house-door me-1"></i> Homestay: <?= htmlspecialchars($srv['homestay_name'], ENT_QUOTES, 'UTF-8') ?>
                                 </div>
                             <?php endif; ?>
