@@ -1,396 +1,363 @@
 <?php
-/** @var array|null $heroService */
-/** @var array $categories */
-/** @var array $services */
-/** @var array $travelNews */
+/**
+ * OnlineTraveller v2.2 — Home Page (Trang Chủ)
+ * UI Specification: docs/UI_SPEC_FOR_AGENT.md (Section 3B - 3.2) & Mockup Image
+ *
+ * @var array|null $heroService
+ * @var array $categories
+ * @var array $services
+ * @var array $travelNews
+ */
+
 $heroService = $heroService ?? null;
 $categories = $categories ?? [];
 $services = $services ?? [];
 $travelNews = $travelNews ?? [];
+
+// Resolve Featured Service for Hero Banner (from $heroService or first service in $services)
+$featuredService = $heroService ?? ($services[0] ?? null);
+$featuredTitle = $featuredService['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm';
+$featuredDesc = $featuredService['short_description'] ?? ($featuredService['description'] ?? 'Trải nghiệm sương mù Đà Lạt, đón bình minh mộng mơ bên hồ cùng người dân bản địa.');
+$featuredImage = $featuredService['banner_image'] ?? '/assets/images/tours/dalat-san-may.jpg';
+$featuredHost = $featuredService['host_name'] ?? 'Nguyễn Văn Bản Địa (Đà Lạt)';
+$featuredLocation = $featuredService['location'] ?? 'Đà Lạt, Lâm Đồng';
+$featuredRating = (float)($featuredService['avg_rating'] ?? ($featuredService['rating'] ?? 5.0));
+$featuredId = (int)($featuredService['id'] ?? 1);
 ?>
 
-<div class="container">
-    <!-- 1. HERO BANNER: ĐIỂM HOT ĐÁNH GIÁ CAO -->
-    <div class="hero-editorial mb-4">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <span class="hero-badge mb-3 d-inline-block">
-                    <i class="bi bi-star-fill text-warning me-1"></i> Trải Nghiệm Bản Địa Nổi Bật Nhất
-                </span>
-                
-                <?php if ($heroService): ?>
-                    <h1 class="font-editorial text-white mb-3">
-                        <?= htmlspecialchars($heroService['title'], ENT_QUOTES, 'UTF-8') ?>
-                    </h1>
-                    
-                    <p class="text-white-50 fs-6 mb-4" style="max-width: 650px;">
-                        <?= htmlspecialchars($heroService['description'], ENT_QUOTES, 'UTF-8') ?>
-                    </p>
+<div class="main-container">
 
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <a href="/services/<?= (int)$heroService['id'] ?>" class="btn btn-pill-amber px-4 py-2 fs-6">
-                            Khám phá ngay <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                        <a href="/services/<?= (int)$heroService['id'] ?>#virtual-tour" class="btn btn-outline-light rounded-pill px-4 py-2 fs-6">
-                            <i class="bi bi-badge-3d text-warning me-1"></i> Xem Trình Chiếu 3D Từ Xa
-                        </a>
-                        <div class="text-white-50 small ps-2">
-                            <i class="bi bi-person-circle text-white me-1"></i> Host: <strong><?= htmlspecialchars($heroService['host_name'], ENT_QUOTES, 'UTF-8') ?></strong>
-                            <span class="mx-2">•</span>
-                            <i class="bi bi-geo-alt text-danger me-1"></i> <?= htmlspecialchars($heroService['location'], ENT_QUOTES, 'UTF-8') ?>
-                            <span class="mx-2">•</span>
-                            <span class="text-warning fw-bold">★ <?= number_format((float)$heroService['avg_rating'], 1) ?></span>
+    <!-- 1. HERO BANNER: CHỮ BÊN TRÁI + NÚT GLASS + HIỆU ỨNG AMBIENT BLUR -->
+    <section class="container-xxl pt-2">
+        <div class="row">
+            <div class="col-12">
+                <div class="hero-ambient-wrapper">
+                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                            <div class="container">
+                                <div class="row align-items-center pt-5 pb-4 px-lg-4">
+                                    <div class="col-lg-7 col-md-9 pt-4">
+                                        <h1 class="font-editorial display-4 fw-bold text-white mb-3 lh-sm">
+                                            <?= htmlspecialchars($featuredTitle, ENT_QUOTES, 'UTF-8') ?>
+                                        </h1>
+                                        <p class="text-light opacity-75 mb-4 fs-6" style="max-width: 580px;">
+                                            <?= htmlspecialchars($featuredDesc, ENT_QUOTES, 'UTF-8') ?>
+                                        </p>
+                                        <div class="mb-3">
+                                            <a href="/services/<?= $featuredId ?>" class="btn btn-glass-hero">
+                                                Khám phá ngay <i class="bi bi-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                        <div class="small text-light opacity-75">
+                                            Host: <?= htmlspecialchars($featuredHost, ENT_QUOTES, 'UTF-8') ?> &bull; 
+                                            <?= htmlspecialchars($featuredLocation, ENT_QUOTES, 'UTF-8') ?> &bull; 
+                                            <span class="text-warning">&#9733; <?= number_format($featuredRating, 1) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                <?php else: ?>
-                    <h1 class="font-editorial text-white mb-3">
-                        OnlineTraveller — Du Lịch & Khám Phá Cùng Dân Bản Địa
-                    </h1>
-                    <p class="text-white-50 fs-6 mb-4">
-                        Khám phá vẻ đẹp thực tế qua không gian trình chiếu 3D có chiều sâu, trò chuyện từ xa và đặt lịch trải nghiệm thực tế cùng Homestay nhà dân bản xứ.
-                    </p>
-                    <a href="/services" class="btn btn-pill-amber px-4 py-2 fs-6">
-                        Khám phá tất cả trải nghiệm <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                <?php endif; ?>
+                    <!-- Ambient Glow Blur dưới chân Banner -->
+                    <div class="hero-ambient-glow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- 2. FLOATING SEARCH BAR -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-12">
-            <div class="floating-search-bar shadow-sm">
-                <form action="/services" method="GET" class="row g-3 align-items-center">
-                    <div class="col-lg-4 col-md-6">
-                        <label class="form-label small text-muted fw-bold mb-1"><i class="bi bi-geo-alt text-danger me-1"></i> Điểm đến / Vùng đất</label>
-                        <input type="text" name="location" class="form-control" placeholder="Đà Lạt, Hội An, Tây Bắc, Phú Quốc...">
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label small text-muted fw-bold mb-1"><i class="bi bi-grid text-primary me-1"></i> Danh mục văn hóa</label>
-                        <select name="category_id" class="form-select">
-                            <option value="">Tất cả danh mục</option>
-                            <?php foreach ($categories as $cat): ?>
-                                <option value="<?= (int)$cat['id'] ?>"><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label small text-muted fw-bold mb-1"><i class="bi bi-cash-stack text-success me-1"></i> Ngân sách dự kiến</label>
-                        <select name="price_range" class="form-select">
-                            <option value="">Mọi mức giá</option>
-                            <option value="under_500">Dưới 500.000 ₫</option>
-                            <option value="500_1000">500.000 ₫ – 1.000.000 ₫</option>
-                            <option value="over_1000">Trên 1.000.000 ₫</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-2 col-md-6 d-flex align-items-end">
-                        <button type="submit" class="btn btn-editorial w-100 py-2">
-                            <i class="bi bi-search me-1"></i> Tìm Tour
-                        </button>
+    <!-- 2. THANH TÌM KIẾM NỔI TÁCH BIỆT DƯỚI BANNER -->
+    <section class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <form action="/services" method="GET" class="glass-panel p-3 p-lg-4 shadow-lg">
+                    <div class="row g-3 align-items-center">
+                        <!-- Trường 1: Điểm đến -->
+                        <div class="col-lg-4 col-md-4 search-col-divider">
+                            <label class="d-block small fw-bold text-white mb-1" for="search-location">
+                                Điểm đến?
+                            </label>
+                            <input type="text" 
+                                   id="search-location"
+                                   name="location" 
+                                   class="form-control bg-transparent border-0 text-white p-0 shadow-none search-field-input" 
+                                   placeholder="Tìm địa danh" 
+                                   value="<?= htmlspecialchars($_GET['location'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+
+                        <!-- Trường 2: Danh mục -->
+                        <div class="col-lg-3 col-md-3 search-col-divider">
+                            <label class="d-block small fw-bold text-white mb-1" for="search-category">
+                                Danh mục
+                            </label>
+                            <select id="search-category" 
+                                    name="category_id" 
+                                    class="form-select bg-transparent border-0 text-white p-0 shadow-none search-field-select">
+                                <option value="" class="bg-dark text-white">Văn hóa, ẩm thực</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= (int)$cat['id'] ?>" class="bg-dark text-white" <?= (isset($_GET['category_id']) && (int)$_GET['category_id'] === (int)$cat['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Trường 3: Ngân sách -->
+                        <div class="col-lg-3 col-md-3 search-col-divider">
+                            <label class="d-block small fw-bold text-white mb-1" for="search-price">
+                                Ngân sách
+                            </label>
+                            <select id="search-price" 
+                                    name="price_range" 
+                                    class="form-select bg-transparent border-0 text-white p-0 shadow-none search-field-select">
+                                <option value="" class="bg-dark text-white">Khoảng giá</option>
+                                <option value="under_500" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === 'under_500') ? 'selected' : '' ?>>Dưới 500k</option>
+                                <option value="500_1000" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === '500_1000') ? 'selected' : '' ?>>500k – 1 triệu</option>
+                                <option value="over_1000" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === 'over_1000') ? 'selected' : '' ?>>Trên 1 triệu</option>
+                            </select>
+                        </div>
+
+                        <!-- Trường 4: Nút Tìm kiếm -->
+                        <div class="col-lg-2 col-md-2">
+                            <button type="submit" class="btn btn-alpine w-100 py-2">
+                                Tìm kiếm
+                            </button>
+                        </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </section>
 
-                <!-- Quick search tags -->
-                <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top small text-muted">
-                    <span class="fw-semibold"><i class="bi bi-fire text-danger me-1"></i> Tìm nhanh:</span>
-                    <a href="/services?location=Đà+Lạt" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">#Đà Lạt</a>
-                    <a href="/services?location=Sa+Pa" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">#Sa Pa</a>
-                    <a href="/services?location=Hà+Giang" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">#Hà Giang</a>
-                    <a href="/services?location=Hội+An" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">#Hội An</a>
-                    <a href="/services?location=Phú+Quốc" class="badge bg-light text-secondary text-decoration-none border px-2 py-1">#Phú Quốc</a>
+    <!-- 3. THỜI TIẾT ĐIỂM ĐẾN HÔM NAY (5 CARD KÍNH MỜ) -->
+    <section class="container mt-5">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h4 class="fw-bold text-white mb-0">Thời Tiết Điểm Đến Hôm Nay</h4>
+            </div>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+            <?php
+            $destinationsWeather = [
+                ['city' => 'Đà Lạt', 'temp' => '18°C', 'desc' => 'se lạnh, sương mù', 'query' => 'Đà Lạt', 'icon' => '02d', 'bs_icon' => 'bi-cloud-sun text-info'],
+                ['city' => 'Sa Pa', 'temp' => '15°C', 'desc' => 'mù sương', 'query' => 'Sa Pa', 'icon' => '50d', 'bs_icon' => 'bi-cloud-fog2 text-info'],
+                ['city' => 'Hà Giang', 'temp' => '21°C', 'desc' => 'nắng nhẹ', 'query' => 'Hà Giang', 'icon' => '01d', 'bs_icon' => 'bi-sun text-warning'],
+                ['city' => 'Hội An', 'temp' => '27°C', 'desc' => 'nắng ấm', 'query' => 'Hội An', 'icon' => '02d', 'bs_icon' => 'bi-cloud-sun text-warning'],
+                ['city' => 'Phú Quốc', 'temp' => '29°C', 'desc' => 'nắng vàng, biển êm', 'query' => 'Phú Quốc', 'icon' => '01d', 'bs_icon' => 'bi-brightness-high text-warning'],
+            ];
+            ?>
+            <?php foreach ($destinationsWeather as $w): ?>
+                <div class="col">
+                    <a href="/services?location=<?= urlencode($w['query']) ?>" class="glass-panel p-3 h-100 d-block text-decoration-none hover-lift">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold text-white" style="font-size: 0.95rem;"><?= htmlspecialchars($w['city'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <img src="https://openweathermap.org/img/wn/<?= $w['icon'] ?>.png" 
+                                 alt="<?= htmlspecialchars($w['desc'], ENT_QUOTES, 'UTF-8') ?>" 
+                                 width="36" height="36"
+                                 style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                            <i class="bi <?= $w['bs_icon'] ?> fs-5" style="display: none;"></i>
+                        </div>
+                        <div class="fs-2 fw-bold text-info mb-1 lh-1"><?= htmlspecialchars($w['temp'], ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="small text-light opacity-75"><?= htmlspecialchars($w['desc'], ENT_QUOTES, 'UTF-8') ?></div>
+                    </a>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. WEBSERVICE WEATHER EXPLORER (DỰ BÁO THỜI TIẾT ĐIỂM ĐẾN NỔI BẬT) -->
-    <div class="card border-0 rounded-4 shadow-sm p-4 mb-5 bg-white">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-            <div>
-                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-1 mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">
-                    <i class="bi bi-cloud-sun me-1"></i> WEBSERVICE OPENWEATHER JSON API
-                </span>
-                <h4 class="font-editorial fw-bold text-dark mb-0">Thời Tiết Điểm Đến Hôm Nay</h4>
-            </div>
-            <small class="text-muted">
-                <i class="bi bi-info-circle me-1"></i> Lựa chọn chuyến đi theo khí hậu lý tưởng của bạn
-            </small>
-        </div>
-
-        <div class="row g-3">
-            <!-- 1. Đà Lạt -->
-            <div class="col-lg col-md-4 col-sm-6">
-                <a href="/services?location=Đà+Lạt" class="card border rounded-3 p-3 h-100 text-decoration-none text-dark hover-shadow transition" style="background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-dark">Đà Lạt</strong>
-                        <span class="badge bg-success-subtle text-success">Cao nguyên</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <img src="https://openweathermap.org/img/wn/02d.png" alt="weather" style="width: 36px; height: 36px;">
-                        <span class="fs-4 fw-bold font-editorial text-dark">18°C</span>
-                    </div>
-                    <div class="small text-muted mb-1">Se lạnh mù sương</div>
-                    <small class="text-success d-block" style="font-size: 0.75rem;">Săn mây & cà phê đồi</small>
-                </a>
-            </div>
-
-            <!-- 2. Sa Pa -->
-            <div class="col-lg col-md-4 col-sm-6">
-                <a href="/services?location=Sa+Pa" class="card border rounded-3 p-3 h-100 text-decoration-none text-dark hover-shadow transition" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-dark">Sa Pa</strong>
-                        <span class="badge bg-secondary-subtle text-secondary">Vùng cao</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <img src="https://openweathermap.org/img/wn/50d.png" alt="weather" style="width: 36px; height: 36px;">
-                        <span class="fs-4 fw-bold font-editorial text-dark">15°C</span>
-                    </div>
-                    <div class="small text-muted mb-1">Mây mù mát lạnh</div>
-                    <small class="text-primary d-block" style="font-size: 0.75rem;">Chinh phục Fansipan</small>
-                </a>
-            </div>
-
-            <!-- 3. Hà Giang -->
-            <div class="col-lg col-md-4 col-sm-6">
-                <a href="/services?location=Hà+Giang" class="card border rounded-3 p-3 h-100 text-decoration-none text-dark hover-shadow transition" style="background: linear-gradient(180deg, #fefce8 0%, #ffffff 100%);">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-dark">Hà Giang</strong>
-                        <span class="badge bg-warning-subtle text-warning-emphasis">Núi đá</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <img src="https://openweathermap.org/img/wn/01d.png" alt="weather" style="width: 36px; height: 36px;">
-                        <span class="fs-4 fw-bold font-editorial text-dark">21°C</span>
-                    </div>
-                    <div class="small text-muted mb-1">Nắng dịu ráo trời</div>
-                    <small class="text-warning-emphasis d-block" style="font-size: 0.75rem;">Đèo Mã Pí Lèng</small>
-                </a>
-            </div>
-
-            <!-- 4. Hội An -->
-            <div class="col-lg col-md-4 col-sm-6">
-                <a href="/services?location=Hội+An" class="card border rounded-3 p-3 h-100 text-decoration-none text-dark hover-shadow transition" style="background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-dark">Hội An</strong>
-                        <span class="badge bg-danger-subtle text-danger">Phố cổ</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <img src="https://openweathermap.org/img/wn/02d.png" alt="weather" style="width: 36px; height: 36px;">
-                        <span class="fs-4 fw-bold font-editorial text-dark">27°C</span>
-                    </div>
-                    <div class="small text-muted mb-1">Nắng ấm gió nhẹ</div>
-                    <small class="text-danger d-block" style="font-size: 0.75rem;">Đèn lồng sông Hoài</small>
-                </a>
-            </div>
-
-            <!-- 5. Phú Quốc -->
-            <div class="col-lg col-md-4 col-sm-6">
-                <a href="/services?location=Phú+Quốc" class="card border rounded-3 p-3 h-100 text-decoration-none text-dark hover-shadow transition" style="background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-dark">Phú Quốc</strong>
-                        <span class="badge bg-primary-subtle text-primary">Biển đảo</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <img src="https://openweathermap.org/img/wn/01d.png" alt="weather" style="width: 36px; height: 36px;">
-                        <span class="fs-4 fw-bold font-editorial text-dark">29°C</span>
-                    </div>
-                    <div class="small text-muted mb-1">Nắng vàng biển êm</div>
-                    <small class="text-primary d-block" style="font-size: 0.75rem;">Lặn ngắm san hô</small>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. DANH MỤC TRẢI NGHIỆM VĂN HÓA (CATEGORY CHIPS) -->
-    <div class="mb-4">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 mb-1">
-                    <i class="bi bi-compass me-1"></i> Bản Sắc Địa Phương
-                </span>
-                <h3 class="font-editorial fw-bold text-dark mb-0">Khám Phá Theo Chủ Đề</h3>
-            </div>
-            <a href="/services" class="text-primary text-decoration-none fw-semibold small">
-                Xem tất cả <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2">
-            <?php foreach ($categories as $cat): ?>
-                <a href="/services?category_id=<?= (int)$cat['id'] ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 text-dark bg-white border">
-                    <i class="bi <?= htmlspecialchars($cat['icon'] ?? 'bi-tag', ENT_QUOTES, 'UTF-8') ?> text-primary me-1"></i>
-                    <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
-                </a>
             <?php endforeach; ?>
         </div>
-    </div>
+    </section>
 
-    <!-- 5. DANH SÁCH GÓI TRẢI NGHIỆM BẢN ĐỊA (EDITORIAL CARDS GRID) -->
-    <div class="mb-5">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div>
-                <h3 class="font-editorial fw-bold text-dark mb-1">Trải Nghiệm Cùng Dân Bản Địa Mới Nhất</h3>
-                <p class="text-muted small mb-0">Những chuyến đi chân thực, đậm chất văn hóa địa phương và hỗ trợ lưu trú Homestay nhà dân</p>
+    <!-- 4. KHÁM PHÁ ĐỊA PHƯƠNG + NÚT MỞ RỘNG TAG + 4 CARD TRẢI NGHIỆM TRÀN ẢNH -->
+    <section class="container mt-5">
+        <!-- Hàng tiêu đề & Nút mở rộng Tag -->
+        <div class="row align-items-center justify-content-between mb-3">
+            <div class="col-auto">
+                <h3 class="fw-bold text-white mb-0">Khám Phá Địa Phương</h3>
             </div>
-            <a href="/services" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1 d-none d-sm-inline-block">
-                Xem Thêm <i class="bi bi-arrow-right ms-1"></i>
-            </a>
+            <div class="col-auto">
+                <button class="btn btn-alpine btn-sm px-3 py-2" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#topicTagsCollapse"
+                        aria-expanded="true"
+                        aria-controls="topicTagsCollapse">
+                    Tìm theo chủ đề &#9662;
+                </button>
+            </div>
         </div>
 
-        <div class="row g-4">
-            <?php if (empty($services)): ?>
-                <div class="col-12 text-center py-5 text-muted">
-                    <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                    Chưa có gói trải nghiệm nào được kích hoạt.
+        <!-- Hàng Collapse chứa các Tag chủ đề -->
+        <div class="collapse show" id="topicTagsCollapse">
+            <div class="row mb-4">
+                <div class="col-12 d-flex flex-wrap gap-2">
+                    <a href="/services" class="glass-pill px-3 py-1 small text-decoration-none text-white">Tất cả</a>
+                    <a href="/services?category_id=1" class="glass-pill px-3 py-1 small text-decoration-none text-white">Ẩm thực bản địa</a>
+                    <a href="/services?category_id=2" class="glass-pill px-3 py-1 small text-decoration-none text-white">Săn mây & Trekking</a>
+                    <a href="/services?category_id=3" class="glass-pill px-3 py-1 small text-decoration-none text-white">Làng nghề di sản</a>
+                    <a href="/services?category_id=4" class="glass-pill px-3 py-1 small text-decoration-none text-white">Homestay nhà dân</a>
+                    <?php foreach ($categories as $cat): ?>
+                        <?php if (!in_array((int)$cat['id'], [1, 2, 3, 4], true)): ?>
+                            <a href="/services?category_id=<?= (int)$cat['id'] ?>" class="glass-pill px-3 py-1 small text-decoration-none text-white">
+                                <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
-            <?php else: ?>
-                <?php foreach ($services as $srv): ?>
-                    <div class="col-lg-3 col-md-6 col-12">
-                        <div class="card-tour">
-                            <div class="tour-thumbnail">
-                                <img src="<?= htmlspecialchars($srv['banner_image'] ?? '/assets/images/tours/dalat-san-may.jpg', ENT_QUOTES, 'UTF-8') ?>" 
-                                     alt="<?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>"
-                                     onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'">
-                                <span class="tour-badge-category">
-                                    <?= htmlspecialchars($srv['category_name'], ENT_QUOTES, 'UTF-8') ?>
-                                </span>
-                                <span class="tour-rating">
-                                    <i class="bi bi-star-fill text-warning me-1"></i><?= number_format((float)$srv['avg_rating'], 1) ?>
+            </div>
+        </div>
+
+        <!-- Hàng Lưới 4 Card Trải Nghiệm tràn ảnh -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+            <?php
+            // Lấy 4 dịch vụ mẫu chuẩn mockup nếu có trong database, hoặc fallback mẫu
+            $displayServices = array_slice($services, 0, 4);
+            if (empty($displayServices)) {
+                $displayServices = [
+                    [
+                        'id' => 1,
+                        'title' => 'Săn mây & Cà phê bản địa',
+                        'location' => 'Đà Lạt, Lâm Đồng',
+                        'base_price' => 450000,
+                        'avg_rating' => 4.9,
+                        'banner_image' => '/assets/images/tours/dalat-san-may.jpg',
+                    ],
+                    [
+                        'id' => 2,
+                        'title' => 'Đêm phố cổ & Làng gốm',
+                        'location' => 'Hội An, Quảng Nam',
+                        'base_price' => 380000,
+                        'avg_rating' => 4.8,
+                        'banner_image' => '/assets/images/tours/hoian-dem-pho-co.jpg',
+                    ],
+                    [
+                        'id' => 3,
+                        'title' => 'Cung đường đá nở hoa',
+                        'location' => 'Hà Giang',
+                        'base_price' => 650000,
+                        'avg_rating' => 5.0,
+                        'banner_image' => '/assets/images/tours/hagiang-nui-da.jpg',
+                    ],
+                    [
+                        'id' => 4,
+                        'title' => 'Làng chài & Hoàng hôn',
+                        'location' => 'Phú Quốc',
+                        'base_price' => 520000,
+                        'avg_rating' => 4.7,
+                        'banner_image' => '/assets/images/tours/phuquoc-lang-chai.jpg',
+                    ],
+                ];
+            }
+            ?>
+            <?php foreach ($displayServices as $srv): ?>
+                <?php
+                    $srvPrice = (float)($srv['base_price'] ?? 0);
+                    $priceLabel = ($srvPrice >= 1000) ? 'Giá ' . round($srvPrice / 1000) . 'k' : number_format($srvPrice, 0, ',', '.') . ' ₫';
+                    $srvImg = !empty($srv['banner_image']) ? $srv['banner_image'] : '/assets/images/tours/dalat-san-may.jpg';
+                ?>
+                <div class="col">
+                    <a href="/services/<?= (int)$srv['id'] ?>" class="text-decoration-none d-block h-100">
+                        <div class="experience-poster-card shadow">
+                            <img src="<?= htmlspecialchars($srvImg, ENT_QUOTES, 'UTF-8') ?>" 
+                                 alt="<?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>"
+                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'">
+                            
+                            <!-- Badge rating góc trên phải -->
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="glass-pill px-2 py-1 small fw-semibold text-white">
+                                    ★ <?= number_format((float)($srv['avg_rating'] ?? 5.0), 1) ?>
                                 </span>
                             </div>
 
-                            <div class="card-body">
-                                <div class="host-meta">
-                                    <i class="bi bi-person-badge text-success"></i>
-                                    <span>Host: <strong><?= htmlspecialchars($srv['host_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
-                                </div>
-
-                                <a href="/services/<?= (int)$srv['id'] ?>" class="tour-title">
-                                    <?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>
-                                </a>
-
-                                <div class="small text-muted mb-2">
-                                    <i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($srv['location'], ENT_QUOTES, 'UTF-8') ?>
-                                    <span class="mx-1">•</span>
-                                    <i class="bi bi-clock me-1"></i><?= (int)$srv['duration_days'] ?> ngày
-                                </div>
-
-                                <?php if (!empty($srv['homestay_name'])): ?>
-                                    <div class="small text-success bg-success-subtle px-2 py-1 rounded-2 mb-3 text-truncate" title="<?= htmlspecialchars($srv['homestay_name'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <i class="bi bi-house-door me-1"></i> Homestay: <?= htmlspecialchars($srv['homestay_name'], ENT_QUOTES, 'UTF-8') ?>
+                            <!-- Lớp phủ overlay chân ảnh -->
+                            <div class="experience-poster-overlay">
+                                <div></div>
+                                <div>
+                                    <div class="fw-bold fs-6 text-white text-truncate mb-1">
+                                        <?= htmlspecialchars($srv['location'], ENT_QUOTES, 'UTF-8') ?>
                                     </div>
-                                <?php endif; ?>
-
-                                <div class="mt-auto pt-3 border-top d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <small class="text-muted d-block" style="font-size: 0.72rem;">GIÁ TRẢI NGHIỆM</small>
-                                        <span class="tour-price">
-                                            <?= FormatHelper::formatVnd((int)$srv['base_price']) ?>
-                                        </span>
+                                    <div class="small text-light opacity-75 text-truncate mb-1">
+                                        <?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>
                                     </div>
-                                    <a href="/services/<?= (int)$srv['id'] ?>" class="btn btn-sm btn-editorial px-3 py-1">
-                                        Xem <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <div class="fw-bold text-info" style="font-size: 0.95rem;">
+                                        <?= htmlspecialchars($priceLabel, ENT_QUOTES, 'UTF-8') ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- 6. 3D VIRTUAL TOUR TEASER (THREE.JS Z-SCROLL) -->
-    <div class="card border-0 rounded-4 shadow-sm p-4 mb-5" style="background: linear-gradient(135deg, #0f2922 0%, #0f172a 100%); color: #ffffff;">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-7">
-                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill mb-2 fw-semibold">
-                    <i class="bi bi-badge-3d-fill me-1"></i> Đột Phá Công Nghệ Du Lịch Từ Xa
-                </span>
-                <h3 class="font-editorial text-white fw-bold mb-2">
-                    Không Gian Cuộn 3D Three.js Z-Scroll
-                </h3>
-                <p class="text-light opacity-75 small mb-3">
-                    Du khách ngồi tại nhà vẫn có thể trải nghiệm góc nhìn như đang thực sự dạo bước tại điểm đến qua trục chiều sâu Camera 3D, đọc những câu chuyện văn hóa chân thực của người bản xứ và xem video quay thực tế tại từng trạm dừng chân.
-                </p>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="/services/1#virtual-tour" class="btn btn-pill-amber btn-sm px-3 py-2">
-                        <i class="bi bi-play-circle me-1"></i> Trải Nghiệm Thử Trạm 3D LangBiang
-                    </a>
-                    <a href="/services/2#virtual-tour" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2">
-                        <i class="bi bi-play-circle me-1"></i> Trải Nghiệm Thử Trạm 3D Hội An
                     </a>
                 </div>
-            </div>
-            <div class="col-lg-5 text-center">
-                <div class="p-3 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-25">
-                    <i class="bi bi-camera-reels text-warning fs-1 d-block mb-2"></i>
-                    <h6 class="fw-bold text-white mb-1">Tích Hợp 4 Webservices</h6>
-                    <small class="text-light opacity-75 d-block">
-                        Google Maps (JSON) • OpenWeather (JSON) • RSS Du Lịch (XML) • MoMo Sandbox
-                    </small>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
-    </div>
+    </section>
 
-    <!-- 7. TRAVEL NEWS & TIPS (WEBSERVICE XML VNEXPRESS RSS FEED) -->
-    <div class="mb-5" id="travel-news-section">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-            <div>
-                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">
-                    <i class="bi bi-rss-fill me-1"></i> WEBSERVICE XML RSS FEED
-                </span>
-                <h3 class="font-editorial fw-bold text-dark mb-0">Tin Tức & Cẩm Nang Du Lịch</h3>
-                <p class="text-muted small mb-0">Cập nhật tin tức du lịch, xu hướng khám phá và cẩm nang hữu ích từ VnExpress Du Lịch</p>
-            </div>
-            <a href="https://vnexpress.net/du-lich" target="_blank" rel="noopener" class="text-danger text-decoration-none fw-semibold small">
-                Nguồn: VnExpress Du Lịch <i class="bi bi-box-arrow-up-right ms-1"></i>
-            </a>
-        </div>
-
-        <?php if (!empty($travelNews)): ?>
-            <div class="row g-4">
-                <?php foreach ($travelNews as $news): ?>
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden bg-white hover-shadow transition">
-                            <div class="position-relative" style="height: 200px; overflow: hidden; background: #f1f5f9;">
-                                <img src="<?= htmlspecialchars($news['thumbnail'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
-                                     alt="<?= htmlspecialchars($news['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                     class="w-100 h-100 object-fit-cover transition-transform"
-                                     onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80'">
-                                <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-3 rounded-pill px-2 py-1 small">
-                                    <i class="bi bi-newspaper me-1"></i> <?= htmlspecialchars($news['source'] ?? 'VnExpress', ENT_QUOTES, 'UTF-8') ?>
-                                </span>
+    <!-- 5. TIN TỨC DU LỊCH RSS (2 CỘT: TRÁI GIỚI THIỆU, PHẢI 2 CARD BÀI BÁO) -->
+    <section class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="glass-panel p-4 p-lg-5">
+                    <div class="row align-items-center g-4">
+                        <!-- Cột trái: Tiêu đề & Giới thiệu -->
+                        <div class="col-lg-4">
+                            <div class="small text-info fw-semibold text-uppercase mb-1" style="letter-spacing: 0.05em;">
+                                CẨM NANG & BẢN TIN RSS
                             </div>
-                            <div class="card-body p-4 d-flex flex-column">
-                                <div class="small text-muted mb-2">
-                                    <i class="bi bi-clock me-1 text-primary"></i> <?= htmlspecialchars($news['pub_date'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                </div>
-                                <h5 class="fw-bold font-editorial text-dark mb-2" style="font-size: 1.05rem; line-height: 1.4;">
-                                    <a href="<?= htmlspecialchars($news['link'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="text-decoration-none text-dark hover-text-primary">
-                                        <?= htmlspecialchars($news['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                    </a>
-                                </h5>
-                                <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.6;">
-                                    <?= htmlspecialchars($news['summary'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                </p>
-                                <div class="pt-2 border-top">
-                                    <a href="<?= htmlspecialchars($news['link'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                        Đọc chi tiết <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                    </a>
-                                </div>
+                            <h3 class="fw-bold text-white mb-2 font-editorial">
+                                Tin tức du lịch
+                            </h3>
+                            <p class="small text-light opacity-75 mb-4">
+                                Nhịp sống bản địa, kinh nghiệm xê dịch và những cẩm nang du lịch đáng quan tâm nhất hôm nay.
+                            </p>
+                            <a href="/posts" class="btn btn-glass-hero btn-sm px-4">
+                                Xem thêm tin &rarr;
+                            </a>
+                        </div>
+
+                        <!-- Cột phải: 2 bài tin mới nhất -->
+                        <div class="col-lg-8">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                <?php
+                                $rssItems = array_slice($travelNews, 0, 2);
+                                if (empty($rssItems)) {
+                                    $rssItems = [
+                                        [
+                                            'title' => 'Kinh nghiệm săn mây Đà Lạt mùa đông...',
+                                            'thumbnail' => '/assets/images/tours/dalat-san-may.jpg',
+                                            'link' => '/posts',
+                                            'source' => 'VnExpress RSS',
+                                        ],
+                                        [
+                                            'title' => 'Những lưu ý khi trải nghiệm homestay nhà dân...',
+                                            'thumbnail' => '/assets/images/tours/phuquoc-lang-chai.jpg',
+                                            'link' => '/posts',
+                                            'source' => 'VnExpress RSS',
+                                        ],
+                                    ];
+                                }
+                                ?>
+                                <?php foreach ($rssItems as $post): ?>
+                                    <div class="col">
+                                        <a href="<?= htmlspecialchars($post['link'] ?? '/posts', ENT_QUOTES, 'UTF-8') ?>" 
+                                           class="glass-panel p-3 h-100 d-flex flex-column text-decoration-none hover-lift"
+                                           <?= (!empty($post['link']) && str_starts_with($post['link'], 'http')) ? 'target="_blank" rel="noopener"' : '' ?>>
+                                            <div class="rounded-3 overflow-hidden mb-3" style="aspect-ratio: 16/9; background: rgba(11, 25, 36, 0.6);">
+                                                <img src="<?= htmlspecialchars($post['thumbnail'] ?? '/assets/images/tours/dalat-san-may.jpg', ENT_QUOTES, 'UTF-8') ?>" 
+                                                     alt="<?= htmlspecialchars($post['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                     class="w-100 h-100 object-fit-cover"
+                                                     onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'">
+                                            </div>
+                                            <h6 class="fw-bold text-white mb-2 line-clamp-2" style="font-size: 0.95rem; line-height: 1.4;">
+                                                <?= htmlspecialchars($post['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                            </h6>
+                                            <div class="small text-secondary opacity-75 mt-auto" style="font-size: 0.78rem;">
+                                                <?= htmlspecialchars($post['source'] ?? 'VnExpress RSS', ENT_QUOTES, 'UTF-8') ?> &bull; 5 phút đọc
+                                            </div>
+                                        </a>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                </div>
             </div>
-        <?php else: ?>
-            <div class="card border-0 rounded-4 shadow-sm p-4 text-center text-muted bg-white">
-                <i class="bi bi-rss fs-1 text-danger mb-2"></i>
-                <p class="mb-0">Đang cập nhật nguồn tin tức du lịch...</p>
-            </div>
-        <?php endif; ?>
-    </div>
+        </div>
+    </section>
 
 </div>

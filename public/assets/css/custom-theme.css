@@ -1,0 +1,393 @@
+/* ==============================================================================
+   OnlineTraveller v2.2 — Unified Dark-Alpine & Ambient Blur UI System
+   Docs: docs/UI_SPEC_FOR_AGENT.md (Section 2)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500;1,700&display=swap');
+
+:root {
+  --bg-midnight: #0b1924;      /* Nền chính toàn trang khách */
+  --brand-deep: #184e6c;       /* Xanh đậm chủ đạo */
+  --brand-primary: #387ea2;    /* Nút bấm chính & điểm nhấn */
+  --brand-mid: #5ba3c6;        /* Đường kẻ Timeline, viền sáng */
+  --brand-light: #9bcbe5;      /* Chữ phụ, icon thời tiết, chấm tròn */
+  --brand-ice: #ddecf6;        /* Chữ mô tả dịu mắt */
+  --glass-surface: rgba(19, 42, 60, 0.65);
+  --glass-border: rgba(155, 203, 229, 0.22);
+}
+
+body,
+body.theme-dark-alpine,
+button,
+input,
+select,
+textarea {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+body.theme-dark-alpine {
+  background-color: var(--bg-midnight);
+  color: #f8fafc;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.theme-dark-alpine main {
+  flex: 1 0 auto;
+}
+
+/* Đồng nhất toàn bộ font chữ sang Roboto duy nhất theo yêu cầu người dùng */
+.font-editorial,
+h1, h2, h3, h4, h5, h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+.tour-price,
+.tour-title {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* 1. HIỆU ỨNG GLASSMORPHISM DÙNG CHUNG */
+.glass-panel {
+  background: var(--glass-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.glass-pill {
+  background: rgba(15, 25, 36, 0.58);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(155, 203, 229, 0.28);
+  border-radius: 999px;
+  color: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.glass-pill:hover {
+  background: rgba(24, 78, 108, 0.7);
+  border-color: var(--brand-mid);
+  color: #ffffff;
+}
+
+/* 2. CÁC NÚT BẤM CHUẨN ALPINE */
+.btn-glass-hero {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn-glass-hero:hover {
+  background: var(--brand-primary);
+  border-color: var(--brand-light);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(56, 126, 162, 0.45);
+}
+
+.btn-alpine {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-deep));
+  border: 1px solid var(--brand-mid);
+  color: #ffffff;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-alpine:hover {
+  background: var(--brand-mid);
+  color: #0b1924;
+  box-shadow: 0 0 18px rgba(91, 163, 198, 0.5);
+}
+
+/* 3. HERO AMBIENT BLUR & BANNER */
+.hero-ambient-wrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: visible;
+  z-index: 1;
+}
+
+.hero-banner-box {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 520px;
+  max-height: 68vh;
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-banner-overlay {
+  background:
+    linear-gradient(90deg, rgba(11, 25, 36, 0.88) 0%, rgba(11, 25, 36, 0.48) 50%, rgba(11, 25, 36, 0.18) 100%),
+    linear-gradient(180deg, rgba(11, 25, 36, 0.4) 0%, transparent 40%, rgba(11, 25, 36, 0.96) 100%);
+}
+
+.hero-ambient-glow {
+  position: absolute;
+  bottom: -55px;
+  left: 4%;
+  width: 92%;
+  height: 130px;
+  background-size: cover;
+  background-position: center bottom;
+  filter: blur(65px);
+  opacity: 0.38;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 4. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD) */
+.experience-poster-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  background-color: rgba(19, 42, 60, 0.4);
+}
+
+.experience-poster-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+  border-color: var(--brand-mid);
+}
+
+.experience-poster-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.experience-poster-card:hover img {
+  transform: scale(1.04);
+}
+
+.experience-poster-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(11, 25, 36, 0.95) 0%,
+    rgba(11, 25, 36, 0.35) 45%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem;
+}
+
+/* 5. TIMELINE TRỤC DỌC (ABOUT THE TOUR) */
+.station-timeline {
+  position: relative;
+  padding-left: 2rem;
+  border-left: 2px solid var(--brand-mid);
+}
+
+.station-timeline-item {
+  position: relative;
+  margin-bottom: 1.75rem;
+}
+
+.station-timeline-dot {
+  position: absolute;
+  left: -2.45rem;
+  top: 1.25rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--brand-light);
+  box-shadow: 0 0 10px var(--brand-mid);
+}
+
+/* 6. SECTION DIVIDER TITLE */
+.section-divider-title {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.section-divider-title::before,
+.section-divider-title::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid rgba(155, 203, 229, 0.3);
+}
+
+.section-divider-title::before {
+  margin-right: 1.5rem;
+}
+
+.section-divider-title::after {
+  margin-left: 1.5rem;
+}
+
+/* 7. TOP FLOATING NAVBAR REFINEMENTS */
+.top-floating-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1030;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.navbar-center-pill {
+  background: rgba(15, 25, 36, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(155, 203, 229, 0.28);
+  border-radius: 999px;
+  padding: 0.55rem 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.navbar-center-pill .nav-text-link {
+  color: rgba(248, 250, 252, 0.85);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.navbar-center-pill .nav-text-link:hover,
+.navbar-center-pill .nav-text-link.active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.navbar-user-pill {
+  background: rgba(15, 25, 36, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(155, 203, 229, 0.28);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.navbar-user-pill:hover {
+  background: rgba(24, 78, 108, 0.7);
+  border-color: var(--brand-mid);
+  color: #ffffff;
+}
+
+.navbar-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(155, 203, 229, 0.35);
+  color: var(--brand-light);
+  flex-shrink: 0;
+}
+
+/* 8. PADDING TOP DÀNH CHO CÁC TRANG KHÔNG CÓ HERO FULL-BLEED */
+body.theme-dark-alpine .content-has-top-padding {
+  padding-top: 5.5rem;
+}
+
+/* 9. FOOTER TỐI GIẢN */
+.footer-minimal {
+  margin-top: auto;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-top: 1px solid rgba(155, 203, 229, 0.18);
+  background: rgba(11, 25, 36, 0.85);
+}
+
+.footer-minimal a {
+  color: var(--brand-ice);
+  opacity: 0.75;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.footer-minimal a:hover {
+  opacity: 1;
+  color: #ffffff;
+}
+
+/* 10. TIỆN ÍCH TRANG CHỦ & SEARCH BAR */
+.search-col-divider {
+  border-right: 1px solid rgba(155, 203, 229, 0.2);
+}
+
+@media (max-width: 991.98px) {
+  .search-col-divider {
+    border-right: none;
+    border-bottom: 1px solid rgba(155, 203, 229, 0.2);
+    padding-bottom: 0.75rem;
+  }
+}
+
+.search-field-input::placeholder {
+  color: rgba(221, 236, 246, 0.5);
+}
+
+.search-field-select {
+  color: #ffffff;
+}
+
+.search-field-select option {
+  background-color: #0b1924;
+  color: #ffffff;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* 11. 3D VIRTUAL TOUR MODAL & OVERLAY IN DARK THEME */
+body.theme-dark-alpine .tour-station-overlay {
+  background: rgba(11, 25, 36, 0.92);
+  border: 1px solid var(--glass-border);
+  color: #ffffff;
+}
+
+body.theme-dark-alpine .tour-controls-floating {
+  z-index: 20;
+}
