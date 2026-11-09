@@ -54,18 +54,29 @@ class PaymentController extends BaseController
         try {
             $result = $this->paymentService->initiateMomoPayment($bookingId, (int)$user['id']);
 
+            $orderInfo = 'Thanh toán cọc tour #' . ($result['booking_code'] ?? $bookingId);
+            $sandboxQrUrl = '/payments/sandbox-qr?orderId=' . urlencode($result['order_id']) .
+                '&requestId=' . urlencode($result['request_id']) .
+                '&amount=' . urlencode((string)$result['amount']) .
+                '&orderInfo=' . urlencode($orderInfo);
+
+            if (!empty($result['pay_url']) && str_starts_with($result['pay_url'], 'http')) {
+                $sandboxQrUrl .= '&gatewayUrl=' . urlencode($result['pay_url']);
+            }
+
             if ($request->isAjax()) {
                 $this->response->json([
                     'success' => true,
-                    'pay_url' => $result['pay_url'],
+                    'pay_url' => $sandboxQrUrl,
+                    'gateway_url' => $result['pay_url'],
                     'order_id' => $result['order_id'],
                     'amount' => $result['amount'],
                 ]);
                 return;
             }
 
-            // Redirect tourist to MoMo QR checkout page
-            $this->redirect($result['pay_url']);
+            // Redirect tourist to MoMo Sandbox simulation screen
+            $this->redirect($sandboxQrUrl);
             return;
         } catch (Exception $e) {
             if ($request->isAjax()) {
@@ -149,6 +160,7 @@ class PaymentController extends BaseController
         $requestId = (string)$request->query('requestId');
         $amount = (float)($request->query('amount') ?? 0);
         $orderInfo = (string)$request->query('orderInfo');
+        $gatewayUrl = (string)($request->query('gatewayUrl') ?? '');
 
         $payment = $this->paymentService->getPaymentByOrderId($orderId);
 
@@ -158,6 +170,7 @@ class PaymentController extends BaseController
             'requestId' => $requestId,
             'amount' => $amount,
             'orderInfo' => $orderInfo,
+            'gatewayUrl' => $gatewayUrl,
             'payment' => $payment,
             'user' => $this->user(),
         ]);

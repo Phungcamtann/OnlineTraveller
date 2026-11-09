@@ -62,6 +62,11 @@ $isSuccess = ($resultCode === '0' || ($payment && $payment['status'] === 'succee
                         <i class="bi bi-ticket-detailed me-1"></i> Xem Chi Tiết Vé & Lịch Trình
                     </a>
                 <?php endif; ?>
+                <?php if ($receipt && !empty($receipt['id'])): ?>
+                    <a href="/receipts/<?= (int)$receipt['id'] ?>" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">
+                        <i class="bi bi-receipt me-1"></i> Xem Biên Nhận Điện Tử
+                    </a>
+                <?php endif; ?>
                 <a href="/my-bookings" class="btn btn-outline-dark rounded-pill px-4 py-2">
                     <i class="bi bi-briefcase me-1"></i> Chuyến Đi Của Tôi
                 </a>

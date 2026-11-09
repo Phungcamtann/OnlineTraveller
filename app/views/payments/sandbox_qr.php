@@ -16,6 +16,14 @@ use App\Integrations\MomoClient;
 $momoClient = new MomoClient();
 $transId = 'MOMO_' . time() . '_' . rand(100, 999);
 $responseTime = (int)(microtime(true) * 1000);
+$gatewayUrl = $gatewayUrl ?? '';
+
+// Build proper extraData if booking and user are known
+$bookingId = $payment ? (int)($payment['booking_id'] ?? 0) : 0;
+$touristId = $user ? (int)($user['id'] ?? 0) : 0;
+$extraData = ($bookingId > 0 && $touristId > 0)
+    ? base64_encode((string)json_encode(['booking_id' => $bookingId, 'tourist_id' => $touristId]))
+    : '';
 
 // Pre-calculate valid HMAC-SHA256 signature for the simulated IPN webhook
 $ipnData = [
@@ -30,11 +38,10 @@ $ipnData = [
     'message' => 'Thành công.',
     'payType' => 'qr',
     'responseTime' => $responseTime,
-    'extraData' => '',
+    'extraData' => $extraData,
 ];
 $signature = $momoClient->generateIpnSignature($ipnData);
 $ipnData['signature'] = $signature;
-$ipnJson = json_encode($ipnData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>
 
 <div class="container py-5" style="max-width: 600px;">
@@ -95,6 +102,14 @@ $ipnJson = json_encode($ipnData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
                     Hủy Giao Dịch
                 </a>
             </div>
+
+            <?php if (!empty($gatewayUrl)): ?>
+                <div class="mt-3 pt-3 border-top text-center">
+                    <a href="<?= htmlspecialchars($gatewayUrl) ?>" target="_blank" class="small text-muted text-decoration-none">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Mở cổng MoMo Sandbox chính thức (dành cho thiết bị có App MoMo Test)
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="card-footer bg-light text-center small text-muted py-3">
@@ -104,6 +119,8 @@ $ipnJson = json_encode($ipnData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
 </div>
 
 <script>
+const ipnPayload = <?= json_encode($ipnData, JSON_UNESCAPED_UNICODE) ?>;
+
 document.getElementById('btn-pay-success').addEventListener('click', function() {
     const btn = this;
     btn.disabled = true;
@@ -116,17 +133,25 @@ document.getElementById('btn-pay-success').addEventListener('click', function() 
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         },
-        body: <?= json_encode($ipnJson) ?>
+        body: JSON.stringify(ipnPayload)
     })
-    .then(res => res.json())
-    .then(data => {
-        // Redirect browser to callback
-        window.location.href = '/payments/callback?orderId=<?= urlencode($orderId) ?>&resultCode=0&transId=<?= urlencode($transId) ?>&amount=<?= (int)$amount ?>';
+    .then(async res => {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && (data.resultCode === 0 || data.success)) {
+            // Redirect browser to callback
+            window.location.href = '/payments/callback?orderId=' + encodeURIComponent('<?= $orderId ?>') +
+                '&resultCode=0&transId=' + encodeURIComponent('<?= $transId ?>') +
+                '&amount=' + encodeURIComponent('<?= (int)$amount ?>');
+        } else {
+            alert('Lỗi xử lý IPN: ' + (data.message || 'Không thể xác thực giao dịch.'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Thử Lại';
+        }
     })
     .catch(err => {
-        alert('Lỗi kích hoạt webhook IPN: ' + err.message);
+        alert('Lỗi kết nối tới webhook IPN: ' + err.message);
         btn.disabled = false;
-        btn.innerHTML = 'Thử lại';
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Thử Lại';
     });
 });
 </script>
