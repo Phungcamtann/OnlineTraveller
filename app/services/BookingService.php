@@ -184,7 +184,62 @@ class BookingService
             $reason = 'Người dùng chủ động hủy yêu cầu đặt chỗ.';
         }
 
-        return $this->bookingModel->cancel($actorId, $bookingId, trim($reason));
+        $booking = $this->bookingModel->getById($bookingId);
+        if (!$booking) {
+            throw new \RuntimeException('BOOKING_NOT_FOUND');
+        }
+
+        // 1. Thực thi hủy đặt chỗ và nhả lại ghế qua ndtt_sp_bookings_cancel
+        $cancelled = $this->bookingModel->cancel($actorId, $bookingId, trim($reason));
+
+        // 2. Xử lý nghĩa vụ hoàn tiền nếu đơn đã thanh toán online thành công (Mục 3.6)
+        $payment = (new \App\Models\Payment())->getByBookingId($bookingId);
+        if ($payment && $payment['status'] === 'succeeded' && (float)$payment['amount'] > 0) {
+            $refundModel = new \App\Models\Refund();
+            $paidAmount = (float)$payment['amount'];
+            $startsAt = strtotime($booking['starts_at']);
+            $t24 = $startsAt - (24 * 3600);
+            $now = time();
+
+            // Xác định vai trò của người thực hiện hủy
+            $actor = (new \App\Models\User())->getById($actorId);
+            $actorRole = $actor['role'] ?? 'tourist';
+
+            if ($actorRole === 'admin') {
+                // Admin hủy đơn: duyệt hoàn tiền trực tiếp qua ndtt_sp_refunds_create_and_approve
+                $refund = $refundModel->approveRefundByAdmin(
+                    $actorId,
+                    (int)$payment['id'],
+                    $paidAmount,
+                    $reason,
+                    'Quản trị viên hủy đơn và duyệt hoàn tiền MoMo Sandbox.'
+                );
+            } elseif ($now < $t24) {
+                // Hủy trước T24: Hủy hợp lệ và hoàn toàn bộ khoản online đã thu (Mục 3.6)
+                $refund = $refundModel->createRefund(
+                    $bookingId,
+                    (int)$payment['id'],
+                    $paidAmount,
+                    'Hủy hợp lệ trước T24: Hoàn toàn bộ khoản online đã thu (' . number_format($paidAmount) . ' đ). Lý do: ' . $reason,
+                    'approved',
+                    'Hệ thống tự động duyệt hoàn tiền do đơn hủy trước mốc T24.'
+                );
+            } else {
+                // Hủy sau T24: Tiếp nhận xem xét ngoại lệ bởi Quản trị viên (Mục 3.6)
+                $refund = $refundModel->createRefund(
+                    $bookingId,
+                    (int)$payment['id'],
+                    $paidAmount,
+                    'Hủy sau T24: Đơn yêu cầu xem xét hoàn tiền ngoại lệ. Lý do: ' . $reason,
+                    'requested',
+                    'Chờ Quản trị viên xem xét căn cứ hủy sau mốc T24.'
+                );
+            }
+
+            $cancelled['refund'] = $refund;
+        }
+
+        return $cancelled;
     }
 
     /**

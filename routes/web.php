@@ -12,6 +12,8 @@ use App\Controllers\BookingController;
 use App\Controllers\AdminController;
 use App\Controllers\CategoryController;
 use App\Controllers\PaymentController;
+use App\Controllers\ReceiptController;
+use App\Controllers\RefundController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -71,4 +73,11 @@ return function (Router $router): void {
     $router->get('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class]);
     $router->post('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/payments/sandbox-qr', [PaymentController::class, 'sandboxQr'], [AuthMiddleware::class]);
+
+    // 7. ELECTRONIC RECEIPTS & CANCELLATION REFUNDS (TV3-06)
+    $router->get('/receipts/{id}', [ReceiptController::class, 'show'], [AuthMiddleware::class]);
+    $router->get('/bookings/{id}/receipt', [ReceiptController::class, 'showByBooking'], [AuthMiddleware::class]);
+    $router->get('/refunds/{id}', [RefundController::class, 'show'], [AuthMiddleware::class]);
+    $router->get('/admin/refunds', [AdminController::class, 'refunds'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/refunds/{id}/approve', [AdminController::class, 'approveRefund'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 };

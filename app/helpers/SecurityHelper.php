@@ -47,3 +47,7 @@ class SecurityHelper
         return hash_equals($sessionToken, trim($token));
     }
 }
+
+if (!class_exists('App\Helpers\SecurityHelper', false)) {
+    class_alias(SecurityHelper::class, 'App\Helpers\SecurityHelper');
+}

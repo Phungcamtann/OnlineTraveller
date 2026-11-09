@@ -8,16 +8,19 @@ use Core\BaseController;
 use Core\Database;
 use Core\Request;
 use App\Models\User;
+use App\Models\Refund;
 use Exception;
 
 class AdminController extends BaseController
 {
     private User $userModel;
+    private Refund $refundModel;
 
     public function __construct(?Request $request = null)
     {
         parent::__construct($request);
         $this->userModel = new User();
+        $this->refundModel = new Refund();
     }
 
     public function dashboard(): void
@@ -173,6 +176,90 @@ class AdminController extends BaseController
             }
             $this->flash('danger', 'Lỗi khi cập nhật trạng thái: ' . $e->getMessage());
             $this->redirect('/admin/users');
+            return;
+        }
+    }
+
+    /**
+     * Admin view and manage cancellation refund requests (GET /admin/refunds).
+     */
+    public function refunds(Request $request): void
+    {
+        $status = $request->query('status');
+        $refunds = $this->refundModel->getAllRefunds($status);
+        $stats = $this->refundModel->getStats();
+
+        if ($request->isAjax() || $request->query('format') === 'json') {
+            $this->response->json([
+                'success' => true,
+                'refunds' => $refunds,
+                'stats' => $stats,
+            ]);
+            return;
+        }
+
+        $this->view('admin/refunds/index', [
+            'title' => 'Quản Lý Hồ Sơ Hoàn Tiền — Admin',
+            'refunds' => $refunds,
+            'stats' => $stats,
+            'currentStatus' => $status,
+            'user' => $this->user(),
+        ]);
+    }
+
+    /**
+     * Admin approves a refund request (POST /admin/refunds/{id}/approve).
+     */
+    public function approveRefund(Request $request, string $id): void
+    {
+        $admin = $this->user();
+        if (!$admin || ($admin['role'] ?? '') !== 'admin') {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Bạn không có quyền thực hiện thao tác này.'], 403);
+                return;
+            }
+            $this->flash('danger', 'Bạn không có quyền thực hiện thao tác này.');
+            $this->redirect('/login');
+            return;
+        }
+
+        $refundId = (int)$id;
+        $refund = $this->refundModel->getById($refundId);
+        if (!$refund) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Không tìm thấy hồ sơ hoàn tiền.'], 404);
+                return;
+            }
+            $this->flash('danger', 'Không tìm thấy hồ sơ hoàn tiền.');
+            $this->redirect('/admin/refunds');
+            return;
+        }
+
+        $adminNote = (string)$request->input('admin_note', 'Quản trị viên đã phê duyệt hoàn tiền MoMo Sandbox.');
+
+        try {
+            $this->refundModel->updateStatus($refundId, 'approved', $adminNote);
+
+            $message = "Đã phê duyệt hoàn tiền thành công cho hồ sơ #{$refund['refund_code']}.";
+            if ($request->isAjax()) {
+                $this->response->json([
+                    'success' => true,
+                    'message' => $message,
+                    'refund_id' => $refundId,
+                ]);
+                return;
+            }
+
+            $this->flash('success', $message);
+            $this->redirect('/admin/refunds');
+            return;
+        } catch (Exception $e) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Lỗi khi phê duyệt: ' . $e->getMessage()], 500);
+                return;
+            }
+            $this->flash('danger', 'Lỗi khi phê duyệt: ' . $e->getMessage());
+            $this->redirect('/admin/refunds');
             return;
         }
     }

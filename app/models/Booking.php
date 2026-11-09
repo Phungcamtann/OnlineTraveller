@@ -121,7 +121,9 @@ class Booking extends BaseModel
                 sch.booked_seats AS schedule_booked_seats,
                 u.name AS tourist_name, u.email AS tourist_email, u.phone AS tourist_phone, u.avatar AS tourist_avatar,
                 p.id AS payment_id, p.order_id, p.momo_trans_id, p.status AS payment_status, p.paid_at,
-                r.receipt_code, r.issued_at AS receipt_issued_at
+                r.id AS receipt_id, r.receipt_code, r.issued_at AS receipt_issued_at,
+                rf.id AS refund_id, rf.refund_code, rf.amount AS refund_amount, rf.status AS refund_status,
+                rf.reason AS refund_reason, rf.admin_note AS refund_admin_note, rf.processed_at AS refund_processed_at
             FROM tbl_bookings b
             JOIN tbl_services s ON b.service_id = s.id
             JOIN tbl_service_schedules sch ON b.schedule_id = sch.id
@@ -129,6 +131,7 @@ class Booking extends BaseModel
             JOIN tbl_users h ON s.host_id = h.id
             LEFT JOIN tbl_payments p ON b.id = p.booking_id
             LEFT JOIN tbl_receipts r ON p.id = r.payment_id
+            LEFT JOIN tbl_refunds rf ON b.id = rf.booking_id
             WHERE b.id = ?
             LIMIT 1
         ";
@@ -151,7 +154,9 @@ class Booking extends BaseModel
                 sch.booked_seats AS schedule_booked_seats,
                 u.name AS tourist_name, u.email AS tourist_email, u.phone AS tourist_phone, u.avatar AS tourist_avatar,
                 p.id AS payment_id, p.order_id, p.momo_trans_id, p.status AS payment_status, p.paid_at,
-                r.receipt_code, r.issued_at AS receipt_issued_at
+                r.id AS receipt_id, r.receipt_code, r.issued_at AS receipt_issued_at,
+                rf.id AS refund_id, rf.refund_code, rf.amount AS refund_amount, rf.status AS refund_status,
+                rf.reason AS refund_reason, rf.admin_note AS refund_admin_note, rf.processed_at AS refund_processed_at
             FROM tbl_bookings b
             JOIN tbl_services s ON b.service_id = s.id
             JOIN tbl_service_schedules sch ON b.schedule_id = sch.id
@@ -159,6 +164,7 @@ class Booking extends BaseModel
             JOIN tbl_users h ON s.host_id = h.id
             LEFT JOIN tbl_payments p ON b.id = p.booking_id
             LEFT JOIN tbl_receipts r ON p.id = r.payment_id
+            LEFT JOIN tbl_refunds rf ON b.id = rf.booking_id
             WHERE UPPER(b.booking_code) = UPPER(?)
             LIMIT 1
         ";
