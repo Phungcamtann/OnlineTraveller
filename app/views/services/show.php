@@ -258,66 +258,107 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
                 <div class="glass-panel p-4 h-100">
                     <h5 class="fw-bold text-white mb-3">Kênh Hỏi Đánh Giá Trực Tiếp Từ Xa</h5>
                     
-                    <!-- Form gửi câu hỏi -->
-                    <form action="/discussions" method="POST" class="mb-4">
+                    <!-- Form gửi câu hỏi (TV4-05 AJAX) -->
+                    <form id="discussion-main-form" action="/discussions" method="POST" class="mb-4">
+                        <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
                         <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
                         <div class="mb-3">
                             <textarea name="message" 
+                                      id="discussion-message-input"
                                       class="form-control bg-dark bg-opacity-50 text-white border border-secondary border-opacity-50 rounded-3 p-3 shadow-none search-field-input" 
                                       rows="3" 
-                                      placeholder="Nhập nội dung câu hỏi?..." 
+                                      placeholder="Nhập nội dung câu hỏi cho Dân bản địa?..." 
                                       required></textarea>
                         </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-alpine btn-sm px-4 py-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <small class="text-light opacity-50" id="discussion-char-hint">
+                                <i class="bi bi-chat-quote me-1"></i>Hỏi đáp trực tiếp cùng Dân bản địa
+                            </small>
+                            <button type="submit" class="btn btn-alpine btn-sm px-4 py-2" id="discussion-submit-btn">
                                 <i class="bi bi-send me-1"></i> Gửi Câu Hỏi
                             </button>
                         </div>
                     </form>
 
-                    <!-- Danh sách bình luận & phản hồi mẫu chuẩn mockup -->
-                    <div class="d-flex flex-column gap-2">
-                        <?php
-                        $discussionList = [
-                            [
-                                'author' => 'Lê Du Khách',
-                                'content' => 'Tour này có đón tận nơi ở trung tâm Đà Lạt không anh chị Host?',
-                                'likes' => '7 người',
-                                'reply' => 'Host: Dạ có xe đón tại khách sạn trung tâm lúc 5:00 sáng bạn nhé!',
-                            ],
-                            [
-                                'author' => 'Trần Văn Hoàng',
-                                'content' => 'Thời gian săn mây lý tưởng nhất là những tháng nào trong năm ạ?',
-                                'likes' => '5 người',
-                                'reply' => 'Host: Mùa săn mây đẹp nhất là từ tháng 10 đến tháng 3 năm sau nhé!',
-                            ],
-                        ];
-                        ?>
-                        <?php foreach ($discussionList as $item): ?>
-                            <div class="p-3 rounded-3" style="background: rgba(15, 25, 36, 0.6); border: 1px solid rgba(155, 203, 229, 0.15);">
-                                <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                                            <i class="bi bi-person-fill"></i>
-                                        </span>
-                                        <strong class="text-white small"><?= htmlspecialchars($item['author'], ENT_QUOTES, 'UTF-8') ?></strong>
-                                        <span class="badge bg-secondary bg-opacity-25 text-light opacity-75" style="font-size: 0.7rem;">Bình luận</span>
-                                    </div>
-                                    <small class="text-info opacity-75" style="font-size: 0.75rem;">
-                                        <i class="bi bi-people me-1"></i><?= htmlspecialchars($item['likes'], ENT_QUOTES, 'UTF-8') ?>
-                                    </small>
-                                </div>
-                                <p class="small text-light opacity-85 mb-1 ps-4">
-                                    <?= htmlspecialchars($item['content'], ENT_QUOTES, 'UTF-8') ?>
-                                </p>
-                                <?php if (!empty($item['reply'])): ?>
-                                    <div class="ms-4 p-2 rounded-2 mt-2" style="background: rgba(24, 78, 108, 0.25); border-left: 2px solid var(--brand-mid);">
-                                        <small class="text-info fw-semibold d-block">Phản hồi từ Dân Bản Địa:</small>
-                                        <small class="text-light opacity-75"><?= htmlspecialchars($item['reply'], ENT_QUOTES, 'UTF-8') ?></small>
-                                    </div>
-                                <?php endif; ?>
+                    <!-- Danh sách bình luận & phản hồi 1 cấp thời gian thực (TV4-05) -->
+                    <div id="discussions-thread-container" class="d-flex flex-column gap-3">
+                        <?php if (empty($discussions)): ?>
+                            <div id="no-discussions-notice" class="text-center py-4 text-light opacity-50 small">
+                                <i class="bi bi-chat-dots fs-3 d-block mb-2 opacity-50"></i>
+                                Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi cho Host bản địa!
                             </div>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($discussions as $disc): ?>
+                                <?php
+                                $discId = (int)$disc['id'];
+                                $isHost = (($disc['user_role'] ?? '') === 'host');
+                                $roleBadge = $isHost ? 'Host bản địa' : 'Du khách';
+                                $roleBadgeClass = $isHost ? 'bg-success bg-opacity-25 text-success border border-success border-opacity-25' : 'bg-secondary bg-opacity-25 text-light opacity-75';
+                                $timeStr = date('H:i d/m', strtotime($disc['created_at']));
+                                ?>
+                                <div class="discussion-item p-3 rounded-3" id="discussion-item-<?= $discId ?>" style="background: rgba(15, 25, 36, 0.6); border: 1px solid rgba(155, 203, 229, 0.15);">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                                <i class="bi <?= $isHost ? 'bi-house-heart-fill text-success' : 'bi-person-fill' ?>"></i>
+                                            </span>
+                                            <strong class="text-white small"><?= htmlspecialchars($disc['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                            <span class="badge <?= $roleBadgeClass ?>" style="font-size: 0.7rem;"><?= $roleBadge ?></span>
+                                        </div>
+                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                            <i class="bi bi-clock me-1"></i><?= $timeStr ?>
+                                        </small>
+                                    </div>
+                                    <p class="small text-light opacity-85 mb-2 ps-4">
+                                        <?= htmlspecialchars($disc['message'], ENT_QUOTES, 'UTF-8') ?>
+                                    </p>
+
+                                    <!-- Khối phản hồi 1 cấp -->
+                                    <div class="replies-container ms-4 d-flex flex-column gap-2" id="replies-for-<?= $discId ?>">
+                                        <?php if (!empty($disc['replies'])): ?>
+                                            <?php foreach ($disc['replies'] as $reply): ?>
+                                                <?php
+                                                $replyIsHost = (($reply['user_role'] ?? '') === 'host');
+                                                $replyRoleBadge = $replyIsHost ? 'Host phản hồi' : 'Thành viên';
+                                                ?>
+                                                <div class="p-2 rounded-2" style="background: rgba(24, 78, 108, 0.25); border-left: 2px solid var(--brand-mid);">
+                                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <strong class="text-info small" style="font-size: 0.78rem;"><?= htmlspecialchars($reply['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                                            <span class="badge <?= $replyIsHost ? 'bg-success bg-opacity-25 text-success' : 'bg-secondary bg-opacity-25 text-light' ?>" style="font-size: 0.65rem;">
+                                                                <?= $replyRoleBadge ?>
+                                                            </span>
+                                                        </div>
+                                                        <small class="text-light opacity-50" style="font-size: 0.7rem;">
+                                                            <?= date('H:i d/m', strtotime($reply['created_at'])) ?>
+                                                        </small>
+                                                    </div>
+                                                    <small class="text-light opacity-80 d-block ps-1"><?= htmlspecialchars($reply['message'], ENT_QUOTES, 'UTF-8') ?></small>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Nút & Khung Trả lời -->
+                                    <div class="text-end mt-2 pt-1 border-top border-secondary border-opacity-25">
+                                        <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 reply-toggle-btn" style="font-size: 0.75rem;" data-target="reply-form-<?= $discId ?>">
+                                            <i class="bi bi-reply-fill me-1"></i> Trả lời
+                                        </button>
+                                        <form id="reply-form-<?= $discId ?>" class="discussion-reply-form mt-2 d-none" data-parent-id="<?= $discId ?>" action="/discussions" method="POST">
+                                            <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                                            <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
+                                            <input type="hidden" name="parent_id" value="<?= $discId ?>">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" name="message" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
+                                                <button type="submit" class="btn btn-alpine btn-sm rounded-end-pill px-3">
+                                                    <i class="bi bi-send"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -515,4 +556,194 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
             renderStation(currentStopIndex);
         });
     }
+
+    // =========================================================================
+    // TV4-05: AJAX Discussion & 1-Level Host Reply Handler
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle reply input form
+        document.addEventListener('click', function(e) {
+            const toggleBtn = e.target.closest('.reply-toggle-btn');
+            if (toggleBtn) {
+                const targetId = toggleBtn.getAttribute('data-target');
+                const form = document.getElementById(targetId);
+                if (form) {
+                    form.classList.toggle('d-none');
+                    if (!form.classList.contains('d-none')) {
+                        const input = form.querySelector('input[name="message"]');
+                        if (input) input.focus();
+                    }
+                }
+            }
+        });
+
+        // Helper: Format date to H:i d/m
+        function formatShortDate(dateStr) {
+            try {
+                const d = new Date(dateStr);
+                const h = String(d.getHours()).padStart(2, '0');
+                const m = String(d.getMinutes()).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                return `${h}:${m} ${day}/${month}`;
+            } catch (e) {
+                return 'vừa xong';
+            }
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        // Handle Main Question Form AJAX Submit
+        const mainForm = document.getElementById('discussion-main-form');
+        if (mainForm) {
+            mainForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('discussion-submit-btn');
+                const textarea = document.getElementById('discussion-message-input');
+                const msg = textarea ? textarea.value.trim() : '';
+                if (!msg) return;
+
+                const formData = new FormData(mainForm);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang gửi...';
+                }
+
+                try {
+                    const res = await fetch('/discussions', {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok || data.error) {
+                        alert(data.error || 'Có lỗi xảy ra khi gửi câu hỏi.');
+                    } else if (data.success && data.discussion) {
+                        const emptyNotice = document.getElementById('no-discussions-notice');
+                        if (emptyNotice) emptyNotice.remove();
+
+                        const container = document.getElementById('discussions-thread-container');
+                        const d = data.discussion;
+                        const discId = d.id;
+                        const isHost = (d.user_role === 'host');
+                        const roleBadge = isHost ? 'Host bản địa' : 'Du khách';
+                        const roleBadgeClass = isHost ? 'bg-success bg-opacity-25 text-success border border-success border-opacity-25' : 'bg-secondary bg-opacity-25 text-light opacity-75';
+                        const timeStr = formatShortDate(d.created_at);
+
+                        const cardHtml = `
+                            <div class="discussion-item p-3 rounded-3" id="discussion-item-${discId}" style="background: rgba(15, 25, 36, 0.6); border: 1px solid rgba(155, 203, 229, 0.3); animation: fadeIn 0.4s ease;">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                            <i class="bi ${isHost ? 'bi-house-heart-fill text-success' : 'bi-person-fill'}"></i>
+                                        </span>
+                                        <strong class="text-white small">${escapeHtml(d.user_name)}</strong>
+                                        <span class="badge ${roleBadgeClass}" style="font-size: 0.7rem;">${roleBadge}</span>
+                                    </div>
+                                    <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                        <i class="bi bi-clock me-1"></i>${timeStr}
+                                    </small>
+                                </div>
+                                <p class="small text-light opacity-85 mb-2 ps-4">
+                                    ${escapeHtml(d.message)}
+                                </p>
+                                <div class="replies-container ms-4 d-flex flex-column gap-2" id="replies-for-${discId}"></div>
+                                <div class="text-end mt-2 pt-1 border-top border-secondary border-opacity-25">
+                                    <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 reply-toggle-btn" style="font-size: 0.75rem;" data-target="reply-form-${discId}">
+                                        <i class="bi bi-reply-fill me-1"></i> Trả lời
+                                    </button>
+                                    <form id="reply-form-${discId}" class="discussion-reply-form mt-2 d-none" data-parent-id="${discId}" action="/discussions" method="POST">
+                                        <input type="hidden" name="_csrf_token" value="${mainForm.querySelector('input[name=\"_csrf_token\"]').value}">
+                                        <input type="hidden" name="service_id" value="${d.service_id}">
+                                        <input type="hidden" name="parent_id" value="${discId}">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="message" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
+                                            <button type="submit" class="btn btn-alpine btn-sm rounded-end-pill px-3">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('afterbegin', cardHtml);
+                        if (textarea) textarea.value = '';
+                    }
+                } catch (err) {
+                    alert('Lỗi kết nối máy chủ. Vui lòng thử lại!');
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-send me-1"></i> Gửi Câu Hỏi';
+                    }
+                }
+            });
+        }
+
+        // Handle Reply Forms AJAX Submit
+        document.addEventListener('submit', async function(e) {
+            const replyForm = e.target.closest('.discussion-reply-form');
+            if (!replyForm) return;
+            e.preventDefault();
+
+            const input = replyForm.querySelector('input[name="message"]');
+            const msg = input ? input.value.trim() : '';
+            if (!msg) return;
+
+            const btn = replyForm.querySelector('button[type="submit"]');
+            const parentId = replyForm.getAttribute('data-parent-id');
+            const formData = new FormData(replyForm);
+
+            if (btn) btn.disabled = true;
+
+            try {
+                const res = await fetch('/discussions', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    alert(data.error || 'Có lỗi xảy ra khi gửi phản hồi.');
+                } else if (data.success && data.discussion) {
+                    const repliesContainer = document.getElementById('replies-for-' + parentId);
+                    if (repliesContainer) {
+                        const rep = data.discussion;
+                        const repIsHost = (rep.user_role === 'host');
+                        const repBadge = repIsHost ? 'Host phản hồi' : 'Thành viên';
+                        const timeStr = formatShortDate(rep.created_at);
+
+                        const replyHtml = `
+                            <div class="p-2 rounded-2" style="background: rgba(24, 78, 108, 0.25); border-left: 2px solid var(--brand-mid); animation: fadeIn 0.3s ease;">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <strong class="text-info small" style="font-size: 0.78rem;">${escapeHtml(rep.user_name)}</strong>
+                                        <span class="badge ${repIsHost ? 'bg-success bg-opacity-25 text-success' : 'bg-secondary bg-opacity-25 text-light'}" style="font-size: 0.65rem;">
+                                            ${repBadge}
+                                        </span>
+                                    </div>
+                                    <small class="text-light opacity-50" style="font-size: 0.7rem;">${timeStr}</small>
+                                </div>
+                                <small class="text-light opacity-80 d-block ps-1">${escapeHtml(rep.message)}</small>
+                            </div>
+                        `;
+                        repliesContainer.insertAdjacentHTML('beforeend', replyHtml);
+                    }
+                    if (input) input.value = '';
+                    replyForm.classList.add('d-none');
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ khi gửi phản hồi.');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        });
+    });
 </script>

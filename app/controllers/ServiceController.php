@@ -65,11 +65,15 @@ class ServiceController extends BaseController
         // Fetch destination weather via OpenWeatherClient (with cache & intelligent regional fallback)
         $weather = $this->weatherClient->getWeatherForService($service);
 
+        // Fetch live community discussions & replies (TV4-05)
+        $discussions = (new \App\Models\Discussion())->getDiscussionsByService($serviceId);
+
         $this->view('services/show', [
             'title' => $service['title'] . ' — OnlineTraveller',
             'service' => $service,
             'stops' => $stops,
             'weather' => $weather,
+            'discussions' => $discussions,
         ]);
     }
 

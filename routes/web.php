@@ -14,6 +14,7 @@ use App\Controllers\CategoryController;
 use App\Controllers\PaymentController;
 use App\Controllers\ReceiptController;
 use App\Controllers\RefundController;
+use App\Controllers\DiscussionController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -80,4 +81,8 @@ return function (Router $router): void {
     $router->get('/refunds/{id}', [RefundController::class, 'show'], [AuthMiddleware::class]);
     $router->get('/admin/refunds', [AdminController::class, 'refunds'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/refunds/{id}/approve', [AdminController::class, 'approveRefund'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+
+    // 8. COMMUNITY DISCUSSIONS & REPLIES (TV4-05)
+    $router->get('/services/{id}/discussions', [DiscussionController::class, 'index']);
+    $router->post('/discussions', [DiscussionController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
 };
