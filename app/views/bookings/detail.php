@@ -105,42 +105,68 @@ $plan = (string)$booking['payment_plan'];
         </div>
     <?php elseif ($status === 'confirmed'): ?>
         <div class="alert alert-success border-0 rounded-4 shadow-sm p-4 mb-4">
-            <div class="d-flex align-items-start gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
-                    <i class="bi bi-check-circle-fill fs-4"></i>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
+                        <i class="bi bi-check-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-success px-3 py-1 rounded-pill fw-bold mb-1">
+                            ĐÃ XÁC NHẬN ĐẶT CHỖ THÀNH CÔNG
+                        </span>
+                        <h6 class="fw-bold text-dark mb-1">Chuyến đi của bạn đã được xác nhận và đảm bảo!</h6>
+                        <p class="small text-muted mb-0">
+                            Bạn đã đặt cọc thành công qua MoMo Sandbox. 
+                            <?php if (!empty($booking['receipt_code'])): ?>
+                                Mã biên nhận điện tử: <strong class="font-monospace text-dark">#<?= htmlspecialchars($booking['receipt_code']) ?></strong>.
+                            <?php endif; ?>
+                            Vui lòng có mặt đúng giờ tại điểm hẹn đã thỏa thuận.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <span class="badge bg-success px-3 py-1 rounded-pill fw-bold mb-1">
-                        ĐÃ XÁC NHẬN ĐẶT CHỖ THÀNH CÔNG
-                    </span>
-                    <h6 class="fw-bold text-dark mb-1">Chuyến đi của bạn đã được xác nhận và đảm bảo!</h6>
-                    <p class="small text-muted mb-0">
-                        Bạn đã đặt cọc thành công qua MoMo Sandbox. 
-                        <?php if (!empty($booking['receipt_code'])): ?>
-                            Mã biên nhận điện tử: <strong class="font-monospace text-dark">#<?= htmlspecialchars($booking['receipt_code']) ?></strong>.
-                        <?php endif; ?>
-                        Vui lòng có mặt đúng giờ tại điểm hẹn đã thỏa thuận.
-                    </p>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <a href="/bookings/<?= (int)$booking['id'] ?>/receipt" class="btn btn-outline-success rounded-pill px-3 py-2 btn-sm fw-semibold shadow-sm">
+                        <i class="bi bi-receipt me-1"></i> Xem Biên Nhận Điện Tử
+                    </a>
+                    <button type="button" class="btn btn-outline-danger rounded-pill px-3 py-2 btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <i class="bi bi-x-circle me-1"></i> Hủy Đặt Chỗ
+                    </button>
                 </div>
             </div>
         </div>
     <?php elseif ($status === 'cancelled'): ?>
         <div class="alert alert-secondary border-0 rounded-4 shadow-sm p-4 mb-4">
-            <div class="d-flex align-items-start gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
-                    <i class="bi bi-x-circle-fill fs-4"></i>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-secondary text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
+                        <i class="bi bi-x-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary px-3 py-1 rounded-pill fw-bold mb-1">
+                            ĐƠN ĐẶT CHỖ ĐÃ BỊ HỦY
+                        </span>
+                        <h6 class="fw-bold text-dark mb-1">Yêu cầu giữ chỗ này đã bị hủy.</h6>
+                        <?php if (!empty($booking['cancel_reason'])): ?>
+                            <p class="small text-danger mb-1">
+                                <strong>Lý do hủy:</strong> <?= htmlspecialchars($booking['cancel_reason'], ENT_QUOTES, 'UTF-8') ?>
+                            </p>
+                        <?php endif; ?>
+                        <?php if (!empty($booking['refund_code'])): ?>
+                            <p class="small text-muted mb-0">
+                                <i class="bi bi-arrow-return-left me-1"></i> Hồ sơ hoàn tiền: <strong class="text-dark">#<?= htmlspecialchars($booking['refund_code']) ?></strong> 
+                                — Số tiền: <strong class="text-success"><?= FormatHelper::formatVnd((float)$booking['refund_amount']) ?></strong> 
+                                (Trạng thái: <span class="badge bg-info-subtle text-info border"><?= htmlspecialchars($booking['refund_status']) ?></span>)
+                            </p>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div>
-                    <span class="badge bg-secondary px-3 py-1 rounded-pill fw-bold mb-1">
-                        ĐƠN ĐẶT CHỖ ĐÃ BỊ HỦY
-                    </span>
-                    <h6 class="fw-bold text-dark mb-1">Yêu cầu giữ chỗ này đã bị hủy.</h6>
-                    <?php if (!empty($booking['cancel_reason'])): ?>
-                        <p class="small text-danger mb-0">
-                            <strong>Lý do hủy:</strong> <?= htmlspecialchars($booking['cancel_reason'], ENT_QUOTES, 'UTF-8') ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
+                <?php if (!empty($booking['refund_id'])): ?>
+                    <div>
+                        <a href="/refunds/<?= (int)$booking['refund_id'] ?>" class="btn btn-outline-info rounded-pill px-3 py-2 btn-sm fw-semibold">
+                            <i class="bi bi-arrow-return-left me-1"></i> Phiếu Theo Dõi Hoàn Tiền
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     <?php elseif ($status === 'rejected'): ?>
@@ -161,6 +187,95 @@ $plan = (string)$booking['payment_plan'];
                     <?php endif; ?>
                 </div>
             </div>
+        </div>
+    <?php elseif ($status === 'completed'): ?>
+        <div class="alert alert-info border-0 rounded-4 shadow-sm p-4 mb-4 bg-info-subtle bg-opacity-25">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-info text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
+                        <i class="bi bi-flag-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-info text-dark px-3 py-1 rounded-pill fw-bold mb-1">
+                            CHUYẾN ĐI ĐÃ HOÀN THÀNH
+                        </span>
+                        <h6 class="fw-bold text-dark mb-1">Cảm ơn bạn đã tham gia trải nghiệm bản địa!</h6>
+                        <p class="small text-muted mb-0">
+                            Chuyến đi đã kết thúc tốt đẹp. Đánh giá của bạn sẽ giúp cộng đồng có thêm góc nhìn chân thực và giúp Host hoàn thiện dịch vụ.
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <a href="/bookings/<?= (int)$booking['id'] ?>/receipt" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
+                        <i class="bi bi-receipt me-1"></i> Xem Biên Nhận
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEW SECTION FOR COMPLETED BOOKING -->
+        <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                <h5 class="fw-bold font-editorial text-dark mb-0">
+                    <i class="bi bi-star-fill text-warning me-2"></i>Đánh Giá Trải Nghiệm Sau Chuyến Đi
+                </h5>
+            </div>
+
+            <?php if (!empty($booking['review_id'])): ?>
+                <!-- ĐÃ ĐÁNH GIÁ -->
+                <div class="p-3 bg-light rounded-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-1 text-warning fs-5">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <i class="bi <?= $i <= (int)$booking['review_rating'] ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                            <?php endfor; ?>
+                            <span class="badge bg-warning text-dark ms-2 font-monospace"><?= (int)$booking['review_rating'] ?> / 5 sao</span>
+                        </div>
+                        <small class="text-muted">
+                            Đã đánh giá: <?= date('H:i - d/m/Y', strtotime($booking['review_created_at'])) ?>
+                        </small>
+                    </div>
+                    <p class="text-dark mb-0 ps-1 fst-italic">
+                        "<?= htmlspecialchars($booking['review_comment'], ENT_QUOTES, 'UTF-8') ?>"
+                    </p>
+                </div>
+            <?php else: ?>
+                <!-- CHƯA ĐÁNH GIÁ: FORM GỬI ĐÁNH GIÁ -->
+                <form action="/reviews" method="POST" id="review-form">
+                    <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                    <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Bạn chấm chuyến đi mấy sao?</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <select name="rating" class="form-select rounded-pill px-3 fw-bold text-warning" style="max-width: 220px;" required>
+                                <option value="5" selected>★★★★★ 5 sao (Tuyệt vời)</option>
+                                <option value="4">★★★★☆ 4 sao (Rất tốt)</option>
+                                <option value="3">★★★☆☆ 3 sao (Bình thường)</option>
+                                <option value="2">★★☆☆☆ 2 sao (Chưa hài lòng)</option>
+                                <option value="1">★☆☆☆☆ 1 sao (Thất vọng)</option>
+                            </select>
+                            <small class="text-muted">Chọn từ 1 đến 5 sao theo cảm nhận thực tế của bạn.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="review_comment" class="form-label small fw-semibold text-dark">Nhận xét chi tiết chuyến đi:</label>
+                        <textarea class="form-control rounded-3" 
+                                  id="review_comment" 
+                                  name="comment" 
+                                  rows="3" 
+                                  placeholder="Chia sẻ về sự nhiệt tình của Host, cảnh đẹp, bữa ăn, trạm trải nghiệm..." 
+                                  required></textarea>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold text-dark shadow-sm">
+                            <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Sao
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 
@@ -364,7 +479,7 @@ $plan = (string)$booking['payment_plan'];
 </div>
 
 <!-- CANCEL BOOKING MODAL -->
-<?php if (in_array($status, ['pending', 'awaiting_payment'], true)): ?>
+<?php if (in_array($status, ['pending', 'awaiting_payment', 'confirmed'], true)): ?>
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -377,11 +492,20 @@ $plan = (string)$booking['payment_plan'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-3">
-                    <p class="small text-muted mb-3">
-                        Bạn có chắc chắn muốn hủy đơn đặt chỗ <strong>#<?= $code ?></strong>? Ghế trống đã giữ sẽ được tự động hoàn trả lại cho những du khách khác.
-                    </p>
+                    <?php if ($status === 'confirmed'): ?>
+                        <div class="alert alert-warning border-0 rounded-3 p-3 small mb-3">
+                            <i class="bi bi-info-circle-fill me-1"></i>
+                            <strong>Chính sách hoàn tiền:</strong><br>
+                            - Hủy <strong>trước 24 giờ</strong> so với giờ khởi hành (trước mốc T24): Hoàn toàn bộ số tiền đã thanh toán online qua MoMo.<br>
+                            - Hủy <strong>sau mốc 24 giờ</strong> (từ T24 trở đi): Yêu cầu sẽ được chuyển đến Ban Quản Trị xem xét ngoại lệ.
+                        </div>
+                    <?php else: ?>
+                        <p class="small text-muted mb-3">
+                            Bạn có chắc chắn muốn hủy đơn đặt chỗ <strong>#<?= $code ?></strong>? Ghế trống đã giữ sẽ được tự động hoàn trả lại cho những du khách khác.
+                        </p>
+                    <?php endif; ?>
                     <div class="mb-3">
-                        <label for="cancel_reason" class="form-label small fw-semibold">Lý do hủy đơn (tùy chọn):</label>
+                        <label for="cancel_reason" class="form-label small fw-semibold">Lý do hủy đơn:</label>
                         <textarea class="form-control rounded-3" 
                                   id="cancel_reason" 
                                   name="reason" 

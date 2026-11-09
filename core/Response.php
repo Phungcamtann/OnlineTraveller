@@ -9,6 +9,9 @@ namespace Core;
  */
 class Response
 {
+    public static bool $preventExit = false;
+    public static ?Response $lastResponse = null;
+
     private int $statusCode = 200;
     private array $headers = [];
     private string $body = '';
@@ -61,20 +64,24 @@ class Response
     {
         $this->setStatusCode($statusCode);
         $this->setHeader('Location', $url);
+        $this->setBody('');
         $this->send();
     }
 
     public function send(): void
     {
+        self::$lastResponse = $this;
+        http_response_code($this->statusCode);
         if (!headers_sent()) {
-            http_response_code($this->statusCode);
             foreach ($this->headers as $name => $value) {
                 header("{$name}: {$value}");
             }
         }
 
         echo $this->body;
-        exit;
+        if (!self::$preventExit) {
+            exit;
+        }
     }
 }
 

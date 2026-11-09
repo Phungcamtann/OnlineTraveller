@@ -37,6 +37,17 @@ class SecurityHelper
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        return !empty($token) && hash_equals($_SESSION['csrf_token'] ?? '', $token);
+        $sessionToken = $_SESSION['csrf_token'] ?? null;
+        if (!is_string($sessionToken) || $sessionToken === '') {
+            return false;
+        }
+        if (!is_string($token) || trim($token) === '') {
+            return false;
+        }
+        return hash_equals($sessionToken, trim($token));
     }
+}
+
+if (!class_exists('App\Helpers\SecurityHelper', false)) {
+    class_alias(SecurityHelper::class, 'App\Helpers\SecurityHelper');
 }

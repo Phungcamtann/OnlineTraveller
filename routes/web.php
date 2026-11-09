@@ -11,6 +11,12 @@ use App\Controllers\ScheduleController;
 use App\Controllers\BookingController;
 use App\Controllers\AdminController;
 use App\Controllers\CategoryController;
+use App\Controllers\PaymentController;
+use App\Controllers\ReceiptController;
+use App\Controllers\RefundController;
+use App\Controllers\DiscussionController;
+use App\Controllers\ReviewController;
+use App\Controllers\PostController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -33,6 +39,10 @@ return function (Router $router): void {
 
     // 3. HOST DASHBOARD, TOURS & SCHEDULES (TV2)
     $router->get('/host', [HostController::class, 'dashboard'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/bookings', [HostController::class, 'bookings'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/bookings/{id}', [HostController::class, 'showBooking'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->post('/host/bookings/{id}/approve', [HostController::class, 'approveBooking'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/host/bookings/{id}/reject', [HostController::class, 'rejectBooking'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
     $router->get('/host/services', [HostController::class, 'services'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->get('/host/services/create', [HostController::class, 'createService'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->post('/host/services', [HostController::class, 'storeService'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
@@ -45,6 +55,8 @@ return function (Router $router): void {
 
     // 4. ADMIN DASHBOARD & MODERATION (TV1 & TV4)
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/users', [AdminController::class, 'users'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/users/{id}/status', [AdminController::class, 'setUserStatus'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/categories', [CategoryController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->get('/admin/categories/create', [CategoryController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/categories', [CategoryController::class, 'store'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
@@ -59,4 +71,34 @@ return function (Router $router): void {
     $router->get('/bookings/{id}', [BookingController::class, 'show'], [AuthMiddleware::class]);
     $router->post('/bookings/{id}/cancel', [BookingController::class, 'cancel'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/my-bookings', [BookingController::class, 'myBookings'], [AuthMiddleware::class]);
+
+    // 6. MOMO SANDBOX CHECKOUT & SIMULATION (TV3)
+    $router->get('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class]);
+    $router->post('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/payments/sandbox-qr', [PaymentController::class, 'sandboxQr'], [AuthMiddleware::class]);
+
+    // 7. ELECTRONIC RECEIPTS & CANCELLATION REFUNDS (TV3-06)
+    $router->get('/receipts/{id}', [ReceiptController::class, 'show'], [AuthMiddleware::class]);
+    $router->get('/bookings/{id}/receipt', [ReceiptController::class, 'showByBooking'], [AuthMiddleware::class]);
+    $router->get('/refunds/{id}', [RefundController::class, 'show'], [AuthMiddleware::class]);
+    $router->get('/admin/refunds', [AdminController::class, 'refunds'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/refunds/{id}/approve', [AdminController::class, 'approveRefund'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+
+    // 8. COMMUNITY DISCUSSIONS & REPLIES (TV4-05)
+    $router->get('/services/{id}/discussions', [DiscussionController::class, 'index']);
+    $router->post('/discussions', [DiscussionController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+    // 9. REVIEWS & POST-TRIP STAR RATINGS (TV4-06)
+    $router->post('/reviews', [ReviewController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/services/{id}/reviews', [ReviewController::class, 'index']);
+
+    // 10. TRAVEL BLOG & COMMUNITY POSTS (TV4-06)
+    $router->get('/posts', [PostController::class, 'index']);
+    $router->get('/posts/{slug}', [PostController::class, 'show']);
+    $router->get('/admin/posts', [PostController::class, 'adminIndex'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/posts/create', [PostController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/posts', [PostController::class, 'store'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/admin/posts/{id}/edit', [PostController::class, 'edit'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/posts/{id}/edit', [PostController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/posts/{id}/delete', [PostController::class, 'destroy'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 };

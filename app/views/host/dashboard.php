@@ -31,6 +31,9 @@
             </p>
         </div>
         <div class="d-flex flex-wrap gap-2">
+            <a href="/host/bookings" class="btn btn-outline-dark rounded-pill px-3 py-2">
+                <i class="bi bi-inbox-fill me-1"></i> Quản Lý Đặt Chỗ
+            </a>
             <a href="/host/schedules/create" class="btn btn-outline-dark rounded-pill px-3 py-2">
                 <i class="bi bi-calendar-plus me-1"></i> Mở Lịch Khởi Hành
             </a>
@@ -94,7 +97,9 @@
                     </span>
                 </div>
                 <div class="fs-2 fw-bold text-info font-editorial"><?= (int)($metrics['total_bookings'] ?? 0) ?></div>
-                <small class="text-muted">Du khách đã xác nhận</small>
+                <small class="text-muted">
+                    <a href="/host/bookings" class="text-decoration-none text-info-emphasis">Duyệt & xử lý đơn &rarr;</a>
+                </small>
             </div>
         </div>
     </div>

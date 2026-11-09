@@ -28,3 +28,7 @@ class FormatHelper
         }
     }
 }
+
+if (!class_exists('App\Helpers\FormatHelper', false)) {
+    class_alias(FormatHelper::class, 'App\Helpers\FormatHelper');
+}

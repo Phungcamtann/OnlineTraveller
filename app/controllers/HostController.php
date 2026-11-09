@@ -9,7 +9,9 @@ use Core\Request;
 use Core\Response;
 use App\Services\TourService;
 use App\Services\ScheduleService;
+use App\Services\BookingService;
 use App\Models\Service;
+use App\Models\Booking;
 use Exception;
 
 /**
@@ -17,24 +19,31 @@ use Exception;
  * - Host dashboard with KPI metrics
  * - Tour services CRUD (pricing modes, homestay attachment, 3D stops)
  * - Schedule coordination
+ * - Booking review, approval and 15-minute seat reservation
  */
 class HostController extends BaseController
 {
     private TourService $tourService;
     private ScheduleService $scheduleService;
     private Service $serviceModel;
+    private BookingService $bookingService;
+    private Booking $bookingModel;
 
     public function __construct(
         ?Request $request = null,
         ?Response $response = null,
         ?TourService $tourService = null,
         ?ScheduleService $scheduleService = null,
-        ?Service $serviceModel = null
+        ?Service $serviceModel = null,
+        ?BookingService $bookingService = null,
+        ?Booking $bookingModel = null
     ) {
         parent::__construct($request, $response);
         $this->tourService = $tourService ?? new TourService();
         $this->scheduleService = $scheduleService ?? new ScheduleService();
         $this->serviceModel = $serviceModel ?? new Service();
+        $this->bookingService = $bookingService ?? new BookingService();
+        $this->bookingModel = $bookingModel ?? new Booking();
     }
 
     /**
@@ -288,6 +297,181 @@ class HostController extends BaseController
         } catch (Exception $e) {
             $this->flash('danger', $e->getMessage());
             $this->redirect('/host/services/' . $tourId . '/edit');
+        }
+    }
+
+    /**
+     * List all booking requests for the host's tours with status filtering.
+     */
+    public function bookings(Request $request): void
+    {
+        $user = $this->user();
+        if (!$user) {
+            $this->redirect('/login');
+            return;
+        }
+
+        $hostId = (int)$user['id'];
+        $status = $request->query('status');
+        $status = !empty($status) && in_array($status, ['pending', 'awaiting_payment', 'confirmed', 'completed', 'cancelled', 'rejected', 'expired'], true) ? (string)$status : null;
+
+        $serviceId = $request->query('service_id');
+        $serviceId = !empty($serviceId) ? (int)$serviceId : null;
+
+        $search = $request->query('q');
+        $search = !empty($search) ? trim((string)$search) : null;
+
+        $bookings = $this->bookingModel->getHostBookingsFiltered($hostId, $status, $serviceId, $search);
+        $stats = $this->bookingModel->getHostBookingStats($hostId);
+        $services = $this->tourService->getHostTours($hostId);
+
+        $this->view('host/bookings/index', [
+            'title' => 'Quản Lý Đơn Đặt Tour Bản Địa — OnlineTraveller Host',
+            'user' => $user,
+            'bookings' => $bookings,
+            'stats' => $stats,
+            'services' => $services,
+            'filters' => [
+                'status' => $status,
+                'service_id' => $serviceId,
+                'search' => $search,
+            ],
+        ]);
+    }
+
+    /**
+     * View detailed booking information for Host.
+     */
+    public function showBooking(Request $request, string $id): void
+    {
+        $user = $this->user();
+        if (!$user) {
+            $this->redirect('/login');
+            return;
+        }
+
+        $hostId = (int)$user['id'];
+        $bookingId = (int)$id;
+
+        try {
+            $booking = $this->bookingService->getBooking($bookingId, $hostId, 'host');
+
+            $this->view('host/bookings/show', [
+                'title' => "Chi Tiết Đơn Đặt #{$booking['booking_code']} — OnlineTraveller Host",
+                'user' => $user,
+                'booking' => $booking,
+            ]);
+        } catch (Exception $e) {
+            $this->flash('danger', $e->getMessage());
+            $this->redirect('/host/bookings');
+        }
+    }
+
+    /**
+     * Host approves booking request and initiates 15-minute seat reservation.
+     */
+    public function approveBooking(Request $request, string $id): void
+    {
+        $user = $this->user();
+        if (!$user) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Vui lòng đăng nhập.'], 401);
+                return;
+            }
+            $this->redirect('/login');
+            return;
+        }
+
+        $hostId = (int)$user['id'];
+        $bookingId = (int)$id;
+
+        try {
+            $approved = $this->bookingService->approveBooking($hostId, $bookingId);
+
+            $message = 'Đã phê duyệt yêu cầu đặt tour thành công!';
+            if (($approved['status'] ?? '') === 'awaiting_payment') {
+                $message .= ' Đã giữ chỗ 15 phút để du khách tiến hành thanh toán MoMo Sandbox.';
+            } else {
+                $message .= ' Chuyến đi đã được xác nhận chính thức.';
+            }
+
+            if ($request->isAjax()) {
+                $this->response->json([
+                    'success' => true,
+                    'message' => $message,
+                    'booking' => $approved,
+                ]);
+                return;
+            }
+
+            $this->flash('success', $message);
+            $this->redirect('/host/bookings');
+            return;
+        } catch (Exception $e) {
+            $errorMsg = match($e->getMessage()) {
+                'NOT_ENOUGH_SEATS' => 'Không đủ số chỗ khả dụng trên lịch trình khởi hành này để duyệt thêm.',
+                'BOOKING_NOT_PENDING' => 'Đơn đặt chỗ không còn ở trạng thái chờ duyệt.',
+                'FORBIDDEN_NOT_HOST' => 'Bạn không có quyền quản lý đơn đặt này.',
+                'BOOKING_NOT_FOUND' => 'Không tìm thấy đơn đặt chỗ yêu cầu.',
+                default => 'Không thể phê duyệt đơn: ' . $e->getMessage(),
+            };
+
+            if ($request->isAjax()) {
+                $this->response->json(['error' => $errorMsg], 400);
+                return;
+            }
+
+            $this->flash('danger', $errorMsg);
+            $this->redirect('/host/bookings');
+            return;
+        }
+    }
+
+    /**
+     * Host rejects a pending booking request with explanation.
+     */
+    public function rejectBooking(Request $request, string $id): void
+    {
+        $user = $this->user();
+        if (!$user) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Vui lòng đăng nhập.'], 401);
+                return;
+            }
+            $this->redirect('/login');
+            return;
+        }
+
+        $hostId = (int)$user['id'];
+        $bookingId = (int)$id;
+        $reason = trim((string)$request->post('reason', ''));
+
+        try {
+            $rejected = $this->bookingService->rejectBooking($hostId, $bookingId, $reason);
+
+            $message = 'Đã từ chối đơn đặt tour thành công.';
+
+            if ($request->isAjax()) {
+                $this->response->json([
+                    'success' => true,
+                    'message' => $message,
+                    'booking' => $rejected,
+                ]);
+                return;
+            }
+
+            $this->flash('warning', $message);
+            $this->redirect('/host/bookings');
+            return;
+        } catch (Exception $e) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Không thể từ chối đơn: ' . $e->getMessage()], 400);
+                return;
+            }
+
+            $this->flash('danger', 'Không thể từ chối đơn: ' . $e->getMessage());
+            $this->redirect('/host/bookings');
+            return;
         }
     }
 }
