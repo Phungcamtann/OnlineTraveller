@@ -33,6 +33,10 @@ return function (Router $router): void {
 
     // 3. HOST DASHBOARD, TOURS & SCHEDULES (TV2)
     $router->get('/host', [HostController::class, 'dashboard'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/bookings', [HostController::class, 'bookings'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->get('/host/bookings/{id}', [HostController::class, 'showBooking'], [AuthMiddleware::class, HostMiddleware::class]);
+    $router->post('/host/bookings/{id}/approve', [HostController::class, 'approveBooking'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/host/bookings/{id}/reject', [HostController::class, 'rejectBooking'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
     $router->get('/host/services', [HostController::class, 'services'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->get('/host/services/create', [HostController::class, 'createService'], [AuthMiddleware::class, HostMiddleware::class]);
     $router->post('/host/services', [HostController::class, 'storeService'], [AuthMiddleware::class, HostMiddleware::class, CsrfMiddleware::class]);
