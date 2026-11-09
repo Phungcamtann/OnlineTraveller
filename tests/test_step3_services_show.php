@@ -196,7 +196,7 @@ runTest("Khối 3: Kết Nối Trực Tiếp & Đặt Lịch (Kênh hỏi đáp 
         'id="bookingSection"',
         'Kênh Hỏi Đánh Giá Trực Tiếp Từ Xa',
         'action="/discussions"',
-        'Nhập nội dung câu hỏi?',
+        'Nhập nội dung câu hỏi',
         'Đặt Chỗ',
         '450.000đ',
         'scheduleSelect',
