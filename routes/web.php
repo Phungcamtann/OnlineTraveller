@@ -11,6 +11,7 @@ use App\Controllers\ScheduleController;
 use App\Controllers\BookingController;
 use App\Controllers\AdminController;
 use App\Controllers\CategoryController;
+use App\Controllers\PaymentController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -65,4 +66,9 @@ return function (Router $router): void {
     $router->get('/bookings/{id}', [BookingController::class, 'show'], [AuthMiddleware::class]);
     $router->post('/bookings/{id}/cancel', [BookingController::class, 'cancel'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/my-bookings', [BookingController::class, 'myBookings'], [AuthMiddleware::class]);
+
+    // 6. MOMO SANDBOX CHECKOUT & SIMULATION (TV3)
+    $router->get('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class]);
+    $router->post('/payments/checkout', [PaymentController::class, 'checkout'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/payments/sandbox-qr', [PaymentController::class, 'sandboxQr'], [AuthMiddleware::class]);
 };
