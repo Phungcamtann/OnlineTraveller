@@ -64,6 +64,7 @@ class Response
     {
         $this->setStatusCode($statusCode);
         $this->setHeader('Location', $url);
+        $this->setBody('');
         $this->send();
     }
 

@@ -47,6 +47,89 @@ class User extends BaseModel
     {
         return $this->fetchOne("SELECT id, role, name, email, phone, avatar, living_area, bio, status, created_at FROM tbl_users WHERE id = ?", [$id]);
     }
+
+    /**
+     * Get paginated and filtered list of users for Admin management.
+     */
+    public function getAllUsers(?string $role = null, ?string $status = null, ?string $search = null, int $limit = 20, int $offset = 0): array
+    {
+        $sql = "SELECT id, role, name, email, phone, avatar, living_area, bio, status, created_at, updated_at FROM tbl_users WHERE 1=1";
+        $params = [];
+
+        if (!empty($role) && in_array($role, ['tourist', 'host', 'admin'], true)) {
+            $sql .= " AND role = ?";
+            $params[] = $role;
+        }
+
+        if (!empty($status) && in_array($status, ['active', 'inactive', 'locked'], true)) {
+            $sql .= " AND status = ?";
+            $params[] = $status;
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+            $wildcard = '%' . trim($search) . '%';
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+        }
+
+        $sql .= " ORDER BY created_at DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+        return $this->fetchAll($sql, $params);
+    }
+
+    /**
+     * Count users matching filter conditions.
+     */
+    public function countUsers(?string $role = null, ?string $status = null, ?string $search = null): int
+    {
+        $sql = "SELECT COUNT(*) as cnt FROM tbl_users WHERE 1=1";
+        $params = [];
+
+        if (!empty($role) && in_array($role, ['tourist', 'host', 'admin'], true)) {
+            $sql .= " AND role = ?";
+            $params[] = $role;
+        }
+
+        if (!empty($status) && in_array($status, ['active', 'inactive', 'locked'], true)) {
+            $sql .= " AND status = ?";
+            $params[] = $status;
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+            $wildcard = '%' . trim($search) . '%';
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+        }
+
+        $row = $this->fetchOne($sql, $params);
+        return (int)($row['cnt'] ?? 0);
+    }
+
+    /**
+     * Get aggregate statistics on users.
+     */
+    public function getUserStats(): array
+    {
+        $total = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users")['c'] ?? 0);
+        $hosts = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users WHERE role = 'host'")['c'] ?? 0);
+        $tourists = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users WHERE role = 'tourist'")['c'] ?? 0);
+        $admins = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users WHERE role = 'admin'")['c'] ?? 0);
+        $locked = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users WHERE status = 'locked'")['c'] ?? 0);
+        $active = (int)($this->fetchOne("SELECT COUNT(*) as c FROM tbl_users WHERE status = 'active'")['c'] ?? 0);
+
+        return [
+            'total' => $total,
+            'hosts' => $hosts,
+            'tourists' => $tourists,
+            'admins' => $admins,
+            'locked' => $locked,
+            'active' => $active,
+        ];
+    }
 }
 
 if (!class_exists('User', false)) {

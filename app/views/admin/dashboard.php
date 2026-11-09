@@ -15,6 +15,9 @@
             <p class="text-muted small mb-0">Phiên bản thiết kế tinh chỉnh v2.2 • Quản lý danh mục, duyệt tour và người dùng</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="/admin/users" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                <i class="bi bi-people-fill me-1"></i> Người Dùng (Users)
+            </a>
             <a href="/admin/categories" class="btn btn-outline-dark btn-sm rounded-pill px-3">
                 <i class="bi bi-folder-fill me-1"></i> Danh Mục (Categories)
             </a>
@@ -27,10 +30,12 @@
     <!-- 5 Stats Cards -->
     <div class="row g-3 mb-4">
         <div class="col-lg-2 col-md-4 col-6">
-            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white text-center">
-                <small class="text-muted fw-bold d-block mb-1">NGƯỜI DÙNG</small>
-                <div class="fs-3 fw-bold text-dark font-editorial"><?= $stats['users'] ?></div>
-            </div>
+            <a href="/admin/users" class="text-decoration-none">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white text-center hover-shadow transition">
+                    <small class="text-muted fw-bold d-block mb-1">NGƯỜI DÙNG</small>
+                    <div class="fs-3 fw-bold text-dark font-editorial"><?= $stats['users'] ?></div>
+                </div>
+            </a>
         </div>
         <div class="col-lg-2 col-md-4 col-6">
             <div class="card border-0 rounded-4 shadow-sm p-3 bg-white text-center">

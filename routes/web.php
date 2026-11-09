@@ -45,6 +45,8 @@ return function (Router $router): void {
 
     // 4. ADMIN DASHBOARD & MODERATION (TV1 & TV4)
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/users', [AdminController::class, 'users'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/users/{id}/status', [AdminController::class, 'setUserStatus'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/categories', [CategoryController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->get('/admin/categories/create', [CategoryController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/categories', [CategoryController::class, 'store'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
