@@ -15,6 +15,8 @@ use App\Controllers\PaymentController;
 use App\Controllers\ReceiptController;
 use App\Controllers\RefundController;
 use App\Controllers\DiscussionController;
+use App\Controllers\ReviewController;
+use App\Controllers\PostController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\HostMiddleware;
 use App\Middleware\AdminMiddleware;
@@ -85,4 +87,18 @@ return function (Router $router): void {
     // 8. COMMUNITY DISCUSSIONS & REPLIES (TV4-05)
     $router->get('/services/{id}/discussions', [DiscussionController::class, 'index']);
     $router->post('/discussions', [DiscussionController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+    // 9. REVIEWS & POST-TRIP STAR RATINGS (TV4-06)
+    $router->post('/reviews', [ReviewController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/services/{id}/reviews', [ReviewController::class, 'index']);
+
+    // 10. TRAVEL BLOG & COMMUNITY POSTS (TV4-06)
+    $router->get('/posts', [PostController::class, 'index']);
+    $router->get('/posts/{slug}', [PostController::class, 'show']);
+    $router->get('/admin/posts', [PostController::class, 'adminIndex'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/posts/create', [PostController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/posts', [PostController::class, 'store'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/admin/posts/{id}/edit', [PostController::class, 'edit'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/posts/{id}/edit', [PostController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/posts/{id}/delete', [PostController::class, 'destroy'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 };

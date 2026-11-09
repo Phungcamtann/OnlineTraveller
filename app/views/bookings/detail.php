@@ -188,6 +188,95 @@ $plan = (string)$booking['payment_plan'];
                 </div>
             </div>
         </div>
+    <?php elseif ($status === 'completed'): ?>
+        <div class="alert alert-info border-0 rounded-4 shadow-sm p-4 mb-4 bg-info-subtle bg-opacity-25">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-info text-white rounded-circle flex-shrink-0" style="width: 46px; height: 46px;">
+                        <i class="bi bi-flag-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-info text-dark px-3 py-1 rounded-pill fw-bold mb-1">
+                            CHUYẾN ĐI ĐÃ HOÀN THÀNH
+                        </span>
+                        <h6 class="fw-bold text-dark mb-1">Cảm ơn bạn đã tham gia trải nghiệm bản địa!</h6>
+                        <p class="small text-muted mb-0">
+                            Chuyến đi đã kết thúc tốt đẹp. Đánh giá của bạn sẽ giúp cộng đồng có thêm góc nhìn chân thực và giúp Host hoàn thiện dịch vụ.
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <a href="/bookings/<?= (int)$booking['id'] ?>/receipt" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold">
+                        <i class="bi bi-receipt me-1"></i> Xem Biên Nhận
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEW SECTION FOR COMPLETED BOOKING -->
+        <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                <h5 class="fw-bold font-editorial text-dark mb-0">
+                    <i class="bi bi-star-fill text-warning me-2"></i>Đánh Giá Trải Nghiệm Sau Chuyến Đi
+                </h5>
+            </div>
+
+            <?php if (!empty($booking['review_id'])): ?>
+                <!-- ĐÃ ĐÁNH GIÁ -->
+                <div class="p-3 bg-light rounded-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-1 text-warning fs-5">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <i class="bi <?= $i <= (int)$booking['review_rating'] ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                            <?php endfor; ?>
+                            <span class="badge bg-warning text-dark ms-2 font-monospace"><?= (int)$booking['review_rating'] ?> / 5 sao</span>
+                        </div>
+                        <small class="text-muted">
+                            Đã đánh giá: <?= date('H:i - d/m/Y', strtotime($booking['review_created_at'])) ?>
+                        </small>
+                    </div>
+                    <p class="text-dark mb-0 ps-1 fst-italic">
+                        "<?= htmlspecialchars($booking['review_comment'], ENT_QUOTES, 'UTF-8') ?>"
+                    </p>
+                </div>
+            <?php else: ?>
+                <!-- CHƯA ĐÁNH GIÁ: FORM GỬI ĐÁNH GIÁ -->
+                <form action="/reviews" method="POST" id="review-form">
+                    <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                    <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Bạn chấm chuyến đi mấy sao?</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <select name="rating" class="form-select rounded-pill px-3 fw-bold text-warning" style="max-width: 220px;" required>
+                                <option value="5" selected>★★★★★ 5 sao (Tuyệt vời)</option>
+                                <option value="4">★★★★☆ 4 sao (Rất tốt)</option>
+                                <option value="3">★★★☆☆ 3 sao (Bình thường)</option>
+                                <option value="2">★★☆☆☆ 2 sao (Chưa hài lòng)</option>
+                                <option value="1">★☆☆☆☆ 1 sao (Thất vọng)</option>
+                            </select>
+                            <small class="text-muted">Chọn từ 1 đến 5 sao theo cảm nhận thực tế của bạn.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="review_comment" class="form-label small fw-semibold text-dark">Nhận xét chi tiết chuyến đi:</label>
+                        <textarea class="form-control rounded-3" 
+                                  id="review_comment" 
+                                  name="comment" 
+                                  rows="3" 
+                                  placeholder="Chia sẻ về sự nhiệt tình của Host, cảnh đẹp, bữa ăn, trạm trải nghiệm..." 
+                                  required></textarea>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold text-dark shadow-sm">
+                            <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Sao
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <!-- 2-COLUMN MAIN CONTENT -->
