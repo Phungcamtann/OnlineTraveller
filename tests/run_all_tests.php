@@ -125,6 +125,12 @@ $testSuites = [
         'file'     => 'test_phase5_host_services.php',
         'name'     => 'Cải tiến Form Đăng Tour Host: Geocoding tự động & Upload ảnh trạm',
     ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-3',
+        'file'     => 'test_phase3_community_posts.php',
+        'name'     => 'Bản tin cộng đồng mở 3 vai trò & Tích hợp tin tức RSS VnExpress',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

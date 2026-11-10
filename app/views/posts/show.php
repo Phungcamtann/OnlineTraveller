@@ -33,6 +33,20 @@ $thumb = $post['thumbnail'] ?: '/assets/images/default-blog.jpg';
                                 <i class="bi bi-person-fill"></i>
                             </span>
                             <span>Tác giả: <strong><?= htmlspecialchars($post['author_name'] ?? 'Ban Quản Trị', ENT_QUOTES, 'UTF-8') ?></strong></span>
+                            <?php
+                            $authorRole = $post['author_role'] ?? 'tourist';
+                            $roleLabel = match($authorRole) {
+                                'host' => 'Host Bản Địa',
+                                'admin' => 'Ban Quản Trị',
+                                default => 'Du Khách',
+                            };
+                            $roleBadge = match($authorRole) {
+                                'host' => 'bg-info-subtle text-info-emphasis border border-info-subtle',
+                                'admin' => 'bg-danger-subtle text-danger border border-danger-subtle',
+                                default => 'bg-primary-subtle text-primary border border-primary-subtle',
+                            };
+                            ?>
+                            <span class="badge rounded-pill <?= $roleBadge ?> px-2 py-1" style="font-size: 0.72rem;"><?= $roleLabel ?></span>
                             <span class="mx-1">•</span>
                             <span><i class="bi bi-calendar3 me-1"></i><?= date('d/m/Y', strtotime($post['created_at'])) ?></span>
                         </div>

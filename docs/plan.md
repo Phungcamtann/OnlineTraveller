@@ -76,21 +76,24 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 ---
 
 ### GIAI ĐOẠN 3: Mở Rộng Bản Tin Cộng Đồng (3 Vai Trò) & Tin Tức RSS VnExpress
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (24/24 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase3_community_posts.php`
+
 * **Mục tiêu:** Mở rộng trang Bản tin thành cộng đồng mở cho cả Du khách, Host và Admin cùng chia sẻ; tích hợp tin tức du lịch thời sự.
-* **Các công việc cụ thể:**
+* **Các công việc đã hoàn thành:**
   1. **Quyền Đăng Bài Cho 3 Vai Trò (`PostController.php`, `Post.php`):**
-     - Cho phép `tourist`, `host`, và `admin` cùng đăng bài viết mới tại `/posts/create`.
-     - Trạng thái mặc định: `status = 'published'` (hiển thị ngay).
+     - Đã thêm Stored Procedure `pct_sp_community_posts_create` cho phép cả 3 vai trò (`tourist`, `host`, `admin`) đăng bài chia sẻ, xuất bản ngay (`is_published = 1`).
      - Admin vẫn giữ toàn quyền quản trị (sửa, xóa, ẩn bài vi phạm tại `/admin/posts`).
-     - Bổ sung nút nổi bật **"Chia Sẻ Câu Chuyện / Viết Bài Mới"** ngay trên thanh tiêu đề trang Bản tin (`/posts`).
-     - Hỗ trợ tải file ảnh đại diện bài viết từ máy tính (lưu trữ vào thư mục `public/assets/images/posts/`).
-     - Dọn dẹp toàn bộ ghi chú kỹ thuật trên form đăng tin.
+     - Thêm nút nổi bật **"Chia Sẻ Câu Chuyện / Viết Bài Mới"** ngay trên thanh tiêu đề trang Bản tin (`/posts`).
+     - Hỗ trợ tải file ảnh đại diện bài viết từ máy tính (`Post::handleThumbnailUpload`, lưu vào `public/assets/images/posts/`).
+     - Tạo view mới [`app/views/posts/create.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/posts/create.php) với preview ảnh đại diện tức thì và làm sạch toàn bộ ghi chú kỹ thuật.
   2. **Tích hợp Tin tức RSS VnExpress trên `/posts`:**
-     - Lấy song song: Bài viết nội bộ cộng đồng + Tin tức RSS báo chí từ VnExpress Du lịch.
+     - Tích hợp `RssClient::getFeed(12)` từ VnExpress Du Lịch.
      - Gộp chung hiển thị trên danh sách trang Bản tin với nhãn nhận diện rõ ràng:
-       - Huy hiệu xanh: *"Cộng đồng OnlineTraveller"* (kèm tên tác giả và vai trò: Dân bản địa / Du khách).
-       - Huy hiệu cam: *"Nguồn: VnExpress Du Lịch"*.
-     - Phân trang cơ bản: ~6 tin/trang (có nút Trang trước / Trang sau).
+       - Huy hiệu xanh: *"Bản Tin Cộng Đồng"* (kèm tên tác giả và vai trò: Host Bản Địa / Du Khách / Ban Quản Trị).
+       - Huy hiệu cam: *"VnExpress"* (kèm nguồn VnExpress Du Lịch và liên kết mở tab mới).
+     - Bổ sung 3 Tab lọc: *Tất Cả Dòng Tin*, *Bài Viết Cộng Đồng*, *Tin Tức VnExpress Du Lịch*.
+     - Phân trang chuẩn mực: 6 tin/trang (có nút Trang trước / Trang sau).
 
 ---
 
