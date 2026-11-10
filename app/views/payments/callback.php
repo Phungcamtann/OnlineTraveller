@@ -56,19 +56,30 @@ $isSuccess = ($resultCode === '0' || ($payment && $payment['status'] === 'succee
                 </div>
             </div>
 
-            <div class="d-flex flex-wrap justify-content-center gap-3">
+            <!-- Hành động sau thanh toán -->
+            <div class="row g-2 justify-content-center mb-3">
                 <?php if ($payment && !empty($payment['booking_id'])): ?>
-                    <a href="/bookings/<?= (int)$payment['booking_id'] ?>" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
-                        <i class="bi bi-ticket-detailed me-1"></i> Xem Chi Tiết Vé & Lịch Trình
-                    </a>
+                    <div class="col-sm-6">
+                        <a href="/bookings/<?= (int)$payment['booking_id'] ?>" class="btn btn-primary rounded-pill w-100 py-2 shadow-sm fw-semibold">
+                            <i class="bi bi-ticket-detailed me-1"></i> Xem Chi Tiết Vé
+                        </a>
+                    </div>
                 <?php endif; ?>
                 <?php if ($receipt && !empty($receipt['id'])): ?>
-                    <a href="/receipts/<?= (int)$receipt['id'] ?>" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">
-                        <i class="bi bi-receipt me-1"></i> Xem Biên Nhận Điện Tử
-                    </a>
+                    <div class="col-sm-6">
+                        <a href="/receipts/<?= (int)$receipt['id'] ?>" class="btn btn-success rounded-pill w-100 py-2 shadow-sm fw-semibold">
+                            <i class="bi bi-receipt me-1"></i> Xem Biên Nhận Điện Tử
+                        </a>
+                    </div>
                 <?php endif; ?>
-                <a href="/my-bookings" class="btn btn-outline-dark rounded-pill px-4 py-2">
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a href="/my-bookings" class="btn btn-outline-dark rounded-pill px-3 py-1 btn-sm">
                     <i class="bi bi-briefcase me-1"></i> Chuyến Đi Của Tôi
+                </a>
+                <a href="/" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
+                    <i class="bi bi-house me-1"></i> Về Trang Chủ
                 </a>
             </div>
         <?php else: ?>
@@ -96,7 +107,7 @@ $isSuccess = ($resultCode === '0' || ($payment && $payment['status'] === 'succee
                 </div>
             </div>
 
-            <div class="d-flex flex-wrap justify-content-center gap-3">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
                 <?php if ($payment && !empty($payment['booking_id'])): ?>
                     <a href="/payments/checkout?booking_id=<?= (int)$payment['booking_id'] ?>" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
                         <i class="bi bi-arrow-clockwise me-1"></i> Thử Thanh Toán Lại
@@ -109,6 +120,9 @@ $isSuccess = ($resultCode === '0' || ($payment && $payment['status'] === 'succee
                         Về Chuyến Đi Của Tôi
                     </a>
                 <?php endif; ?>
+                <a href="/" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+                    <i class="bi bi-house me-1"></i> Trang Chủ
+                </a>
             </div>
         <?php endif; ?>
     </div>

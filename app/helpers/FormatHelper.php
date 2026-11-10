@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Reusable formatting helper: currency, dates and status badges.
+ * Reusable formatting helper: currency, dates, VAT calculations and status badges.
  */
 class FormatHelper
 {
@@ -26,6 +26,28 @@ class FormatHelper
         } catch (\Throwable) {
             return $datetime;
         }
+    }
+
+    /**
+     * Calculate VAT breakdown from a gross total (inclusive of VAT).
+     * Default VAT rate in Vietnam tourism/hospitality is 8% (decreed VAT reduction).
+     *
+     * @param int|float $grossTotal Total price inclusive of VAT
+     * @param float $vatRate VAT percentage rate (default 0.08 = 8%)
+     * @return array ['net' => float, 'vat' => float, 'gross' => float, 'rate_percent' => int]
+     */
+    public static function calculateVat(int|float $grossTotal, float $vatRate = 0.08): array
+    {
+        $gross = (float)$grossTotal;
+        $net = round($gross / (1 + $vatRate));
+        $vat = $gross - $net;
+
+        return [
+            'net' => $net,
+            'vat' => $vat,
+            'gross' => $gross,
+            'rate_percent' => (int)round($vatRate * 100),
+        ];
     }
 }
 

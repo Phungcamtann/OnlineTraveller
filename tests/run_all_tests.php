@@ -105,6 +105,14 @@ $testSuites = [
         'file'     => 'test_sprint2_tv4_06.php',
         'name'     => 'Đánh giá 1-5 sao sau tour & Quản trị Cẩm nang Blog Admin',
     ],
+
+    // --- CẢI TIẾN HỆ THỐNG SAU KIỂM THỬ THỰC TẾ ---
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-1',
+        'file'     => 'test_phase1_improvements.php',
+        'name'     => 'Minh bạch VAT 8%, Căn đều nút thanh toán & Trạng thái cọc Host',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

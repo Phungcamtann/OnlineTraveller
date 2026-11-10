@@ -374,11 +374,16 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
                     </div>
 
                     <h5 class="fw-bold text-white mb-2">Đặt Chỗ Trải Nghiệm</h5>
-                    <div class="d-flex align-items-baseline gap-2 mb-3">
+                    <div class="d-flex align-items-baseline gap-2 mb-1">
                         <span class="fs-2 fw-bold text-info lh-1">
                             <?= number_format((float)($service['base_price'] ?? 450000), 0, ',', '.') ?>đ
                         </span>
                         <span class="small text-light opacity-75">/ người</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-light opacity-60" style="font-size: 0.75rem;">
+                            <i class="bi bi-shield-check text-success me-1"></i> Giá đã bao gồm 8% thuế GTGT (VAT)
+                        </small>
                     </div>
 
                     <!-- Bảng chi tiết các mục dịch vụ & cam kết thanh toán -->
@@ -399,6 +404,10 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
                                 </strong>
                             </div>
                         <?php endif; ?>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                            <span class="text-light opacity-75"><i class="bi bi-receipt text-info me-1"></i> Thuế & Phí:</span>
+                            <span class="text-white">Đã gồm 8% thuế GTGT</span>
+                        </div>
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
                             <span class="text-light opacity-75"><i class="bi bi-wallet2 text-warning me-1"></i> Thanh toán giữ chỗ:</span>
                             <span class="text-success fw-bold">MoMo Sandbox</span>

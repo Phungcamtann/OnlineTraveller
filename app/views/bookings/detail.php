@@ -423,12 +423,26 @@ $plan = (string)$booking['payment_plan'];
                             <strong>-<?= FormatHelper::formatVnd($discount) ?></strong>
                         </div>
                     <?php endif; ?>
+                    <?php
+                    $vatData = FormatHelper::calculateVat($totalPrice, 0.08);
+                    ?>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                        <span>Tiền dịch vụ trước thuế (Net):</span>
+                        <span><?= FormatHelper::formatVnd($vatData['net']) ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                        <span>Thuế GTGT (VAT 8%):</span>
+                        <span><?= FormatHelper::formatVnd($vatData['vat']) ?></span>
+                    </div>
                 </div>
 
                 <!-- Total Summary -->
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-baseline mb-2">
-                        <span class="fw-bold text-dark">Tổng giá trị đơn:</span>
+                        <div>
+                            <span class="fw-bold text-dark d-block">Tổng giá trị đơn:</span>
+                            <small class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-check-circle me-1"></i>Đã bao gồm 8% thuế GTGT</small>
+                        </div>
                         <span class="fs-4 fw-bold font-editorial text-dark">
                             <?= FormatHelper::formatVnd($totalPrice) ?>
                         </span>
