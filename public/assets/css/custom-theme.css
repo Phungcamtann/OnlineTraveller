@@ -1,523 +1,806 @@
 /* ==============================================================================
-   OnlineTraveller v2.2 — Unified Dark-Alpine & Ambient Blur UI System
-   Docs: docs/UI_SPEC_FOR_AGENT.md (Section 2)
+   OnlineTraveller v3.0 — Day Mode (Roamora) & Night Mode (Japan Tours) UI System
+   Specification: docs/UI_OVERHAUL_SPEC.md (Sections 1, 2, 3)
    ============================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500;1,700&display=swap');
 
-:root {
-  --bg-midnight: #0b1924;      /* Nền chính toàn trang khách */
-  --brand-deep: #184e6c;       /* Xanh đậm chủ đạo */
-  --brand-primary: #387ea2;    /* Nút bấm chính & điểm nhấn */
-  --brand-mid: #5ba3c6;        /* Đường kẻ Timeline, viền sáng */
-  --brand-light: #9bcbe5;      /* Chữ phụ, icon thời tiết, chấm tròn */
-  --brand-ice: #ddecf6;        /* Chữ mô tả dịu mắt */
-  --glass-surface: rgba(19, 42, 60, 0.65);
-  --glass-border: rgba(155, 203, 229, 0.22);
+/* ==========================================================================
+   1. HỆ BIẾN MÀU TRUNG TÍNH ĐỒNG BỘ (DAY MODE MẶC ĐỊNH & NIGHT MODE)
+   ========================================================================== */
+:root,
+[data-theme="light"] {
+    --bg-body: #FAF9F6;                  /* Nền kem ấm Roamora (Day Mode) */
+    --bg-surface: #FFFFFF;               /* Nền thẻ, thanh search, modal */
+    --bg-surface-subtle: #F3F2EE;        /* Nền phụ nhẹ */
+    --bg-glass: rgba(255, 255, 255, 0.88);
+    --text-main: #18181B;                /* Chữ chính đen than */
+    --text-muted: #64748B;               /* Chữ phụ xám trung tính */
+    --border-subtle: rgba(24, 24, 27, 0.12);
+    --border-strong: rgba(24, 24, 27, 0.25);
+    --btn-primary-bg: #18181B;           /* Nút bấm chính màu đen tuyền */
+    --btn-primary-text: #FFFFFF;
+    --btn-primary-hover: #3F3F46;
+    --timeline-line: rgba(24, 24, 27, 0.22);
+    --timeline-dot: #18181B;
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.06);
+
+    /* Backwards compatibility variables */
+    --bg-midnight: #FAF9F6;
+    --brand-deep: #18181B;
+    --brand-primary: #18181B;
+    --brand-mid: #52525B;
+    --brand-light: #71717A;
+    --brand-ice: #64748B;
+    --glass-surface: #FFFFFF;
+    --glass-border: rgba(24, 24, 27, 0.12);
 }
 
+[data-theme="dark"] {
+    --bg-body: #0E0E10;                  /* Nền đen khói Japan Tours (Night Mode) */
+    --bg-surface: #18181B;               /* Nền thẻ tối trung tính */
+    --bg-surface-subtle: #222226;
+    --bg-glass: rgba(24, 24, 27, 0.88);
+    --text-main: #F4F4F5;                /* Chữ chính trắng ngà */
+    --text-muted: #A1A1AA;               /* Chữ phụ xám bạc */
+    --border-subtle: rgba(255, 255, 255, 0.14);
+    --border-strong: rgba(255, 255, 255, 0.3);
+    --btn-primary-bg: #F4F4F5;           /* Nút bấm chính màu trắng ngà */
+    --btn-primary-text: #0E0E10;
+    --btn-primary-hover: #E4E4E7;
+    --timeline-line: rgba(255, 255, 255, 0.28);
+    --timeline-dot: #FFFFFF;
+    --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+    /* Backwards compatibility variables */
+    --bg-midnight: #0E0E10;
+    --brand-deep: #27272A;
+    --brand-primary: #F4F4F5;
+    --brand-mid: #A1A1AA;
+    --brand-light: #D4D4D8;
+    --brand-ice: #A1A1AA;
+    --glass-surface: #18181B;
+    --glass-border: rgba(255, 255, 255, 0.14);
+}
+
+/* Base Body & Reset */
 body,
 body.theme-dark-alpine,
 button,
 input,
 select,
 textarea {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
-body.theme-dark-alpine {
-  background-color: var(--bg-midnight);
-  color: #f8fafc;
-  overflow-x: hidden;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+body {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.theme-dark-alpine main {
-  flex: 1 0 auto;
+body main {
+    flex: 1 0 auto;
 }
 
-/* Đồng nhất toàn bộ font chữ sang Roboto duy nhất theo yêu cầu người dùng */
-.font-editorial,
+/* Typography Uniformity */
 h1, h2, h3, h4, h5, h6,
+.font-editorial,
 .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
 .tour-price,
 .tour-title {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    color: var(--text-main);
 }
 
-/* 1. HIỆU ỨNG GLASSMORPHISM DÙNG CHUNG */
-.glass-panel {
-  background: var(--glass-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+/* ==========================================================================
+   2. ĐỒNG BỘ CARD, SURFACE & MODAL THÔNG BÁO TOÀN HỆ THỐNG
+   ========================================================================== */
+.surface-card,
+.glass-panel,
+.modal-content {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 18px;
+    box-shadow: var(--shadow-soft);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.glass-pill {
-  background: rgba(15, 25, 36, 0.58);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(155, 203, 229, 0.28);
-  border-radius: 999px;
-  color: #ffffff;
-  transition: all 0.25s ease;
+/* Card adaptivity for existing components */
+[data-theme="dark"] .card.bg-white,
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-subtle) !important;
 }
 
-.glass-pill:hover {
-  background: rgba(24, 78, 108, 0.7);
-  border-color: var(--brand-mid);
-  color: #ffffff;
+[data-theme="dark"] .text-dark {
+    color: var(--text-main) !important;
 }
 
-/* 2. CÁC NÚT BẤM CHUẨN ALPINE */
+[data-theme="dark"] .table-light {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .table {
+    color: var(--text-main) !important;
+    border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+}
+
+/* Light Theme overrides for legacy text-white / text-light outside Hero Banner */
+[data-theme="light"] h1.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] h2.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] h3.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] h4.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] h5.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] h6.text-white:not(.hero-banner-box *):not(.experience-poster-card *),
+[data-theme="light"] .text-white:not(.hero-banner-box *):not(.experience-poster-card *):not(.btn-alpine):not(.btn-theme-primary):not(.badge):not(.switch-knob) {
+    color: var(--text-main) !important;
+}
+
+[data-theme="light"] .text-light:not(.hero-banner-box *):not(.experience-poster-card *) {
+    color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   3. NÚT BẤM CHỦ ĐẠO ĐỒNG BỘ SÁNG / TỐI
+   ========================================================================== */
+.btn-theme-primary,
+.btn-alpine {
+    background-color: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    border: 1px solid var(--btn-primary-bg) !important;
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-theme-primary:hover,
+.btn-alpine:hover {
+    background-color: var(--btn-primary-hover) !important;
+    border-color: var(--btn-primary-hover) !important;
+    color: var(--btn-primary-text) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
 .btn-glass-hero {
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: #ffffff;
-  border-radius: 999px;
-  padding: 0.65rem 1.6rem;
-  font-weight: 600;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 0.65rem 1.6rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
 }
 
 .btn-glass-hero:hover {
-  background: var(--brand-primary);
-  border-color: var(--brand-light);
-  color: #ffffff;
-  box-shadow: 0 0 16px rgba(56, 126, 162, 0.45);
+    background: var(--btn-primary-hover);
+    color: var(--btn-primary-text);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.btn-alpine {
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-deep));
-  border: 1px solid var(--brand-mid);
-  color: #ffffff;
-  border-radius: 999px;
-  font-weight: 600;
-  transition: all 0.25s ease;
-  text-decoration: none;
+.btn-editorial {
+    background: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    transition: all 0.25s ease;
 }
 
-.btn-alpine:hover {
-  background: var(--brand-mid);
-  color: #0b1924;
-  box-shadow: 0 0 18px rgba(91, 163, 198, 0.5);
+.btn-editorial:hover {
+    background: var(--btn-primary-hover) !important;
+    color: var(--btn-primary-text) !important;
+    transform: translateY(-1px);
 }
 
-/* 3. HERO AMBIENT BLUR & BANNER */
-.hero-ambient-wrapper {
-  position: relative;
-  border-radius: 20px;
-  overflow: visible;
-  z-index: 1;
-}
-
-.hero-banner-box {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  min-height: 520px;
-  background-size: cover;
-  background-position: center bottom;
-  transition: background-image 0.5s ease-in-out;
-}
-
-.hero-banner-overlay {
-  background:
-    linear-gradient(90deg, rgba(11, 25, 36, 0.90) 0%, rgba(11, 25, 36, 0.55) 55%, rgba(11, 25, 36, 0.25) 100%),
-    linear-gradient(180deg, rgba(11, 25, 36, 0.35) 0%, transparent 45%, rgba(11, 25, 36, 0.96) 100%);
-}
-
-.hero-ambient-glow {
-  position: absolute;
-  bottom: -55px;
-  left: 4%;
-  width: 92%;
-  height: 130px;
-  background-size: cover;
-  background-position: center bottom;
-  filter: blur(65px);
-  opacity: 0.38;
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* 4. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD) */
-.experience-poster-card {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid var(--glass-border);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  background-color: rgba(19, 42, 60, 0.4);
-}
-
-.experience-poster-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
-  border-color: var(--brand-mid);
-}
-
-.experience-poster-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.experience-poster-card:hover img {
-  transform: scale(1.04);
-}
-
-.experience-poster-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 25, 36, 0.95) 0%,
-    rgba(11, 25, 36, 0.35) 45%,
-    transparent 100%
-  );
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1.1rem;
-}
-
-/* 5. TIMELINE TRỤC DỌC (ABOUT THE TOUR) */
-.station-timeline {
-  position: relative;
-  padding-left: 2rem;
-  border-left: 2px solid var(--brand-mid);
-}
-
-.station-timeline-item {
-  position: relative;
-  margin-bottom: 1.75rem;
-}
-
-.station-timeline-dot {
-  position: absolute;
-  left: -2.45rem;
-  top: 1.25rem;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background-color: var(--brand-light);
-  box-shadow: 0 0 10px var(--brand-mid);
-}
-
-/* 6. SECTION DIVIDER TITLE */
-.section-divider-title {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.section-divider-title::before,
-.section-divider-title::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px solid rgba(155, 203, 229, 0.3);
-}
-
-.section-divider-title::before {
-  margin-right: 1.5rem;
-}
-
-.section-divider-title::after {
-  margin-left: 1.5rem;
-}
-
-/* 7. TOP FLOATING NAVBAR REFINEMENTS */
+/* ==========================================================================
+   4. THANH TOP-NAV NỔI BÁM THEO MÀN HÌNH KHI CUỘN (FIXED FLOATING HEADER)
+   ========================================================================== */
 .top-floating-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1030;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1050;
+    padding: 0.9rem 0;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.top-floating-header.navbar-scrolled {
+    padding: 0.55rem 0;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-soft);
+}
+
+.brand-link {
+    color: var(--text-main) !important;
+}
+
+.brand-text {
+    color: var(--text-main) !important;
 }
 
 .navbar-center-pill {
-  background: rgba(15, 25, 36, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(155, 203, 229, 0.28);
-  border-radius: 999px;
-  padding: 0.55rem 1.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 1.75rem;
+    background: var(--bg-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 0.55rem 1.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.75rem;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
 }
 
 .navbar-center-pill .nav-text-link {
-  color: rgba(248, 250, 252, 0.85);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.2s ease, opacity 0.2s ease;
-  white-space: nowrap;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+    white-space: nowrap;
 }
 
 .navbar-center-pill .nav-text-link:hover,
 .navbar-center-pill .nav-text-link.active {
-  color: #ffffff;
-  font-weight: 600;
+    color: var(--text-main) !important;
+    font-weight: 700;
 }
 
 .navbar-user-pill {
-  background: rgba(15, 25, 36, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(155, 203, 229, 0.28);
-  border-radius: 999px;
-  padding: 0.4rem 1rem;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
+    background: var(--bg-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
 }
 
 .navbar-user-pill:hover {
-  background: rgba(24, 78, 108, 0.7);
-  border-color: var(--brand-mid);
-  color: #ffffff;
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.navbar-user-pill .user-name-label {
+    color: var(--text-main);
+}
+
+.user-dropdown-menu {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: var(--shadow-soft) !important;
+    border-radius: 14px;
+}
+
+.user-dropdown-menu .dropdown-item {
+    color: var(--text-main) !important;
+    transition: background-color 0.2s ease;
+}
+
+.user-dropdown-menu .dropdown-item:hover {
+    background-color: var(--bg-surface-subtle) !important;
+}
+
+.user-dropdown-menu .dropdown-divider {
+    border-color: var(--border-subtle) !important;
+}
+
+/* ==========================================================================
+   5. NÚT CHUYỂN CHẾ ĐỘ DAY MODE / NIGHT MODE (ĐÚNG MẪU ẢNH GỬI)
+   ========================================================================== */
+.theme-mode-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 138px;
+    height: 38px;
+    border-radius: 999px;
+    padding: 3px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--border-subtle);
+    background-color: #E5E7EB; /* Nền xám sáng ở Day Mode */
+    color: #111827;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.theme-mode-switch .switch-label {
+    width: 100%;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding-left: 14px;
+    padding-right: 38px;
+    text-align: left;
+    transition: all 0.35s ease;
+    font-family: 'Roboto', sans-serif;
+}
+
+.theme-mode-switch .switch-knob {
+    position: absolute;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-mode-switch .switch-knob i {
+    font-size: 0.95rem;
+}
+
+/* Khi ở chế độ NIGHT MODE: Nền đen, nút tròn trắng nhảy sang trái, chữ sang phải */
+[data-theme="dark"] .theme-mode-switch {
+    background-color: #09090B;
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .theme-mode-switch .switch-label {
+    padding-left: 38px;
+    padding-right: 12px;
+    text-align: right;
+}
+
+[data-theme="dark"] .theme-mode-switch .switch-knob {
+    right: calc(100% - 34px);
+    background-color: #FFFFFF;
+    color: #09090B;
+}
+
+/* ==========================================================================
+   6. GLASS PILL & BADGES
+   ========================================================================== */
+.glass-pill {
+    background: var(--bg-surface-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    color: var(--text-main);
+    transition: all 0.25s ease;
+}
+
+.glass-pill:hover {
+    background: var(--bg-surface);
+    border-color: var(--border-strong);
+    color: var(--text-main);
 }
 
 .navbar-brand-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(155, 203, 229, 0.35);
-  color: var(--brand-light);
-  flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-surface-subtle);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    flex-shrink: 0;
 }
 
-/* 8. PADDING TOP DÀNH CHO CÁC TRANG KHÔNG CÓ HERO FULL-BLEED */
-body.theme-dark-alpine .content-has-top-padding {
-  padding-top: 5.5rem;
+/* ==========================================================================
+   7. PADDING TOP DÀNH CHO CÁC TRANG KHÔNG CÓ HERO FULL-BLEED
+   ========================================================================== */
+.content-has-top-padding {
+    padding-top: 5.5rem;
 }
 
-/* 9. FOOTER TỐI GIẢN */
+/* ==========================================================================
+   8. FOOTER TỐI GIẢN
+   ========================================================================== */
 .footer-minimal {
-  margin-top: auto;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  border-top: 1px solid rgba(155, 203, 229, 0.18);
-  background: rgba(11, 25, 36, 0.85);
+    margin-top: auto;
+    padding-top: 2.2rem;
+    padding-bottom: 2.2rem;
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface-subtle);
+    color: var(--text-muted);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .footer-minimal a {
-  color: var(--brand-ice);
-  opacity: 0.75;
-  transition: opacity 0.2s ease, color 0.2s ease;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .footer-minimal a:hover {
-  opacity: 1;
-  color: #ffffff;
+    color: var(--text-main);
 }
 
-/* 10. TIỆN ÍCH TRANG CHỦ & SEARCH BAR */
-.search-col-divider {
-  border-right: 1px solid rgba(155, 203, 229, 0.2);
+/* ==========================================================================
+   9. ADAPTIVE AMBIENT GLOW & BANNER UTILITIES
+   ========================================================================== */
+.hero-ambient-wrapper {
+    position: relative;
+    border-radius: 24px;
+    overflow: visible;
+    z-index: 1;
 }
 
-@media (max-width: 991.98px) {
-  .search-col-divider {
-    border-right: none;
-    border-bottom: 1px solid rgba(155, 203, 229, 0.2);
-    padding-bottom: 0.75rem;
-  }
+.hero-banner-box {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 520px;
+    background-size: cover;
+    background-position: center bottom;
+    transition: background-image 0.5s ease-in-out;
 }
 
-.search-field-input::placeholder {
-  color: rgba(221, 236, 246, 0.5);
+.hero-banner-overlay {
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.15) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
 }
 
-.search-field-select {
-  color: #ffffff;
+.hero-ambient-glow {
+    position: absolute;
+    bottom: -65px;
+    left: 4%;
+    width: 92%;
+    height: 150px;
+    background-size: cover;
+    background-position: center bottom;
+    filter: blur(80px);
+    opacity: 0.38;
+    z-index: -1;
+    transition: background-image 0.5s ease-in-out;
+    pointer-events: none;
 }
 
-.search-field-select option {
-  background-color: #0b1924;
-  color: #ffffff;
+/* ==========================================================================
+   10. TIMELINE NGHỆ THUẬT SO LE TRÁI-PHẢI (CHUẨN MẪU JAPAN TOURS)
+   ========================================================================== */
+.japan-timeline {
+    position: relative;
+    padding: 1rem 0;
 }
 
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.japan-timeline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background-color: var(--timeline-line);
+    transform: translateX(-50%);
 }
 
-.hover-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+.japan-timeline-step {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3.5rem;
 }
 
-.hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+.japan-timeline-dot {
+    position: absolute;
+    left: 50%;
+    top: 24px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: var(--timeline-dot);
+    transform: translateX(-50%);
+    z-index: 2;
 }
 
-/* 11. 3D VIRTUAL TOUR MODAL & OVERLAY IN DARK THEME */
-body.theme-dark-alpine .tour-station-overlay {
-  background: rgba(11, 25, 36, 0.92);
-  border: 1px solid var(--glass-border);
-  color: #ffffff;
+.japan-timeline-col {
+    width: 45%;
 }
 
-body.theme-dark-alpine .tour-controls-floating {
-  z-index: 20;
+/* Ô viền mảnh phần "THÔNG TIN & TIỆN ÍCH BẢN ĐỊA" (Chuẩn mẫu What's Included) */
+.included-outline-box {
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    padding: 1.35rem;
+    height: 100%;
+    background: transparent;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
-/* 12. RANGE SLIDER TÙY BIẾN CHO BỘ LỌC NGÂN SÁCH (PHASE 6) */
-.custom-price-range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  outline: none;
-  transition: all 0.2s ease;
-  cursor: pointer;
+.included-outline-box:hover {
+    background-color: var(--bg-surface);
 }
 
-.custom-price-range:focus {
-  background: rgba(255, 255, 255, 0.35);
+/* Legacy Station Timeline compatibility */
+.station-timeline {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 2px solid var(--timeline-line);
 }
 
-.custom-price-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #5ba3c6;
-  border: 2px solid #ffffff;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(91, 163, 198, 0.7);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+.station-timeline-item {
+    position: relative;
+    margin-bottom: 1.75rem;
 }
 
-.custom-price-range::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  background: #38bdf8;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
+.station-timeline-dot {
+    position: absolute;
+    left: -2.45rem;
+    top: 1.25rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--timeline-dot);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
-.custom-price-range::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #5ba3c6;
-  border: 2px solid #ffffff;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(91, 163, 198, 0.7);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+/* ==========================================================================
+   11. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD) & THUMBNAILS
+   ========================================================================== */
+.experience-poster-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    background-color: var(--bg-surface-subtle);
 }
 
-/* 13. SLIDER BANNER THUMBNAILS (TRANG CHỦ) */
+.experience-poster-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-soft);
+    border-color: var(--border-strong);
+}
+
+.experience-poster-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.experience-poster-card:hover img {
+    transform: scale(1.04);
+}
+
+.experience-poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.90) 0%,
+        rgba(0, 0, 0, 0.40) 45%,
+        transparent 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.1rem;
+}
+
 .banner-thumbs-container {
-  display: flex;
-  gap: 0.65rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 4px 2px;
+    display: flex;
+    gap: 0.65rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 2px;
 }
-
 .banner-thumbs-container::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .banner-thumb-item {
-  cursor: pointer;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(11, 25, 36, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: all 0.25s ease;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 170px;
-  text-decoration: none;
-  color: #ffffff;
+    cursor: pointer;
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 170px;
+    text-decoration: none;
+    color: var(--text-main);
 }
-
-.banner-thumb-item img {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
 .banner-thumb-item:hover {
-  background: rgba(19, 42, 60, 0.85);
-  border-color: rgba(91, 163, 198, 0.6);
-  transform: translateY(-2px);
-  color: #ffffff;
+    background: var(--bg-surface-subtle);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
 }
-
 .banner-thumb-item.active {
-  border-color: #5ba3c6;
-  background: rgba(24, 53, 76, 0.9);
-  box-shadow: 0 0 14px rgba(91, 163, 198, 0.5);
-  transform: translateY(-2px);
+    border-color: var(--border-strong);
+    background: var(--bg-surface-subtle);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
 }
 
-/* 14. VERTICAL STATION CARDS (TRANG CHI TIẾT TOUR) */
 .vertical-station-card {
-  background: rgba(11, 25, 36, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
-  padding: 8px 12px;
-  transition: all 0.25s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
+    background: var(--bg-surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 8px 12px;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
 }
-
 .vertical-station-card:hover {
-  background: rgba(19, 42, 60, 0.85);
-  border-color: #5ba3c6;
-  transform: translateX(4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    background: var(--bg-surface-subtle);
+    border-color: var(--border-strong);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-soft);
+}
+.vertical-station-card img {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
 }
 
-.vertical-station-card img {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
+/* ==========================================================================
+   12. FORM INPUTS & RANGE SLIDER (ADAPTIVE THEME)
+   ========================================================================== */
+.form-control,
+.form-select,
+.input-group-text {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+[data-theme="light"] .form-control.bg-dark,
+[data-theme="light"] .form-select.bg-dark,
+[data-theme="light"] .input-group-text.bg-dark {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .form-control.bg-dark,
+[data-theme="dark"] .form-select.bg-dark,
+[data-theme="dark"] .input-group-text.bg-dark {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+select option {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-strong) !important;
+    box-shadow: 0 0 0 0.25rem rgba(24, 24, 27, 0.08) !important;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.12) !important;
+}
+
+.custom-price-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border-strong);
+    border-radius: 999px;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.custom-price-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--btn-primary-bg);
+    border: 2px solid var(--bg-surface);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.custom-price-range::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.custom-price-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--btn-primary-bg);
+    border: 2px solid var(--bg-surface);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+/* ==========================================================================
+   13. UI UTILITIES
+   ========================================================================== */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hover-lift {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-soft);
+}
+
+.mobile-offcanvas-theme {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+    border-left: 1px solid var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .mobile-nav-toggler {
+    color: #FFFFFF !important;
+}
+
+[data-theme="light"] .mobile-nav-toggler {
+    color: #18181B !important;
 }

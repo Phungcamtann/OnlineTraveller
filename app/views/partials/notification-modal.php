@@ -21,7 +21,7 @@ if ($hasFlash) {
 }
 ?>
 
-<!-- REUSABLE NOTIFICATION POP-UP MODAL -->
+<!-- REUSABLE NOTIFICATION POP-UP MODAL (ĐỒNG BỘ THEME DAY / NIGHT) -->
 <div class="modal fade" id="appNotificationModal" tabindex="-1" aria-labelledby="appNotificationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
         <div class="modal-content border-0 rounded-4 shadow-lg p-3 text-center">
@@ -31,13 +31,13 @@ if ($hasFlash) {
                         <i class="bi fs-1" id="appNotificationIcon"></i>
                     </span>
                 </div>
-                <h5 class="fw-bold font-editorial text-dark mb-2" id="appNotificationModalLabel">
+                <h5 class="fw-bold font-editorial mb-2" id="appNotificationModalLabel" style="color: var(--text-main);">
                     <?= $flashTitle ?>
                 </h5>
-                <p class="text-muted small mb-4" id="appNotificationMessage">
+                <p class="small mb-4" id="appNotificationMessage" style="color: var(--text-muted);">
                     <?= $flashMessage ?>
                 </p>
-                <button type="button" class="btn btn-editorial rounded-pill px-4 py-2 w-100" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-theme-primary rounded-pill px-4 py-2 w-100" data-bs-dismiss="modal">
                     Đồng ý
                 </button>
             </div>
