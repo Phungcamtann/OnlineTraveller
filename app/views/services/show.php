@@ -56,6 +56,104 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
 
 <div class="main-container">
 
+<?php 
+$currentUser = $user ?? ($_SESSION['user'] ?? null);
+$isAdmin = !empty($currentUser) && (($currentUser['role'] ?? '') === 'admin');
+$srvStatus = $service['status'] ?? 'approved';
+?>
+
+<?php if ($isAdmin): ?>
+    <section class="container-xxl pt-3 pb-2">
+        <?php if ($srvStatus === 'pending'): ?>
+            <div class="alert alert-warning border-0 rounded-4 shadow-sm p-3 p-md-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="fs-2 text-warning-emphasis">
+                        <i class="bi bi-shield-exclamation"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold">CHỜ DUYỆT (PENDING)</span>
+                            <span class="badge bg-dark text-white px-2 py-1 rounded-pill">Quản Trị Viên</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0">Trải nghiệm này đang ở trạng thái CHỜ KIỂM DUYỆT</h6>
+                        <small class="text-muted">Tour chưa hiển thị công khai trên sàn cho du khách. Bạn có thể duyệt mở bán hoặc từ chối yêu cầu của Host.</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <form action="/admin/services/<?= (int)$service['id'] ?>/moderate" method="POST" class="d-inline">
+                        <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                        <input type="hidden" name="status" value="approved">
+                        <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm" onclick="return confirm('Bạn có chắc chắn muốn PHÊ DUYỆT mở bán trải nghiệm này?')">
+                            <i class="bi bi-check-circle-fill me-1"></i> Phê Duyệt Mở Bán
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger rounded-pill px-3 shadow-none fw-semibold" data-bs-toggle="modal" data-bs-target="#adminRejectTourModal">
+                        <i class="bi bi-x-circle me-1"></i> Từ Chối
+                    </button>
+                    <a href="/admin/services" class="btn btn-outline-dark rounded-pill px-3 shadow-none">
+                        <i class="bi bi-arrow-left me-1"></i> Danh Sách Duyệt
+                    </a>
+                </div>
+            </div>
+
+            <!-- Modal Từ Chối Cho Admin Ngay Tại Trang Tour -->
+            <div class="modal fade" id="adminRejectTourModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        <form action="/admin/services/<?= (int)$service['id'] ?>/moderate" method="POST">
+                            <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                            <input type="hidden" name="status" value="rejected">
+                            <div class="modal-header border-bottom-0 pb-0">
+                                <h5 class="modal-title font-editorial fw-bold text-danger">Từ Chối Phê Duyệt Tour</h5>
+                                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body py-2">
+                                <p class="small text-muted mb-2">Vui lòng cung cấp lý do để Host nắm được và cập nhật lại:</p>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">Lý do từ chối:</label>
+                                    <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Nhập lý do chi tiết..." required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top-0 pt-0">
+                                <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">Xác Nhận Từ Chối</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($srvStatus === 'rejected'): ?>
+            <div class="alert alert-danger border-0 rounded-4 shadow-sm p-3 p-md-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="fs-2 text-danger">
+                        <i class="bi bi-x-octagon-fill"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-danger px-2 py-1 rounded-pill">ĐÃ TỪ CHỐI (REJECTED)</span>
+                            <span class="badge bg-dark text-white px-2 py-1 rounded-pill">Quản Trị Viên</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0">Trải nghiệm này đã bị từ chối phê duyệt</h6>
+                        <small class="text-danger">Lý do: <?= htmlspecialchars($service['rejection_reason'] ?? 'Chưa cung cấp lý do') ?></small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <form action="/admin/services/<?= (int)$service['id'] ?>/moderate" method="POST" class="d-inline">
+                        <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                        <input type="hidden" name="status" value="approved">
+                        <button type="submit" class="btn btn-outline-success rounded-pill px-4 fw-semibold shadow-sm" onclick="return confirm('Bạn có chắc chắn muốn DUYỆT LẠI và mở bán tour này?')">
+                            <i class="bi bi-arrow-repeat me-1"></i> Phê Duyệt Lại
+                        </button>
+                    </form>
+                    <a href="/admin/services" class="btn btn-outline-dark rounded-pill px-3 shadow-none">
+                        <i class="bi bi-arrow-left me-1"></i> Danh Sách Duyệt
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+    </section>
+<?php endif; ?>
+
     <!-- 1. HERO BANNER: CHỮ BÊN TRÁI + DẢI 4 ẢNH TRẠM + NÚT ĐẶT LỊCH NGAY -->
     <section class="container-xxl pt-2">
         <div class="row">

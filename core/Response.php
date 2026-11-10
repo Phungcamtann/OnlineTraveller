@@ -33,6 +33,16 @@ class Response
         return $this;
     }
 
+    public function getHeader(string $name): ?string
+    {
+        return $this->headers[$name] ?? null;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
     public function setBody(string $body): self
     {
         $this->body = $body;

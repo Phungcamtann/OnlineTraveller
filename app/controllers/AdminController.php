@@ -7,20 +7,29 @@ namespace App\Controllers;
 use Core\BaseController;
 use Core\Database;
 use Core\Request;
+use Core\Response;
 use App\Models\User;
 use App\Models\Refund;
+use App\Models\Service;
 use Exception;
 
 class AdminController extends BaseController
 {
     private User $userModel;
     private Refund $refundModel;
+    private Service $serviceModel;
 
-    public function __construct(?Request $request = null)
-    {
-        parent::__construct($request);
-        $this->userModel = new User();
-        $this->refundModel = new Refund();
+    public function __construct(
+        ?Request $request = null,
+        ?Response $response = null,
+        ?User $userModel = null,
+        ?Refund $refundModel = null,
+        ?Service $serviceModel = null
+    ) {
+        parent::__construct($request, $response);
+        $this->userModel = $userModel ?? new User();
+        $this->refundModel = $refundModel ?? new Refund();
+        $this->serviceModel = $serviceModel ?? new Service();
     }
 
     public function dashboard(): void
@@ -260,6 +269,138 @@ class AdminController extends BaseController
             }
             $this->flash('danger', 'Lỗi khi phê duyệt: ' . $e->getMessage());
             $this->redirect('/admin/refunds');
+            return;
+        }
+    }
+
+    /**
+     * Admin Service Management: List, search, filter and moderate tours.
+     */
+    public function services(Request $request): void
+    {
+        $admin = $this->user();
+        if (!$admin || ($admin['role'] ?? '') !== 'admin') {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Bạn không có quyền thực hiện thao tác này.'], 403);
+                return;
+            }
+            $this->flash('danger', 'Bạn không có quyền truy cập khu vực quản trị.');
+            $this->redirect('/login');
+            return;
+        }
+
+        $db = Database::getInstance();
+        $status = $request->query('status');
+        $status = !empty($status) && in_array($status, ['pending', 'approved', 'rejected', 'draft', 'archived'], true) ? (string)$status : null;
+        $search = $request->query('q');
+        $search = !empty($search) ? trim((string)$search) : null;
+
+        $sql = "
+            SELECT s.*, c.name AS category_name, u.name AS host_name, u.email AS host_email, u.phone AS host_phone
+            FROM tbl_services s
+            JOIN tbl_categories c ON s.category_id = c.id
+            JOIN tbl_users u ON s.host_id = u.id
+            WHERE 1=1
+        ";
+        $params = [];
+
+        if ($status !== null) {
+            $sql .= " AND s.status = ?";
+            $params[] = $status;
+        }
+
+        if ($search !== null) {
+            $sql .= " AND (s.title LIKE ? OR s.location LIKE ? OR u.name LIKE ?)";
+            $wildcard = "%{$search}%";
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+            $params[] = $wildcard;
+        }
+
+        $sql .= " ORDER BY s.created_at DESC";
+
+        $services = $db->fetchAll($sql, $params);
+
+        $counts = [
+            'all' => (int)$db->fetchOne("SELECT COUNT(*) AS c FROM tbl_services")['c'],
+            'pending' => (int)$db->fetchOne("SELECT COUNT(*) AS c FROM tbl_services WHERE status = 'pending'")['c'],
+            'approved' => (int)$db->fetchOne("SELECT COUNT(*) AS c FROM tbl_services WHERE status = 'approved'")['c'],
+            'rejected' => (int)$db->fetchOne("SELECT COUNT(*) AS c FROM tbl_services WHERE status = 'rejected'")['c'],
+        ];
+
+        $this->view('admin/services/index', [
+            'title' => 'Quản Lý & Kiểm Duyệt Trải Nghiệm — Admin',
+            'services' => $services,
+            'counts' => $counts,
+            'currentStatus' => $status,
+            'search' => $search,
+            'user' => $this->user(),
+        ]);
+    }
+
+    /**
+     * Admin moderate tour status: approve, reject, or archive (POST /admin/services/{id}/moderate).
+     */
+    public function moderateService(Request $request, string $id): void
+    {
+        $admin = $this->user();
+        if (!$admin || ($admin['role'] ?? '') !== 'admin') {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Bạn không có quyền thực hiện thao tác này.'], 403);
+                return;
+            }
+            $this->flash('danger', 'Bạn không có quyền thực hiện thao tác này.');
+            $this->redirect('/login');
+            return;
+        }
+
+        $adminId = (int)$admin['id'];
+        $serviceId = (int)$id;
+        $status = (string)$request->input('status', 'approved');
+        $rejectionReason = $request->input('rejection_reason');
+        $rejectionReason = !empty($rejectionReason) ? trim((string)$rejectionReason) : null;
+
+        if (!in_array($status, ['approved', 'rejected', 'pending', 'archived'], true)) {
+            $this->flash('danger', 'Trạng thái kiểm duyệt không hợp lệ.');
+            $this->redirect('/admin');
+            return;
+        }
+
+        try {
+            $updated = $this->serviceModel->moderate($adminId, $serviceId, $status, $rejectionReason);
+
+            $actionText = match($status) {
+                'approved' => 'đã phê duyệt mở bán thành công',
+                'rejected' => 'đã từ chối phê duyệt',
+                'pending' => 'đã đưa về trạng thái chờ duyệt',
+                'archived' => 'đã lưu trữ tour',
+                default => 'đã cập nhật trạng thái',
+            };
+
+            $message = "Gói trải nghiệm #{$serviceId} {$actionText}!";
+
+            if ($request->isAjax()) {
+                $this->response->json([
+                    'success' => true,
+                    'message' => $message,
+                    'service' => $updated,
+                ]);
+                return;
+            }
+
+            $this->flash('success', $message);
+            
+            // Redirect back to referring page or services list
+            $referer = $_SERVER['HTTP_REFERER'] ?? '/admin';
+            $this->redirect($referer);
+            return;
+        } catch (Exception $e) {
+            if ($request->isAjax()) {
+                $this->response->json(['error' => 'Lỗi khi kiểm duyệt: ' . $e->getMessage()], 500);
+                return;
+            }
+            $this->flash('danger', 'Lỗi khi kiểm duyệt tour: ' . $e->getMessage());
+            $this->redirect('/admin');
             return;
         }
     }

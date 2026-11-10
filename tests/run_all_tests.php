@@ -143,6 +143,12 @@ $testSuites = [
         'file'     => 'test_phase6_slider_cards_banner.php',
         'name'     => 'Range Slider ngân sách, Đồng bộ Card tour & Slider Banner thumbnails',
     ],
+    [
+        'category' => 'QUẢN TRỊ ADMIN',
+        'code'     => 'ADMIN-MOD',
+        'file'     => 'test_admin_service_moderation.php',
+        'name'     => 'Quản trị và Phê duyệt Trải nghiệm mới (Tour Moderation & Approval)',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

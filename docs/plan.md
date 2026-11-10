@@ -172,7 +172,24 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 
 ---
 
-## 3. TÍCH HỢP GOOGLE CLOUD APIS
+### GIAI ĐOẠN BỔ SUNG: Kiểm Duyệt & Phê Duyệt Trải Nghiệm Mới Cho Admin (Tour Moderation)
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (18/18 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_admin_service_moderation.php`  
+> **Tài liệu chi tiết:** `docs/admin_service_moderation.md`
+
+* **Mục tiêu:** Xử lý triệt để vấn đề tour mới của Host đăng ký bị treo vĩnh viễn ở trạng thái `pending` do Admin không có công cụ phê duyệt trên giao diện.
+* **Các công việc đã hoàn thành:**
+  1. **Route & Controller:**
+     - Đăng ký `GET /admin/services` và `POST /admin/services/{id}/moderate` bảo vệ bởi `AdminMiddleware` & `CsrfMiddleware`.
+     - Viết `AdminController::services()` (thống kê 4 trạng thái, tìm kiếm, lọc) và `AdminController::moderateService()` kết nối Stored Procedure `ptl_sp_services_moderate`.
+  2. **Giao diện Dashboard (`app/views/admin/dashboard.php`):**
+     - Cột Kiểm duyệt có nút xanh **[Duyệt]** mở bán ngay và nút đỏ **[Từ chối]** bật modal nhập lý do gửi cho Host.
+  3. **Trang Quản lý Riêng (`app/views/admin/services/index.php`):**
+     - Bảng tra cứu, thanh lọc trạng thái và các nút duyệt/từ chối/duyệt lại trực quan.
+  4. **Banner Kiểm Duyệt Tại Trang Tour (`app/views/services/show.php`):**
+     - Khi Admin xem tour đang `pending`, thanh thông báo màu vàng nổi bật ở đầu trang cho phép **[Phê Duyệt Mở Bán]** hoặc **[Từ Chối]** ngay tại chỗ.
+
+---
 
 Hiện tại đồ án đang sử dụng iframe Google Maps nhúng miễn phí (`https://maps.google.com/maps?q=...&output=embed`). Vì bro đã có tài khoản Google Cloud có Billing, chúng ta có thể nâng cấp trải nghiệm đồ án lên tầm doanh nghiệp với 3 API sau:
 

@@ -105,6 +105,11 @@
                                             <i class="bi bi-speedometer2 text-warning"></i> Trung tâm Admin
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item small py-2 d-flex align-items-center gap-2" href="/admin/services">
+                                            <i class="bi bi-shield-check text-warning"></i> Quản lý & Duyệt Tour
+                                        </a>
+                                    </li>
                                 <?php endif; ?>
                                 <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
                                 <li>
@@ -164,6 +169,9 @@
                 <?php elseif ($userRole === 'admin'): ?>
                     <a href="/admin" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
                         <i class="bi bi-shield-lock me-2"></i> Quản trị Admin
+                    </a>
+                    <a href="/admin/services" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
+                        <i class="bi bi-shield-check me-2"></i> Duyệt Tour Mới
                     </a>
                 <?php endif; ?>
             </nav>
