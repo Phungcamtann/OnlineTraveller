@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use Core\BaseController;
 use Core\Request;
+use Core\Response;
 use App\Models\Post;
 use App\Integrations\RssClient;
 use Exception;
@@ -18,10 +19,14 @@ class PostController extends BaseController
     private Post $postModel;
     private RssClient $rssClient;
 
-    public function __construct(?Request $request = null, ?RssClient $rssClient = null)
-    {
-        parent::__construct($request);
-        $this->postModel = new Post();
+    public function __construct(
+        ?Request $request = null,
+        ?Response $response = null,
+        ?Post $postModel = null,
+        ?RssClient $rssClient = null
+    ) {
+        parent::__construct($request, $response);
+        $this->postModel = $postModel ?? new Post();
         $this->rssClient = $rssClient ?? new RssClient();
     }
 

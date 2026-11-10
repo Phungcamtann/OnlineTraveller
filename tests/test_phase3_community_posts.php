@@ -238,6 +238,11 @@ if (!empty($touristRes['post']['id'])) {
     $createdPostIds[] = (int)$touristRes['post']['id'];
 }
 
+// 5.3 Khởi tạo PostController qua Router với ($request, $response)
+$routerControllerTest = new PostController(new Request(), new Response());
+assertTest("PostController tương thích chuẩn xác với Router (nhận Request và Response)", 
+    $routerControllerTest instanceof PostController);
+
 // Clean up created records & mock files
 if (!empty($createdPostIds)) {
     $idsStr = implode(',', $createdPostIds);

@@ -38,7 +38,7 @@
 | 1 | [`database/changes/06_community_posts.sql`](file:///e:/Dev/Study'/Web/OnlineTraveller/database/changes/06_community_posts.sql) | Tạo Stored Procedure `pct_sp_community_posts_create` cho 3 vai trò |
 | 2 | [`database/procedures/04_community_content.sql`](file:///e:/Dev/Study'/Web/OnlineTraveller/database/procedures/04_community_content.sql) | Đồng bộ định nghĩa Stored Procedure trong file thủ tục chung |
 | 3 | [`app/models/Post.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/models/Post.php) | Thêm `createCommunityPost()`, `handleThumbnailUpload()` và lấy thêm `author_role` |
-| 4 | [`app/controllers/PostController.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/controllers/PostController.php) | Cập nhật `index()` (gộp tin + phân trang + tab), `create()`, `store()` cho 3 vai trò |
+| 4 | [`app/controllers/PostController.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/controllers/PostController.php) | Chuẩn hóa Constructor tương thích Router, cập nhật `index()` (gộp tin + phân trang + tab), `create()`, `store()` cho 3 vai trò |
 | 5 | [`app/views/posts/create.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/posts/create.php) | Form chia sẻ bài viết mới thân thiện, upload file ảnh và preview tức thì |
 | 6 | [`app/views/posts/index.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/posts/index.php) | Giao diện bản tin gộp VnExpress + Tabs lọc + Phân trang 6 tin/trang |
 | 7 | [`app/views/posts/show.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/posts/show.php) | Hiển thị chi tiết bài viết kèm huy hiệu vai trò tác giả |
