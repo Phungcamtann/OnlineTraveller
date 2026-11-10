@@ -131,6 +131,12 @@ $testSuites = [
         'file'     => 'test_phase3_community_posts.php',
         'name'     => 'Bản tin cộng đồng mở 3 vai trò & Tích hợp tin tức RSS VnExpress',
     ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-4',
+        'file'     => 'test_phase4_profile_enhancements.php',
+        'name'     => 'Hồ sơ người dùng (Giới tính, Ngày sinh), Bản in đơn & Hiện mật khẩu',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

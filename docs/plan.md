@@ -98,25 +98,32 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 ---
 
 ### GIAI ĐOẠN 4: Hồ Sơ Người Dùng (Giới Tính, Ngày Sinh), Bản In Đơn & Đăng Nhập
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (25/25 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase4_profile_enhancements.php`
+
 * **Mục tiêu:** Nâng cao chất lượng dữ liệu hồ sơ cá nhân, làm sạch bản in hóa đơn và tối ưu form đăng nhập.
-* **Các công việc cụ thể:**
-  1. **Mở rộng CSDL & Hồ sơ người dùng (`app/views/users/profile.php`):**
-     - Tạo migration SQL thêm 2 cột vào `tbl_users`:  
+* **Các công việc đã hoàn thành:**
+  1. **Mở rộng CSDL & Hồ sơ người dùng (`app/views/profile/index.php`):**
+     - Tạo migration SQL [`database/changes/07_user_profile_enhancement.sql`](file:///e:/Dev/Study'/Web/OnlineTraveller/database/changes/07_user_profile_enhancement.sql) thêm 2 cột vào `tbl_users`:  
        `gender ENUM('male', 'female', 'other') DEFAULT 'other'`  
        `birth_date DATE NULL`
-     - Cập nhật Stored Procedure `dhs_sp_users_update_profile` nhận thêm 2 tham số mới.
-     - Cập nhật Model [`app/models/User.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/models/User.php) và Controller [`app/controllers/UserController.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/controllers/UserController.php).
-     - Thay thế ô nhập *Địa bàn* tự do bằng **Combobox chọn Tỉnh / Thành phố** chuẩn Việt Nam.
-     - Thêm ô chọn *Giới tính* và *Ngày tháng năm sinh*.
+     - Cập nhật Stored Procedure `dhs_sp_users_update_profile` nhận 8 tham số (bổ sung `p_gender`, `p_birth_date`), trả về đồng bộ dữ liệu.
+     - Cập nhật Stored Procedure `dhs_sp_users_find_login` trả về `gender` và `birth_date`.
+     - Cập nhật Model [`app/models/User.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/models/User.php), Service [`app/services/AuthService.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/services/AuthService.php) và Controller [`app/controllers/AuthController.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/controllers/AuthController.php).
+     - Thay thế ô nhập *Địa bàn* tự do bằng **Combobox chọn Tỉnh / Thành phố** chuẩn Việt Nam từ `FormatHelper::getProvincesList()`.
+     - Thêm ô chọn *Giới tính* (Nam, Nữ, Khác) và *Ngày sinh* (`<input type="date">`).
      - Cá nhân hóa gợi ý trường *Bio*: Tourist thì gợi ý về sở thích du lịch; Host thì gợi ý về kinh nghiệm và bản sắc văn hóa.
-     - Xóa toàn bộ câu ghi chú kỹ thuật thừa (`dhs_sp_users_update_profile trong CSDL...`).
+     - Xóa hoàn toàn câu ghi chú kỹ thuật thừa (`dhs_sp_users_update_profile trong CSDL...`).
+     - Hiển thị Giới tính và Ngày sinh trên thẻ tóm tắt hồ sơ bên trái.
   2. **Bản In Chi Tiết Đơn Đặt Hàng (`app/views/bookings/detail.php`):**
      - Bổ sung bộ lọc `@media print` trong CSS:
-       - Ẩn thanh breadcrumb điều hướng.
-       - Ẩn toàn bộ các nút thao tác: *"Hủy đặt đơn"*, *"In đơn"*, *"Thanh toán"*, *"Danh sách chuyến đi"*.
-       - Định dạng lại khổ giấy in A4 gọn gàng, trang trọng.
+       - Ẩn thanh breadcrumb điều hướng, navbar, footer.
+       - Ẩn toàn bộ các nút thao tác: *"Hủy đặt đơn"*, *"In đơn"*, *"Thanh toán"*, *"Danh sách chuyến đi"*, modal hủy.
+       - Thêm Print Header trang trọng: ONLINETRAVELLER, Hotline CSKH 1900 6868, mã đơn, ngày in phiếu.
+       - Giữ nguyên bố cục chia 2 cột chuẩn A4, viền xám trang trọng, chữ sắc nét.
   3. **Giao Diện Đăng Nhập (`app/views/auth/login.php`):**
      - Bổ sung nút icon con mắt bật/tắt hiển thị mật khẩu (`type="password"` $\leftrightarrow$ `type="text"`).
+     - Đổi icon linh hoạt giữa `bi-eye` và `bi-eye-slash` cùng tooltip thân thiện.
 
 ---
 

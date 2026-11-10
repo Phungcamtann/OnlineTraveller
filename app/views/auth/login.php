@@ -27,7 +27,10 @@
                         </div>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-0"><i class="bi bi-lock text-muted"></i></span>
-                            <input type="password" name="password" class="form-control bg-light border-0" placeholder="••••••••" required>
+                            <input type="password" name="password" id="inputPassword" class="form-control bg-light border-0" placeholder="••••••••" required>
+                            <button type="button" class="btn btn-light border-0 text-muted" id="btnTogglePassword" title="Hiện/ẩn mật khẩu" style="border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem;">
+                                <i class="bi bi-eye" id="iconEye"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -60,3 +63,27 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnToggle = document.getElementById('btnTogglePassword');
+    const inputPass = document.getElementById('inputPassword');
+    const iconEye = document.getElementById('iconEye');
+
+    if (btnToggle && inputPass && iconEye) {
+        btnToggle.addEventListener('click', function() {
+            const isPassword = inputPass.getAttribute('type') === 'password';
+            inputPass.setAttribute('type', isPassword ? 'text' : 'password');
+            if (isPassword) {
+                iconEye.classList.remove('bi-eye');
+                iconEye.classList.add('bi-eye-slash');
+                btnToggle.setAttribute('title', 'Ẩn mật khẩu');
+            } else {
+                iconEye.classList.remove('bi-eye-slash');
+                iconEye.classList.add('bi-eye');
+                btnToggle.setAttribute('title', 'Hiện mật khẩu');
+            }
+        });
+    }
+});
+</script>
