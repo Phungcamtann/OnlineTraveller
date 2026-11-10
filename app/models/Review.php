@@ -58,6 +58,82 @@ class Review extends BaseModel
     }
 
     /**
+     * Submit an open review for a tour experience (with verified badge if completed booking exists).
+     */
+    public function submitTourReview(int $touristId, int $serviceId, int $rating, string $comment, ?int $bookingId = null): array
+    {
+        if ($rating < 1 || $rating > 5) {
+            throw new RuntimeException('Số sao đánh giá phải từ 1 đến 5 sao.');
+        }
+
+        $comment = trim($comment);
+        if ($comment === '') {
+            throw new RuntimeException('Vui lòng nhập nhận xét về trải nghiệm này.');
+        }
+
+        // Verify service existence
+        $service = $this->fetchOne("SELECT id FROM tbl_services WHERE id = ?", [$serviceId]);
+        if (!$service) {
+            throw new RuntimeException('Không tìm thấy trải nghiệm du lịch yêu cầu.');
+        }
+
+        // Check duplicate review by this user on this service
+        $existing = $this->fetchOne("SELECT id FROM tbl_reviews WHERE tourist_id = ? AND service_id = ?", [$touristId, $serviceId]);
+        if ($existing) {
+            throw new RuntimeException('Bạn đã gửi đánh giá cho trải nghiệm này rồi.');
+        }
+
+        $isVerified = 0;
+        $matchedBookingId = null;
+
+        // Check if specific bookingId provided
+        if ($bookingId !== null && $bookingId > 0) {
+            $booking = $this->fetchOne("SELECT tourist_id, service_id, status FROM tbl_bookings WHERE id = ?", [$bookingId]);
+            if ($booking && (int)$booking['tourist_id'] === $touristId && (int)$booking['service_id'] === $serviceId && $booking['status'] === 'completed') {
+                $matchedBookingId = $bookingId;
+                $isVerified = 1;
+            }
+        } else {
+            // Auto-detect completed booking for this tourist on this tour
+            $completedBooking = $this->fetchOne(
+                "SELECT id FROM tbl_bookings WHERE tourist_id = ? AND service_id = ? AND status = 'completed' AND id NOT IN (SELECT booking_id FROM tbl_reviews WHERE booking_id IS NOT NULL) ORDER BY id DESC LIMIT 1",
+                [$touristId, $serviceId]
+            );
+            if ($completedBooking) {
+                $matchedBookingId = (int)$completedBooking['id'];
+                $isVerified = 1;
+            }
+        }
+
+        $sql = "
+            INSERT INTO tbl_reviews (booking_id, tourist_id, service_id, rating, comment, is_visible, is_verified, created_at)
+            VALUES (?, ?, ?, ?, ?, 1, ?, NOW(6))
+        ";
+        $this->execute($sql, [$matchedBookingId, $touristId, $serviceId, $rating, $comment, $isVerified]);
+        $newId = (int)$this->lastInsertId();
+
+        return $this->getById($newId) ?? [];
+    }
+
+    /**
+     * Check if a tourist has already reviewed a service.
+     */
+    public function hasUserReviewed(int $touristId, int $serviceId): bool
+    {
+        $res = $this->fetchOne("SELECT id FROM tbl_reviews WHERE tourist_id = ? AND service_id = ? LIMIT 1", [$touristId, $serviceId]);
+        return $res !== null;
+    }
+
+    /**
+     * Check if a tourist qualifies for the 'Đã tự trải nghiệm' badge.
+     */
+    public function hasCompletedBooking(int $touristId, int $serviceId): bool
+    {
+        $res = $this->fetchOne("SELECT id FROM tbl_bookings WHERE tourist_id = ? AND service_id = ? AND status = 'completed' LIMIT 1", [$touristId, $serviceId]);
+        return $res !== null;
+    }
+
+    /**
      * Get review by booking ID.
      */
     public function getByBookingId(int $bookingId): ?array
@@ -98,7 +174,7 @@ class Review extends BaseModel
             FROM tbl_reviews r
             JOIN tbl_users u ON r.tourist_id = u.id
             WHERE r.service_id = ? AND r.is_visible = 1
-            ORDER BY r.created_at DESC
+            ORDER BY r.is_verified DESC, r.created_at DESC
             LIMIT ? OFFSET ?
         ";
         return $this->fetchAll($sql, [$serviceId, $limit, $offset]);

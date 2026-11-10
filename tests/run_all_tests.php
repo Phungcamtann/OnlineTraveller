@@ -113,6 +113,18 @@ $testSuites = [
         'file'     => 'test_phase1_improvements.php',
         'name'     => 'Minh bạch VAT 8%, Căn đều nút thanh toán & Trạng thái cọc Host',
     ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-2',
+        'file'     => 'test_phase2_reviews.php',
+        'name'     => 'Khối Đánh giá tour công khai & Nhãn bảo chứng Đã tự trải nghiệm',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-5',
+        'file'     => 'test_phase5_host_services.php',
+        'name'     => 'Cải tiến Form Đăng Tour Host: Geocoding tự động & Upload ảnh trạm',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

@@ -465,6 +465,168 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
         </div>
     </section>
 
+    <!-- 4. KHỐI ĐÁNH GIÁ TRẢI NGHIỆM & CẢM NHẬN DU KHÁCH (PHASE 2) -->
+    <section class="section-mb pb-4" id="reviewsSection">
+        <div class="glass-divider mb-4">
+            <span class="glass-divider-line"></span>
+            <span class="glass-divider-text text-uppercase tracking-wider">ĐÁNH GIÁ TỪ DU KHÁCH</span>
+            <span class="glass-divider-line"></span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Cột trái: Tóm tắt điểm số & Form gửi đánh giá -->
+            <div class="col-lg-4">
+                <div class="glass-panel p-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3">Đánh Giá Tổng Quan</h5>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="fs-1 fw-bold text-warning lh-1 font-editorial">
+                            <?= number_format((float)($reviewStats['avg_rating'] ?? 5.0), 1) ?>
+                        </div>
+                        <div>
+                            <div class="text-warning mb-1" style="font-size: 0.95rem;">
+                                <?php
+                                $roundedAvg = (int)round((float)($reviewStats['avg_rating'] ?? 5.0));
+                                for ($i = 1; $i <= 5; $i++):
+                                ?>
+                                    <i class="bi <?= $i <= $roundedAvg ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <small class="text-light opacity-75">
+                                Dựa trên <strong><?= (int)($reviewStats['reviews_count'] ?? count($reviews ?? [])) ?></strong> đánh giá
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Thanh phân bổ sao -->
+                    <div class="vstack gap-2 small text-light opacity-75 border-top border-secondary border-opacity-25 pt-3 mb-4">
+                        <?php
+                        $totalRev = max((int)($reviewStats['reviews_count'] ?? 1), 1);
+                        for ($star = 5; $star >= 1; $star--):
+                            $starCount = (int)($reviewStats['count_' . $star] ?? 0);
+                            $starPercent = round(($starCount / $totalRev) * 100);
+                        ?>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="width: 42px; font-size: 0.75rem;"><?= $star ?> sao</span>
+                                <div class="progress flex-grow-1 bg-dark bg-opacity-50" style="height: 6px;">
+                                    <div class="progress-bar bg-warning" style="width: <?= $starPercent ?>%;"></div>
+                                </div>
+                                <span class="text-end" style="width: 25px; font-size: 0.72rem;"><?= $starCount ?></span>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+
+                    <!-- Form gửi đánh giá -->
+                    <div class="border-top border-secondary border-opacity-25 pt-3">
+                        <h6 class="fw-bold text-white mb-2">Gửi Cảm Nhận Của Bạn</h6>
+                        <?php if (!empty($user)): ?>
+                            <?php if (!empty($hasReviewed)): ?>
+                                <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 text-white small">
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                    Bạn đã gửi đánh giá cho chuyến đi này rồi. Cảm ơn bạn đã đóng góp cho cộng đồng!
+                                </div>
+                            <?php else: ?>
+                                <form id="tourReviewForm" action="/reviews" method="POST">
+                                    <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                                    <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
+                                    
+                                    <?php if (!empty($isEligibleVerified)): ?>
+                                        <div class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-3 py-1 mb-2 d-inline-flex align-items-center" style="font-size: 0.72rem;">
+                                            <i class="bi bi-patch-check-fill me-1"></i> Đánh giá sẽ có huy hiệu: Đã tự trải nghiệm
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <div class="mb-2">
+                                        <label class="small text-light opacity-75 d-block mb-1">Số sao đánh giá:</label>
+                                        <div class="rating-stars-select d-flex gap-2 text-warning fs-5" id="ratingStars">
+                                            <i class="bi bi-star-fill star-option" data-value="1" style="cursor: pointer;"></i>
+                                            <i class="bi bi-star-fill star-option" data-value="2" style="cursor: pointer;"></i>
+                                            <i class="bi bi-star-fill star-option" data-value="3" style="cursor: pointer;"></i>
+                                            <i class="bi bi-star-fill star-option" data-value="4" style="cursor: pointer;"></i>
+                                            <i class="bi bi-star-fill star-option" data-value="5" style="cursor: pointer;"></i>
+                                        </div>
+                                        <input type="hidden" name="rating" id="reviewRatingInput" value="5">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <textarea name="comment" id="reviewCommentInput" rows="3" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-3 p-2 small shadow-none" placeholder="Chia sẻ cảm nhận chi tiết về chuyến đi, người bản địa, cảnh đẹp..." required></textarea>
+                                    </div>
+
+                                    <button type="submit" id="btnSubmitReview" class="btn btn-alpine w-100 py-2 btn-sm rounded-pill fw-bold text-white shadow">
+                                        <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div class="p-3 rounded-3 text-center border border-secondary border-opacity-25" style="background: rgba(15, 25, 36, 0.55);">
+                                <p class="small text-light opacity-75 mb-2">
+                                    Vui lòng đăng nhập tài khoản để gửi đánh giá và nhận xét về tour này.
+                                </p>
+                                <a href="/login" class="btn btn-alpine btn-sm rounded-pill px-4">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Để Đánh Giá
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Danh sách các đánh giá từ du khách -->
+            <div class="col-lg-8">
+                <div class="glass-panel p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                        <h5 class="fw-bold text-white mb-0">Cảm Nhận Thực Tế</h5>
+                        <span class="badge bg-light bg-opacity-10 text-light border border-secondary border-opacity-25 rounded-pill px-3 py-1 small" id="reviewsCountBadge">
+                            <?= count($reviews ?? []) ?> nhận xét
+                        </span>
+                    </div>
+
+                    <div class="vstack gap-3" id="reviewsContainer">
+                        <?php if (empty($reviews)): ?>
+                            <div class="text-center py-5 text-light opacity-60" id="noReviewsNotice">
+                                <i class="bi bi-chat-heart fs-1 d-block mb-2 opacity-50"></i>
+                                <p class="mb-1">Chưa có đánh giá nào cho chuyến đi này.</p>
+                                <small>Hãy là người đầu tiên chia sẻ cảm nhận trải nghiệm thực tế!</small>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($reviews as $rev): ?>
+                                <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55);">
+                                    <div class="d-flex align-items-start justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                                <?= mb_strtoupper(mb_substr($rev['tourist_name'] ?? 'K', 0, 1)) ?>
+                                            </div>
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <span class="fw-bold text-white small"><?= htmlspecialchars($rev['tourist_name'] ?? 'Du khách', ENT_QUOTES, 'UTF-8') ?></span>
+                                                    <?php if (!empty($rev['is_verified'])): ?>
+                                                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
+                                                            <i class="bi bi-patch-check-fill me-1"></i> Đã tự trải nghiệm
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                                    <?= date('d/m/Y H:i', strtotime($rev['created_at'])) ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="text-warning small">
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <i class="bi <?= $i <= (int)$rev['rating'] ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                    <p class="text-light opacity-90 small mb-0 ps-1">
+                                        <?= nl2br(htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8')) ?>
+                                    </p>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <!-- 4. MODAL TRÌNH CHIẾU KHÔNG GIAN 3D THREE.JS (Z-SCROLL) -->
@@ -755,4 +917,129 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
             }
         });
     });
+
+    // -------------------------------------------------------------
+    // PHASE 2: STAR RATING INTERACTION & AJAX REVIEW SUBMIT
+    // -------------------------------------------------------------
+    const ratingStars = document.querySelectorAll('#ratingStars .star-option');
+    const ratingInput = document.getElementById('reviewRatingInput');
+
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            const val = parseInt(this.getAttribute('data-value'), 10);
+            if (ratingInput) ratingInput.value = val;
+            ratingStars.forEach(s => {
+                const sVal = parseInt(s.getAttribute('data-value'), 10);
+                if (sVal <= val) {
+                    s.classList.remove('bi-star');
+                    s.classList.add('bi-star-fill');
+                } else {
+                    s.classList.remove('bi-star-fill');
+                    s.classList.add('bi-star');
+                }
+            });
+        });
+    });
+
+    const tourReviewForm = document.getElementById('tourReviewForm');
+    if (tourReviewForm) {
+        tourReviewForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitReview');
+            const commentInput = document.getElementById('reviewCommentInput');
+            const commentVal = commentInput ? commentInput.value.trim() : '';
+
+            if (!commentVal) {
+                alert('Vui lòng nhập cảm nhận về chuyến đi.');
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang gửi...';
+            }
+
+            const formData = new FormData(tourReviewForm);
+
+            try {
+                const res = await fetch('/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    alert(data.error || 'Có lỗi xảy ra khi gửi đánh giá.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay';
+                    }
+                } else if (data.success && data.review) {
+                    const rev = data.review;
+                    const verifiedHtml = rev.is_verified ? `
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
+                            <i class="bi bi-patch-check-fill me-1"></i> Đã tự trải nghiệm
+                        </span>
+                    ` : '';
+
+                    let starsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        starsHtml += `<i class="bi ${i <= parseInt(rev.rating, 10) ? 'bi-star-fill' : 'bi-star'}"></i> `;
+                    }
+
+                    const reviewCardHtml = `
+                        <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55); animation: fadeIn 0.4s ease;">
+                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                        ${escapeHtml((rev.tourist_name || 'K').substring(0, 1).toUpperCase())}
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="fw-bold text-white small">${escapeHtml(rev.tourist_name || 'Du khách')}</span>
+                                            ${verifiedHtml}
+                                        </div>
+                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">Vừa xong</small>
+                                    </div>
+                                </div>
+                                <div class="text-warning small">
+                                    ${starsHtml}
+                                </div>
+                            </div>
+                            <p class="text-light opacity-90 small mb-0 ps-1">
+                                ${escapeHtml(rev.comment)}
+                            </p>
+                        </div>
+                    `;
+
+                    const noNotice = document.getElementById('noReviewsNotice');
+                    if (noNotice) noNotice.remove();
+
+                    const container = document.getElementById('reviewsContainer');
+                    if (container) {
+                        container.insertAdjacentHTML('afterbegin', reviewCardHtml);
+                    }
+
+                    // Replace form with success notice
+                    tourReviewForm.innerHTML = `
+                        <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 text-white small">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                            Cảm ơn bạn đã gửi đánh giá trải nghiệm chuyến đi!
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                alert('Lỗi kết nối máy chủ khi gửi đánh giá.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay';
+                }
+            }
+        });
+    }
 </script>

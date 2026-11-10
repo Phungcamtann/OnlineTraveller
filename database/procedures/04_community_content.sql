@@ -64,8 +64,8 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_RATING_VALUE';
     END IF;
 
-    INSERT INTO tbl_reviews (booking_id, tourist_id, service_id, rating, comment, is_visible, created_at)
-    VALUES (p_booking_id, p_tourist_id, v_service_id, p_rating, p_comment, 1, NOW(6));
+    INSERT INTO tbl_reviews (booking_id, tourist_id, service_id, rating, comment, is_visible, is_verified, created_at)
+    VALUES (p_booking_id, p_tourist_id, v_service_id, p_rating, p_comment, 1, 1, NOW(6));
 
     SELECT r.*, u.name AS tourist_name, u.avatar AS tourist_avatar
     FROM tbl_reviews r

@@ -68,12 +68,26 @@ class ServiceController extends BaseController
         // Fetch live community discussions & replies (TV4-05)
         $discussions = (new \App\Models\Discussion())->getDiscussionsByService($serviceId);
 
+        // Fetch tour reviews & rating stats (Phase 2)
+        $reviewModel = new \App\Models\Review();
+        $reviews = $reviewModel->getByService($serviceId);
+        $reviewStats = $reviewModel->getServiceRatingStats($serviceId);
+
+        $user = $this->user();
+        $hasReviewed = $user ? $reviewModel->hasUserReviewed((int)$user['id'], $serviceId) : false;
+        $isEligibleVerified = $user ? $reviewModel->hasCompletedBooking((int)$user['id'], $serviceId) : false;
+
         $this->view('services/show', [
             'title' => $service['title'] . ' — OnlineTraveller',
             'service' => $service,
             'stops' => $stops,
             'weather' => $weather,
             'discussions' => $discussions,
+            'reviews' => $reviews,
+            'reviewStats' => $reviewStats,
+            'user' => $user,
+            'hasReviewed' => $hasReviewed,
+            'isEligibleVerified' => $isEligibleVerified,
         ]);
     }
 

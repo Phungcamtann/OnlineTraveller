@@ -35,41 +35,43 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 ## 2. CHI TIẾT 6 GIAI ĐOẠN TRIỂN KHAI
 
 ### GIAI ĐOẠN 1: Minh Bạch Chi Phí (VAT 8%), Nút Điều Hướng & Quản Lý Đơn Của Host
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (22/22 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase1_improvements.php`
+
 * **Mục tiêu:** Hoàn thiện trải nghiệm thanh toán, bóc tách thuế chuẩn mực và hỗ trợ Host quản lý dòng tiền cọc.
-* **Các công việc cụ thể:**
+* **Các công việc đã hoàn thành:**
   1. **Bóc tách Thuế GTGT 8%:**
      - Công thức chuẩn:  
        $\text{Net} = \text{round}\left(\frac{\text{Total}}{1.08}\right)$  
        $\text{VAT} = \text{Total} - \text{Net}$  
        $\text{Gross} = \text{Total}$
-     - Cập nhật [`app/helpers/FormatHelper.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/helpers/FormatHelper.php): bổ sung hàm tính toán và hiển thị phân rã VAT.
-     - Cập nhật [`app/views/receipts/show.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/receipts/show.php): Thêm dòng chi tiết thuế GTGT 8% trong bảng chi phí hóa đơn.
-     - Cập nhật [`app/views/bookings/detail.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/bookings/detail.php) và [`app/views/services/show.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/services/show.php): ghi chú rõ ràng *"Giá đã bao gồm 8% thuế GTGT"*.
+     - Đã thêm `FormatHelper::calculateVat()`.
+     - Cập nhật [`app/views/receipts/show.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/receipts/show.php), [`app/views/bookings/detail.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/bookings/detail.php) và [`app/views/services/show.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/services/show.php).
   2. **Tối ưu Giao diện Hoàn tất Thanh toán (`app/views/payments/callback.php`):**
-     - Bổ sung nút *"Về Trang Chủ"* với icon trang nhã.
-     - Căn đều kích thước và padding giữa 2 nút: *"Xem Chi Tiết Vé & Lịch Trình"* và *"Xem Biên Nhận Điện Tử"*.
-  3. **Hiển thị Tình trạng Cọc phía Host (`app/views/host/bookings/index.php` hoặc `host/bookings.php`):**
-     - Bổ sung huy hiệu phân biệt:  
-       - `Đã cọc 50% (MoMo)` (màu xanh lá)  
-       - `Đã thanh toán 100%` (màu xanh dương)  
-       - `Chờ thanh toán cọc` (màu vàng)  
-     - Giúp Host nắm rõ tình trạng tài chính của khách ngay trên dashboard quản lý đơn.
+     - Đã thêm nút "Về Trang Chủ", căn đều 2 nút điều hướng đối xứng.
+  3. **Hiển thị Tình trạng Cọc phía Host (`app/views/host/bookings/index.php` & `show.php`):**
+     - Hiển thị badge: `Đã cọc 50% (MoMo)`, `Đã thanh toán 100%`, `Chờ thanh toán cọc`.
 
 ---
 
 ### GIAI ĐOẠN 2: Khối Đánh Giá Tour Chi Tiết & Nhãn "Đã Tự Trải Nghiệm"
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (19/19 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase2_reviews.php`
+
 * **Mục tiêu:** Xây dựng khối đánh giá công khai ở chân trang tour, hỗ trợ gắn nhãn xác thực cho khách đã hoàn thành chuyến đi.
-* **Các công việc cụ thể:**
-  1. **Nâng cấp Model & Controller (`Review.php`, `ReviewController.php`):**
-     - Cho phép nhận `booking_id` là `null` hoặc số cụ thể.
-     - Tự động kiểm tra: Nếu du khách có đơn hàng `completed` cho tour này $\rightarrow$ Gán `is_verified = 1`, ngược lại `is_verified = 0`.
-     - Chặn du khách chưa đăng nhập (bắt buộc session hợp lệ).
-     - Ngăn chặn spam đánh giá liên tục trong khoảng thời gian ngắn.
-  2. **Giao diện Khối Đánh Giá tại `app/views/services/show.php`:**
-     - Thiết kế khối Đánh giá đặt ở cuối trang (ngay dưới phần Hỏi - Đáp).
-     - Thanh tóm tắt: Điểm trung bình sao (ví dụ: `4.9 / 5.0 ⭐`) và tỷ lệ các mức sao (5 sao, 4 sao...).
-     - Danh sách đánh giá: Avatar, Họ tên, Thời gian, Số sao vàng, Bình luận, và Huy hiệu xanh nổi bật **"Đã tự trải nghiệm"** đối với du khách đã đi tour thực tế.
-     - Form gửi đánh giá trực tiếp via AJAX: Cho phép chọn số sao (1..5) và viết cảm nhận. Nếu chưa đăng nhập, hiển thị nút *"Đăng nhập để đánh giá"*.
+* **Các công việc đã hoàn thành:**
+  1. **CSDL & Stored Procedure:**
+     - `database/changes/05_reviews_enhancement.sql`: Cho phép `booking_id NULL`, bổ sung cột `is_verified TINYINT(1) DEFAULT 0`.
+     - Cập nhật SP `pct_sp_reviews_create` tự động gán `is_verified = 1` cho đơn hàng hoàn tất.
+  2. **Nâng cấp Model & Controller (`Review.php`, `ReviewController.php`, `ServiceController.php`):**
+     - Hỗ trợ đánh giá trực tiếp từ trang tour qua AJAX, chặn khách chưa đăng nhập, chống spam đánh giá lặp.
+     - Tự động xác thực: Nếu du khách có đơn hàng `completed` cho tour này $\rightarrow$ Gán `is_verified = 1`, ngược lại `is_verified = 0`.
+     - Sắp xếp ưu tiên: `is_verified DESC, created_at DESC`.
+  3. **Giao diện Khối Đánh Giá tại `app/views/services/show.php`:**
+     - Đặt tại Section 4 ngay dưới Hỏi - Đáp.
+     - Thanh tóm tắt điểm sao trung bình, phân bổ tỷ lệ sao.
+     - Huy hiệu xanh **"Đã tự trải nghiệm"** nổi bật.
+     - Form AJAX chọn 1-5 sao và gửi nhận xét mượt mà.
 
 ---
 
@@ -116,19 +118,26 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 ---
 
 ### GIAI ĐOẠN 5: Cải Tiến Form Đăng Tour Cho Host (Tọa Độ Tự Động & Upload Ảnh Trạm) - *ƯU TIÊN*
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (24/24 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase5_host_services.php`
+
 * **Mục tiêu:** Đơn giản hóa tối đa quy trình đăng tour cho người bản địa, không đòi hỏi kiến thức kỹ thuật.
-* **Các công việc cụ thể:**
+* **Các công việc đã hoàn thành:**
   1. **Tự Động Hóa Tọa Độ Bản Đồ (Geocoding ngầm):**
-     - Tại form đăng tour ([`app/views/host/services/create.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/host/services/create.php) & `edit.php`):
-       - Chuyển 2 ô nhập *Vĩ độ (Latitude)* và *Kinh độ (Longitude)* thành `input type="hidden"`.
-       - Hiển thị 2 trường nhập trực quan:
-         1. **Tỉnh / Thành phố**: Combobox chọn các vùng du lịch (Lâm Đồng, Quảng Nam, Lào Cai, Hà Giang, Kiên Giang...).
-         2. **Địa điểm đón / Điểm hẹn cụ thể**: Ô nhập text dễ hiểu (ví dụ: *Cổng bến thuyền Hồ Tuyền Lâm, Đà Lạt*).
-       - Tích hợp từ điển tọa độ chuẩn các tỉnh du lịch Việt Nam + Script tự động gán tọa độ ngầm tương ứng.
+     - Đã thêm `FormatHelper::getProvincesList()` (29 địa bàn trọng điểm) và `FormatHelper::lookupCoordinates()` (nhận diện tự động theo địa danh và tỉnh).
+     - Form tạo & chỉnh sửa tour ([`create.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/host/services/create.php), [`edit.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/host/services/edit.php)):
+       - Vĩ độ và Kinh độ được chuyển thành `input type="hidden"`.
+       - Thay thế bằng Combobox chọn Tỉnh/Thành phố và ô nhập điểm đón thân thiện.
+       - Hiển thị badge định vị bản đồ tự động cho Host nắm được kết quả ghim vị trí.
+       - Backend `HostController::storeService` & `updateService` tự động bù đắp tọa độ nếu Host để trống.
   2. **Upload Trực Tiếp Ảnh Các Trạm Dừng Chân:**
-     - Thay thế ô nhập link text ảnh trạm bằng nút **Chọn file ảnh** (`input type="file" accept="image/*"`).
-     - Hỗ trợ lưu ảnh tự động vào thư mục `public/assets/images/tours/stops/`.
-     - Loại bỏ các thuật ngữ kỹ thuật như "(Three.js)" trong tiêu đề các bước.
+     - Cho phép chọn file ảnh trực tiếp (`input type="file" name="stop_files[]"`).
+     - Có thumbnail preview ngay khi chọn ảnh hoặc nhập URL.
+     - `TourService::handleStopImageUpload()` tự động lưu ảnh an toàn vào `public/assets/images/tours/stops/`.
+  3. **Làm Sạch Giao Diện & Loại Bỏ Thuật Ngữ Kỹ Thuật:**
+     - Đã xóa toàn bộ từ ngữ `(Three.js)` khỏi tiêu đề và mô tả mục 4.
+     - Đổi tên thành *"4. Lịch Trình & Điểm Dừng Chân Không Gian (3D Tour)"*.
+     - Bổ sung ghi chú *"Giá niêm yết đã bao gồm 8% thuế GTGT"*.
 
 ---
 
