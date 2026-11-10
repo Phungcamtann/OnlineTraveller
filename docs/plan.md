@@ -152,16 +152,23 @@ Dựa trên phản hồi kiểm thử thực tế và các thống nhất giữa
 ---
 
 ### GIAI ĐOẠN 6: Bộ Lọc Khoảng Giá Slider, Đồng Bộ Card Tour & Banner Bố Cục Mới
+> **Trạng thái:** ✅ **HOÀN THÀNH 100% (26/26 Tests PASSED)**  
+> **Bộ kiểm thử:** `tests/test_phase6_slider_cards_banner.php`
+
 * **Mục tiêu:** Đồng bộ ngôn ngữ thiết kế toàn hệ thống và cải tiến giao diện khám phá.
-* **Các công việc cụ thể:**
+* **Các công việc đã hoàn thành:**
   1. **Thanh Trượt Khoảng Giá (Range Slider):**
-     - Thêm thanh trượt ngang chọn ngân sách `0đ -> 5.000.000đ+` tại cả Trang chủ (`home/index.php`) và Trang khám phá (`services/index.php`).
-     - Hiển thị nhãn số tiền động nhảy theo vị trí kéo trượt.
-  2. **Đồng Bộ Card Tour:**
-     - Refactor lại danh sách tour ở trang Khám phá (`services/index.php`) theo phong cách Card Dark-Alpine tràn ảnh 3/4 đồng bộ 100% với Trang chủ.
+     - Bổ sung thanh trượt ngang chọn ngân sách tối đa `200.000đ -> 5.000.000đ+` tại cả Trang chủ ([`app/views/home/index.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/home/index.php)) và Trang khám phá ([`app/views/services/index.php`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/views/services/index.php)).
+     - Hiển thị nhãn số tiền động `X.XXX.XXX ₫` nhảy real-time theo vị trí kéo trượt của người dùng.
+     - Backend [`Service::getAllApproved`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/models/Service.php) & [`ServiceController::index`](file:///e:/Dev/Study'/Web/OnlineTraveller/app/controllers/ServiceController.php) hỗ trợ lọc `base_price <= max_price` và đảm bảo tương thích ngược với `price_range`.
+  2. **Đồng Bộ Card Tour Tại Trang Khám Phá:**
+     - Refactor lại toàn bộ danh sách tour ở trang Khám phá (`services/index.php`) theo phong cách Card Dark-Alpine tràn ảnh 3/4 poster đồng bộ 100% với Trang chủ.
+     - Lớp phủ overlay chân ảnh hiển thị địa danh, thời lượng, tên Host, đơn giá nổi bật màu `text-info` và ghi chú *"Đã gồm 8% VAT"*.
+     - Huy hiệu danh mục và số sao đánh giá góc trên được bo tròn kính mờ `glass-pill`.
+     - Bộ lọc tìm kiếm được đưa vào `glass-panel` mờ kính chuẩn Dark-Alpine.
   3. **Bố Cục Lại Banner:**
-     - **Trang chủ:** Thiết kế Slider Banner có các thumbnail trượt nhỏ.
-     - **Trang chi tiết tour:** Sửa lỗi mất chân ảnh banner; bố cục lại: chữ bên trái, dải card ảnh các trạm đặt dọc bên phải theo đúng ảnh mẫu.
+     - **Trang chủ:** Thiết kế Slider Banner tương tác với dải thumbnails thu nhỏ (`banner-thumbs-container`), hỗ trợ click chuyển slide mượt mà, nút điều hướng Prev/Next và tự động trượt sau mỗi 6 giây (tạm dừng khi hover).
+     - **Trang chi tiết tour (`services/show.php`):** Sửa triệt để lỗi mất chân ảnh banner bằng `background-position: center bottom` và `background-size: cover`. Bố cục lại thành 2 cột: Cột trái chữ + host + nút đặt lịch ngay, Cột phải là dải card các trạm dừng chân xếp dọc theo chiều cao banner (`vertical-station-card`) đúng chuẩn ảnh mẫu.
 
 ---
 

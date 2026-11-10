@@ -137,6 +137,12 @@ $testSuites = [
         'file'     => 'test_phase4_profile_enhancements.php',
         'name'     => 'Hồ sơ người dùng (Giới tính, Ngày sinh), Bản in đơn & Hiện mật khẩu',
     ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-6',
+        'file'     => 'test_phase6_slider_cards_banner.php',
+        'name'     => 'Range Slider ngân sách, Đồng bộ Card tour & Slider Banner thumbnails',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

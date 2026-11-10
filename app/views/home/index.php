@@ -2,6 +2,7 @@
 /**
  * OnlineTraveller v2.2 — Home Page (Trang Chủ)
  * UI Specification: docs/UI_SPEC_FOR_AGENT.md (Section 3B - 3.2) & Mockup Image
+ * Phase 6: Slider Banner với thumbnails trượt & Range Slider khoảng giá
  *
  * @var array|null $heroService
  * @var array $categories
@@ -14,62 +15,201 @@ $categories = $categories ?? [];
 $services = $services ?? [];
 $travelNews = $travelNews ?? [];
 
-// Resolve Featured Service for Hero Banner (from $heroService or first service in $services)
-$featuredService = $heroService ?? ($services[0] ?? null);
-$featuredTitle = $featuredService['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm';
-$featuredDesc = $featuredService['short_description'] ?? ($featuredService['description'] ?? 'Trải nghiệm sương mù Đà Lạt, đón bình minh mộng mơ bên hồ cùng người dân bản địa.');
-$featuredImage = $featuredService['banner_image'] ?? '/assets/images/tours/dalat-san-may.jpg';
-$featuredHost = $featuredService['host_name'] ?? 'Nguyễn Văn Bản Địa (Đà Lạt)';
-$featuredLocation = $featuredService['location'] ?? 'Đà Lạt, Lâm Đồng';
-$featuredRating = (float)($featuredService['avg_rating'] ?? ($featuredService['rating'] ?? 5.0));
-$featuredId = (int)($featuredService['id'] ?? 1);
+// Resolve Top Slides for Slider Banner
+$sliderSlides = [];
+if ($heroService) {
+    $sliderSlides[] = [
+        'id' => (int)($heroService['id'] ?? 1),
+        'title' => $heroService['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm',
+        'desc' => $heroService['short_description'] ?? ($heroService['description'] ?? 'Trải nghiệm sương mù Đà Lạt, đón bình minh mộng mơ bên hồ cùng người dân bản địa.'),
+        'image' => $heroService['banner_image'] ?? '/assets/images/tours/dalat-san-may.jpg',
+        'host' => $heroService['host_name'] ?? 'Nguyễn Văn Bản Địa (Đà Lạt)',
+        'location' => $heroService['location'] ?? 'Đà Lạt, Lâm Đồng',
+        'rating' => (float)($heroService['avg_rating'] ?? ($heroService['rating'] ?? 5.0)),
+    ];
+}
+
+if (!empty($services)) {
+    foreach ($services as $srv) {
+        if (!empty($sliderSlides) && (int)$srv['id'] === (int)$sliderSlides[0]['id']) {
+            continue;
+        }
+        $sliderSlides[] = [
+            'id' => (int)$srv['id'],
+            'title' => $srv['title'],
+            'desc' => !empty($srv['short_description']) ? $srv['short_description'] : (!empty($srv['description']) ? mb_substr(strip_tags($srv['description']), 0, 120, 'UTF-8') . '...' : 'Trải nghiệm du lịch bản địa độc đáo cùng người dân địa phương.'),
+            'image' => !empty($srv['banner_image']) ? $srv['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
+            'host' => $srv['host_name'] ?? 'Dân bản địa',
+            'location' => $srv['location'] ?? 'Việt Nam',
+            'rating' => (float)($srv['avg_rating'] ?? 5.0),
+        ];
+        if (count($sliderSlides) >= 4) {
+            break;
+        }
+    }
+}
+
+// Fallback slides if services list is sparse
+if (count($sliderSlides) < 3) {
+    $fallbackSlides = [
+        [
+            'id' => 1,
+            'title' => 'Bình Minh Bên Hồ Tuyền Lâm',
+            'desc' => 'Trải nghiệm sương mù Đà Lạt, đón bình minh mộng mơ bên hồ cùng người dân bản địa.',
+            'image' => '/assets/images/tours/dalat-san-may.jpg',
+            'host' => 'Nguyễn Văn Bản Địa (Đà Lạt)',
+            'location' => 'Đà Lạt, Lâm Đồng',
+            'rating' => 4.9,
+        ],
+        [
+            'id' => 2,
+            'title' => 'Đêm Phố Cổ & Làng Gốm Thanh Hà',
+            'desc' => 'Khám phá vẻ đẹp trầm mặc của di sản Hội An, hòa mình vào nghề làm gốm nghìn năm tuổi.',
+            'image' => '/assets/images/tours/hoian-dem-pho-co.jpg',
+            'host' => 'Lê Thị Thu (Hội An)',
+            'location' => 'Hội An, Quảng Nam',
+            'rating' => 4.8,
+        ],
+        [
+            'id' => 3,
+            'title' => 'Cung Đường Núi Đá Nở Hoa Đồng Văn',
+            'desc' => 'Vượt đèo Mã Pí Lèng hùng vĩ, thưởng thức chén rượu ngô và khám phá bản sắc cao nguyên đá.',
+            'image' => '/assets/images/tours/hagiang-nui-da.jpg',
+            'host' => 'Vàng A Súa (Hà Giang)',
+            'location' => 'Đồng Văn, Hà Giang',
+            'rating' => 5.0,
+        ],
+        [
+            'id' => 4,
+            'title' => 'Hoàng Hôn Làng Chài Rạch Vẹm Phú Quốc',
+            'desc' => 'Ngắm sao biển đỏ, thưởng thức hải sản tươi rói vừa đánh bắt và đón hoàng hôn thơ mộng.',
+            'image' => '/assets/images/tours/phuquoc-lang-chai.jpg',
+            'host' => 'Trần Văn Hải (Phú Quốc)',
+            'location' => 'Phú Quốc, Kiên Giang',
+            'rating' => 4.7,
+        ],
+    ];
+    foreach ($fallbackSlides as $fb) {
+        $exists = false;
+        foreach ($sliderSlides as $s) {
+            if ($s['title'] === $fb['title']) {
+                $exists = true;
+                break;
+            }
+        }
+        if (!$exists) {
+            $sliderSlides[] = $fb;
+        }
+        if (count($sliderSlides) >= 4) {
+            break;
+        }
+    }
+}
+
+$firstSlide = $sliderSlides[0];
+$featuredTitle = $firstSlide['title'];
+$featuredDesc = $firstSlide['desc'];
+$featuredImage = $firstSlide['image'];
+$featuredHost = $firstSlide['host'];
+$featuredLocation = $firstSlide['location'];
+$featuredRating = (float)$firstSlide['rating'];
+$featuredId = (int)$firstSlide['id'];
+
+// Default max price from GET
+$defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 5000000;
 ?>
 
 <div class="main-container">
 
-    <!-- 1. HERO BANNER: CHỮ BÊN TRÁI + NÚT GLASS + HIỆU ỨNG AMBIENT BLUR -->
+    <!-- 1. SLIDER BANNER: CHỮ BÊN TRÁI + NÚT GLASS + THUMBNAILS TRƯỢT NHỎ -->
     <section class="container-xxl pt-2">
         <div class="row">
             <div class="col-12">
-                <div class="hero-ambient-wrapper">
-                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');">
-                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
-                            <div class="container">
-                                <div class="row align-items-center pt-5 pb-4 px-lg-4">
-                                    <div class="col-lg-7 col-md-9 pt-4">
-                                        <h1 class="font-editorial display-4 fw-bold text-white mb-3 lh-sm">
+                <div class="hero-ambient-wrapper" id="homeHeroAmbientWrapper">
+                    <div class="hero-banner-box position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
+                            <div class="container-fluid p-0">
+                                <div class="row align-items-center pt-4">
+                                    <div class="col-lg-8 col-md-10">
+                                        <div class="d-inline-flex align-items-center gap-2 mb-2">
+                                            <span class="glass-pill px-3 py-1 small fw-semibold text-info" id="heroLocationBadge">
+                                                <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= htmlspecialchars($featuredLocation, ENT_QUOTES, 'UTF-8') ?>
+                                            </span>
+                                        </div>
+                                        <h1 class="font-editorial display-4 fw-bold text-white mb-3 lh-sm" id="heroTitle">
                                             <?= htmlspecialchars($featuredTitle, ENT_QUOTES, 'UTF-8') ?>
                                         </h1>
-                                        <p class="text-light opacity-75 mb-4 fs-6" style="max-width: 580px;">
+                                        <p class="text-light opacity-75 mb-4 fs-6" id="heroDesc" style="max-width: 600px;">
                                             <?= htmlspecialchars($featuredDesc, ENT_QUOTES, 'UTF-8') ?>
                                         </p>
-                                        <div class="mb-3">
-                                            <a href="/services/<?= $featuredId ?>" class="btn btn-glass-hero">
+                                        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                                            <a href="/services/<?= $featuredId ?>" class="btn btn-glass-hero" id="heroCtaLink">
                                                 Khám phá ngay <i class="bi bi-arrow-right ms-1"></i>
                                             </a>
-                                        </div>
-                                        <div class="small text-light opacity-75">
-                                            Host: <?= htmlspecialchars($featuredHost, ENT_QUOTES, 'UTF-8') ?> &bull; 
-                                            <?= htmlspecialchars($featuredLocation, ENT_QUOTES, 'UTF-8') ?> &bull; 
-                                            <span class="text-warning">&#9733; <?= number_format($featuredRating, 1) ?></span>
+                                            <div class="small text-light opacity-75" id="heroMeta">
+                                                Host: <strong class="text-white"><?= htmlspecialchars($featuredHost, ENT_QUOTES, 'UTF-8') ?></strong> &bull; 
+                                                <span class="text-warning">&#9733; <?= number_format($featuredRating, 1) ?></span>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Dải Thumbnail Trượt Nhỏ Dưới Chân Banner -->
+                            <div class="mt-4 pt-3 border-top border-light border-opacity-10 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div class="banner-thumbs-container" id="bannerThumbsContainer">
+                                    <?php foreach ($sliderSlides as $idx => $slide): ?>
+                                        <div class="banner-thumb-item <?= $idx === 0 ? 'active' : '' ?>" 
+                                             data-slide-index="<?= $idx ?>"
+                                             data-id="<?= $slide['id'] ?>"
+                                             data-title="<?= htmlspecialchars($slide['title'], ENT_QUOTES, 'UTF-8') ?>"
+                                             data-desc="<?= htmlspecialchars($slide['desc'], ENT_QUOTES, 'UTF-8') ?>"
+                                             data-image="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>"
+                                             data-host="<?= htmlspecialchars($slide['host'], ENT_QUOTES, 'UTF-8') ?>"
+                                             data-location="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>"
+                                             data-rating="<?= number_format($slide['rating'], 1) ?>">
+                                            <img src="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                 alt="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100&auto=format&fit=crop&q=80'">
+                                            <div class="text-start">
+                                                <div class="fw-semibold small text-white text-truncate" style="max-width: 120px;">
+                                                    <?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>
+                                                </div>
+                                                <div class="text-light opacity-75" style="font-size: 0.72rem;">
+                                                    ★ <?= number_format($slide['rating'], 1) ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <!-- Nút Điều Hướng Chuyển Slide Nhỏ -->
+                                <div class="d-none d-md-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-outline-light btn-sm rounded-circle p-2 shadow-none border-opacity-25" id="btnPrevSlide" title="Tour trước" style="width: 36px; height: 36px;">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm rounded-circle p-2 shadow-none border-opacity-25" id="btnNextSlide" title="Tour kế tiếp" style="width: 36px; height: 36px;">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <!-- Ambient Glow Blur dưới chân Banner -->
-                    <div class="hero-ambient-glow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
+                    <div class="hero-ambient-glow" id="heroAmbientGlow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 2. THANH TÌM KIẾM NỔI TÁCH BIỆT DƯỚI BANNER -->
+    <!-- 2. THANH TÌM KIẾM NỔI TÁCH BIỆT DƯỚI BANNER (TÍCH HỢP RANGE SLIDER) -->
     <section class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-12">
-                <form action="/services" method="GET" class="glass-panel p-3 p-lg-4 shadow-lg">
+                <form action="/services" method="GET" class="glass-panel p-3 p-lg-4 shadow-lg" id="homeSearchForm">
+                    <!-- Backward compatibility hidden input for price_range -->
+                    <input type="hidden" name="price_range" id="inputHomePriceRange" value="<?= htmlspecialchars($_GET['price_range'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+
                     <div class="row g-3 align-items-center">
                         <!-- Trường 1: Điểm đến -->
                         <div class="col-lg-4 col-md-4 search-col-divider">
@@ -101,19 +241,24 @@ $featuredId = (int)($featuredService['id'] ?? 1);
                             </select>
                         </div>
 
-                        <!-- Trường 3: Ngân sách -->
+                        <!-- Trường 3: Ngân sách Range Slider -->
                         <div class="col-lg-3 col-md-3 search-col-divider">
-                            <label class="d-block small fw-bold text-white mb-1" for="search-price">
-                                Ngân sách
-                            </label>
-                            <select id="search-price" 
-                                    name="price_range" 
-                                    class="form-select bg-transparent border-0 text-white p-0 shadow-none search-field-select">
-                                <option value="" class="bg-dark text-white">Khoảng giá</option>
-                                <option value="under_500" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === 'under_500') ? 'selected' : '' ?>>Dưới 500k</option>
-                                <option value="500_1000" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === '500_1000') ? 'selected' : '' ?>>500k – 1 triệu</option>
-                                <option value="over_1000" class="bg-dark text-white" <?= (($_GET['price_range'] ?? '') === 'over_1000') ? 'selected' : '' ?>>Trên 1 triệu</option>
-                            </select>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="small fw-bold text-white mb-0" for="home-price-slider">
+                                    Ngân sách tối đa
+                                </label>
+                                <span class="small fw-bold text-info" id="home-price-display">
+                                    <?= ($defaultMaxPrice < 5000000) ? FormatHelper::formatVnd($defaultMaxPrice) : '5.000.000 ₫+' ?>
+                                </span>
+                            </div>
+                            <input type="range" 
+                                   class="form-range custom-price-range" 
+                                   id="home-price-slider" 
+                                   name="max_price" 
+                                   min="200000" 
+                                   max="5000000" 
+                                   step="100000" 
+                                   value="<?= $defaultMaxPrice ?>">
                         </div>
 
                         <!-- Trường 4: Nút Tìm kiếm -->
@@ -207,7 +352,6 @@ $featuredId = (int)($featuredService['id'] ?? 1);
         <!-- Hàng Lưới 4 Card Trải Nghiệm tràn ảnh -->
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
             <?php
-            // Lấy 4 dịch vụ mẫu chuẩn mockup nếu có trong database, hoặc fallback mẫu
             $displayServices = array_slice($services, 0, 4);
             if (empty($displayServices)) {
                 $displayServices = [
@@ -318,13 +462,13 @@ $featuredId = (int)($featuredService['id'] ?? 1);
                                 if (empty($rssItems)) {
                                     $rssItems = [
                                         [
-                                            'title' => 'Kinh nghiệm săn mây Đà Lạt mùa đông...',
+                                            'title' => 'Kinh nghiệm săn mây Đà Lạt mùa đông',
                                             'thumbnail' => '/assets/images/tours/dalat-san-may.jpg',
                                             'link' => '/posts',
                                             'source' => 'VnExpress RSS',
                                         ],
                                         [
-                                            'title' => 'Những lưu ý khi trải nghiệm homestay nhà dân...',
+                                            'title' => 'Những lưu ý khi trải nghiệm homestay nhà dân',
                                             'thumbnail' => '/assets/images/tours/phuquoc-lang-chai.jpg',
                                             'link' => '/posts',
                                             'source' => 'VnExpress RSS',
@@ -339,7 +483,7 @@ $featuredId = (int)($featuredService['id'] ?? 1);
                                            <?= (!empty($post['link']) && str_starts_with($post['link'], 'http')) ? 'target="_blank" rel="noopener"' : '' ?>>
                                             <div class="rounded-3 overflow-hidden mb-3" style="aspect-ratio: 16/9; background: rgba(11, 25, 36, 0.6);">
                                                 <img src="<?= htmlspecialchars($post['thumbnail'] ?? '/assets/images/tours/dalat-san-may.jpg', ENT_QUOTES, 'UTF-8') ?>" 
-                                                     alt="<?= htmlspecialchars($post['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                     alt="<?= htmlspecialchars($post['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
                                                      class="w-100 h-100 object-fit-cover"
                                                      onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'">
                                             </div>
@@ -361,3 +505,135 @@ $featuredId = (int)($featuredService['id'] ?? 1);
     </section>
 
 </div>
+
+<!-- CLIENT JAVASCRIPT CHO SLIDER BANNER & RANGE SLIDER -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. RANGE SLIDER NGÂN SÁCH TẠI TRANG CHỦ
+    const homeSlider = document.getElementById('home-price-slider');
+    const homeDisplay = document.getElementById('home-price-display');
+    const hiddenRange = document.getElementById('inputHomePriceRange');
+
+    if (homeSlider && homeDisplay) {
+        function updateHomePrice(val) {
+            const num = parseInt(val, 10);
+            if (num >= 5000000) {
+                homeDisplay.textContent = '5.000.000 ₫+';
+                if (hiddenRange) hiddenRange.value = '';
+            } else {
+                homeDisplay.textContent = new Intl.NumberFormat('vi-VN').format(num) + ' ₫';
+                if (hiddenRange) {
+                    if (num <= 500000) hiddenRange.value = 'under_500';
+                    else if (num <= 1000000) hiddenRange.value = '500_1000';
+                    else hiddenRange.value = 'over_1000';
+                }
+            }
+        }
+
+        homeSlider.addEventListener('input', function() {
+            updateHomePrice(this.value);
+        });
+    }
+
+    // 2. SLIDER BANNER TƯƠNG TÁC VỚI THUMBNAIL
+    const heroBox = document.getElementById('heroBannerBox');
+    const heroGlow = document.getElementById('heroAmbientGlow');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDesc = document.getElementById('heroDesc');
+    const heroLocation = document.getElementById('heroLocationBadge');
+    const heroMeta = document.getElementById('heroMeta');
+    const heroCta = document.getElementById('heroCtaLink');
+    const thumbItems = document.querySelectorAll('.banner-thumb-item');
+    const btnPrev = document.getElementById('btnPrevSlide');
+    const btnNext = document.getElementById('btnNextSlide');
+
+    let currentSlideIdx = 0;
+    const totalSlides = thumbItems.length;
+    let autoSlideTimer = null;
+
+    function applySlide(index) {
+        if (!totalSlides) return;
+        currentSlideIdx = (index + totalSlides) % totalSlides;
+        const activeThumb = thumbItems[currentSlideIdx];
+        if (!activeThumb) return;
+
+        // Update active class on thumbnails
+        thumbItems.forEach(t => t.classList.remove('active'));
+        activeThumb.classList.add('active');
+
+        // Scroll active thumbnail into view smoothly
+        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+        const data = activeThumb.dataset;
+        if (heroBox && data.image) {
+            heroBox.style.backgroundImage = `url('${data.image}')`;
+        }
+        if (heroGlow && data.image) {
+            heroGlow.style.backgroundImage = `url('${data.image}')`;
+        }
+        if (heroTitle && data.title) {
+            heroTitle.textContent = data.title;
+        }
+        if (heroDesc && data.desc) {
+            heroDesc.textContent = data.desc;
+        }
+        if (heroLocation && data.location) {
+            heroLocation.innerHTML = `<i class="bi bi-geo-alt-fill text-danger me-1"></i>${data.location}`;
+        }
+        if (heroMeta && data.host && data.rating) {
+            heroMeta.innerHTML = `Host: <strong class="text-white">${data.host}</strong> &bull; <span class="text-warning">&#9733; ${data.rating}</span>`;
+        }
+        if (heroCta && data.id) {
+            heroCta.setAttribute('href', `/services/${data.id}`);
+        }
+    }
+
+    thumbItems.forEach((thumb, idx) => {
+        thumb.addEventListener('click', function() {
+            applySlide(idx);
+            resetAutoSlide();
+        });
+    });
+
+    if (btnPrev) {
+        btnPrev.addEventListener('click', function() {
+            applySlide(currentSlideIdx - 1);
+            resetAutoSlide();
+        });
+    }
+
+    if (btnNext) {
+        btnNext.addEventListener('click', function() {
+            applySlide(currentSlideIdx + 1);
+            resetAutoSlide();
+        });
+    }
+
+    function startAutoSlide() {
+        if (totalSlides > 1) {
+            autoSlideTimer = setInterval(() => {
+                applySlide(currentSlideIdx + 1);
+            }, 6000);
+        }
+    }
+
+    function resetAutoSlide() {
+        if (autoSlideTimer) {
+            clearInterval(autoSlideTimer);
+            startAutoSlide();
+        }
+    }
+
+    const sliderWrapper = document.getElementById('homeHeroAmbientWrapper');
+    if (sliderWrapper) {
+        sliderWrapper.addEventListener('mouseenter', () => {
+            if (autoSlideTimer) clearInterval(autoSlideTimer);
+        });
+        sliderWrapper.addEventListener('mouseleave', () => {
+            resetAutoSlide();
+        });
+    }
+
+    startAutoSlide();
+});
+</script>

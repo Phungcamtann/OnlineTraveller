@@ -61,44 +61,70 @@ if (!empty($service['latitude']) && !empty($service['longitude'])) {
         <div class="row">
             <div class="col-12">
                 <div class="hero-ambient-wrapper">
-                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 540px;">
-                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
-                            <!-- Tiêu đề & Host Info ở phần trên/giữa bên trái -->
-                            <div class="row">
-                                <div class="col-lg-8 col-md-10 pt-4">
-                                    <h1 class="font-editorial display-4 fw-bold text-white mb-2 lh-sm">
-                                        <?= htmlspecialchars($service['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm', ENT_QUOTES, 'UTF-8') ?>
-                                    </h1>
-                                    <div class="small text-light opacity-90 fs-6">
-                                        Host: <strong><?= htmlspecialchars($service['host_name'] ?? 'Nguyễn Văn Bản Địa', ENT_QUOTES, 'UTF-8') ?></strong> 
-                                        (<?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Đà Lạt')) ?>) &bull; 
-                                        <span class="text-warning fw-bold">&#9733; <?= number_format((float)($service['avg_rating'] ?? 5.0), 1) ?></span>
+                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 540px; background-position: center bottom; background-size: cover;">
+                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center p-4 p-lg-5">
+                            <div class="container-fluid p-0">
+                                <div class="row align-items-center justify-content-between g-4">
+                                    <!-- Cột trái: Thông tin Tour, Host & Nút Đặt Lịch Ngay -->
+                                    <div class="col-lg-7 col-md-7">
+                                        <div class="d-inline-flex align-items-center gap-2 mb-2">
+                                            <span class="glass-pill px-3 py-1 small fw-semibold text-info">
+                                                <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= htmlspecialchars($service['location'] ?? 'Đà Lạt') ?>
+                                            </span>
+                                            <span class="glass-pill px-3 py-1 small fw-semibold text-white">
+                                                <i class="bi bi-clock me-1"></i><?= (int)($service['duration_days'] ?? 1) ?> ngày
+                                            </span>
+                                        </div>
+                                        <h1 class="font-editorial display-4 fw-bold text-white mb-2 lh-sm">
+                                            <?= htmlspecialchars($service['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm', ENT_QUOTES, 'UTF-8') ?>
+                                        </h1>
+                                        <div class="small text-light opacity-90 fs-6 mb-3">
+                                            Host: <strong><?= htmlspecialchars($service['host_name'] ?? 'Nguyễn Văn Bản Địa', ENT_QUOTES, 'UTF-8') ?></strong> 
+                                            (<?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Đà Lạt')) ?>) &bull; 
+                                            <span class="text-warning fw-bold">&#9733; <?= number_format((float)($service['avg_rating'] ?? 5.0), 1) ?></span>
+                                        </div>
+                                        <p class="text-light opacity-75 small mb-4" style="max-width: 520px; line-height: 1.6;">
+                                            <?= htmlspecialchars(mb_substr(strip_tags($service['description'] ?? 'Hòa mình vào không gian bình minh trong lành, thưởng ngoạn cảnh sắc hồ Tuyền Lâm cùng người dân bản địa.'), 0, 160, 'UTF-8') . '...') ?>
+                                        </p>
+                                        <div>
+                                            <a href="#bookingSection" class="btn btn-glass-hero px-4 py-2 fs-6">
+                                                Đặt Lịch Ngay <i class="bi bi-arrow-down-circle ms-1"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Dải 4 ảnh trạm thu nhỏ & Nút Đặt lịch ngay ở chân Banner -->
-                            <div class="row align-items-end justify-content-between mt-4 pt-3 g-3">
-                                <!-- Cột trái: Dải 4 ảnh trạm thu nhỏ -->
-                                <div class="col-lg-8 col-md-8">
-                                    <div class="row row-cols-4 g-2 g-md-3">
-                                        <?php foreach (array_slice($stations, 0, 4) as $stIndex => $station): ?>
-                                            <div class="col">
-                                                <div class="rounded-3 rounded-md-4 overflow-hidden border border-light border-opacity-25 shadow-sm" style="aspect-ratio: 3/4;">
-                                                    <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                         class="w-100 h-100 object-fit-cover transition-transform" 
-                                                         alt="<?= htmlspecialchars($station['caption'] ?? 'Trạm ' . ($stIndex + 1), ENT_QUOTES, 'UTF-8') ?>"
-                                                         onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
-                                                </div>
+                                    <!-- Cột phải: Dải card ảnh các trạm đặt dọc theo đúng ảnh mẫu -->
+                                    <div class="col-lg-5 col-md-5">
+                                        <div class="p-3 rounded-4" style="background: rgba(11, 25, 36, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15);">
+                                            <div class="d-flex align-items-center justify-content-between px-1 pb-2 mb-2 border-bottom border-light border-opacity-10">
+                                                <span class="small text-white fw-bold">
+                                                    <i class="bi bi-signpost-split text-info me-1"></i> Lịch Trình Các Trạm Dừng
+                                                </span>
+                                                <span class="badge glass-pill text-white" style="font-size: 0.72rem;">
+                                                    <?= count($stations) ?> điểm dừng
+                                                </span>
                                             </div>
-                                        <?php endforeach; ?>
+                                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-1 row-cols-4 g-2" style="max-height: 380px; overflow-y: auto;">
+                                                <?php foreach (array_slice($stations, 0, 4) as $stIndex => $station): ?>
+                                                    <div class="col">
+                                                        <a href="#station-<?= (int)($station['id'] ?? ($stIndex + 1)) ?>" class="vertical-station-card">
+                                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                                 alt="<?= htmlspecialchars($station['caption'] ?? 'Trạm ' . ($stIndex + 1), ENT_QUOTES, 'UTF-8') ?>"
+                                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
+                                                            <div class="text-truncate">
+                                                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill py-0 px-2" style="font-size: 0.68rem;">
+                                                                    Trạm <?= $stIndex + 1 ?>
+                                                                </span>
+                                                                <div class="text-white small fw-semibold text-truncate mt-1" style="max-width: 200px;">
+                                                                    <?= htmlspecialchars($station['caption'] ?? ('Điểm dừng ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- Cột phải: Nút Đặt Lịch Ngay cuộn xuống -->
-                                <div class="col-lg-4 col-md-4 text-md-end">
-                                    <a href="#bookingSection" class="btn btn-glass-hero px-4 py-2 fs-6">
-                                        Đặt Lịch Ngay
-                                    </a>
                                 </div>
                             </div>
                         </div>

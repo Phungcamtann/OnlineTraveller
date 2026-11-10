@@ -33,9 +33,40 @@ class ServiceController extends BaseController
     {
         $categoryId = (int)$request->query('category_id', 0);
         $keyword = (string)$request->query('location', '');
-        
+        $maxPrice = (int)$request->query('max_price', 0);
+        $priceRange = (string)$request->query('price_range', '');
+
+        $filterMinPrice = null;
+        $filterMaxPrice = null;
+
+        // Support range slider parameter (max_price)
+        if ($maxPrice > 0) {
+            if ($maxPrice < 5000000) {
+                $filterMaxPrice = $maxPrice;
+            }
+        } elseif (!empty($priceRange)) {
+            // Support legacy price_range select
+            if ($priceRange === 'under_500') {
+                $filterMaxPrice = 500000;
+                $maxPrice = 500000;
+            } elseif ($priceRange === '500_1000') {
+                $filterMinPrice = 500000;
+                $filterMaxPrice = 1000000;
+                $maxPrice = 1000000;
+            } elseif ($priceRange === 'over_1000') {
+                $filterMinPrice = 1000000;
+                $maxPrice = 5000000;
+            }
+        }
+
         $categories = $this->serviceModel->getCategories();
-        $services = $this->serviceModel->getAllApproved($categoryId ?: null, $keyword ?: null, 24);
+        $services = $this->serviceModel->getAllApproved(
+            $categoryId ?: null,
+            $keyword ?: null,
+            24,
+            $filterMaxPrice,
+            $filterMinPrice
+        );
 
         $this->view('services/index', [
             'title' => 'Khám Phá Trải Nghiệm Bản Địa — OnlineTraveller',
@@ -43,6 +74,8 @@ class ServiceController extends BaseController
             'categories' => $categories,
             'selectedCategoryId' => $categoryId,
             'keyword' => $keyword,
+            'maxPrice' => $maxPrice > 0 ? $maxPrice : 5000000,
+            'priceRange' => $priceRange,
         ]);
     }
 
