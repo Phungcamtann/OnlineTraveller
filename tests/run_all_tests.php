@@ -105,6 +105,50 @@ $testSuites = [
         'file'     => 'test_sprint2_tv4_06.php',
         'name'     => 'Đánh giá 1-5 sao sau tour & Quản trị Cẩm nang Blog Admin',
     ],
+
+    // --- CẢI TIẾN HỆ THỐNG SAU KIỂM THỬ THỰC TẾ ---
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-1',
+        'file'     => 'test_phase1_improvements.php',
+        'name'     => 'Minh bạch VAT 8%, Căn đều nút thanh toán & Trạng thái cọc Host',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-2',
+        'file'     => 'test_phase2_reviews.php',
+        'name'     => 'Khối Đánh giá tour công khai & Nhãn bảo chứng Đã tự trải nghiệm',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-5',
+        'file'     => 'test_phase5_host_services.php',
+        'name'     => 'Cải tiến Form Đăng Tour Host: Geocoding tự động & Upload ảnh trạm',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-3',
+        'file'     => 'test_phase3_community_posts.php',
+        'name'     => 'Bản tin cộng đồng mở 3 vai trò & Tích hợp tin tức RSS VnExpress',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-4',
+        'file'     => 'test_phase4_profile_enhancements.php',
+        'name'     => 'Hồ sơ người dùng (Giới tính, Ngày sinh), Bản in đơn & Hiện mật khẩu',
+    ],
+    [
+        'category' => 'CẢI TIẾN HỆ THỐNG',
+        'code'     => 'PHASE-6',
+        'file'     => 'test_phase6_slider_cards_banner.php',
+        'name'     => 'Range Slider ngân sách, Đồng bộ Card tour & Slider Banner thumbnails',
+    ],
+    [
+        'category' => 'QUẢN TRỊ ADMIN',
+        'code'     => 'ADMIN-MOD',
+        'file'     => 'test_admin_service_moderation.php',
+        'name'     => 'Quản trị và Phê duyệt Trải nghiệm mới (Tour Moderation & Approval)',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

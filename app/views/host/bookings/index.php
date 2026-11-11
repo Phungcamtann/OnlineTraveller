@@ -246,10 +246,34 @@ $filters = $filters ?? ['status' => null, 'service_id' => null, 'search' => null
                                 </td>
                                 <td>
                                     <?= $statusBadge ?>
-                                    <?php if ($b['status'] === 'awaiting_payment' && !empty($b['payment_expires_at'])): ?>
-                                        <div class="small text-danger fw-semibold mt-1">
-                                            <i class="bi bi-stopwatch me-1"></i>Hết hạn: <?= date('H:i', strtotime($b['payment_expires_at'])) ?>
+                                    <?php if ($b['status'] === 'confirmed'): ?>
+                                        <?php if ($b['payment_plan'] === 'deposit_50'): ?>
+                                            <div class="mt-1">
+                                                <span class="badge bg-success-subtle text-success border border-success px-2 py-0" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-check2-circle me-1"></i>Đã cọc 50%
+                                                </span>
+                                            </div>
+                                            <div class="small text-danger fw-semibold mt-1" style="font-size: 0.72rem;">
+                                                <i class="bi bi-cash-stack me-1"></i>Thu thêm: <?= FormatHelper::formatVnd((int)($b['total_price'] - $b['deposit_amount'])) ?>
+                                            </div>
+                                        <?php elseif ($b['payment_plan'] === 'full_online'): ?>
+                                            <div class="mt-1">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-0" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-check2-all me-1"></i>Đã thanh toán 100%
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php elseif ($b['status'] === 'awaiting_payment'): ?>
+                                        <div class="mt-1">
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning px-2 py-0" style="font-size: 0.72rem;">
+                                                <i class="bi bi-hourglass-split me-1"></i>Chờ cọc MoMo
+                                            </span>
                                         </div>
+                                        <?php if (!empty($b['payment_expires_at'])): ?>
+                                            <div class="small text-danger fw-semibold mt-1" style="font-size: 0.72rem;">
+                                                <i class="bi bi-stopwatch me-1"></i>Hết hạn: <?= date('H:i', strtotime($b['payment_expires_at'])) ?>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-end">

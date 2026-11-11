@@ -43,21 +43,30 @@ class ReviewController extends BaseController
 
         $touristId = (int)$user['id'];
         $bookingId = (int)$request->input('booking_id', 0);
+        $serviceId = (int)$request->input('service_id', 0);
         $rating = (int)$request->input('rating', 5);
         $comment = (string)$request->input('comment', '');
 
-        if ($bookingId <= 0) {
+        if ($bookingId <= 0 && $serviceId <= 0) {
             if ($request->isAjax()) {
-                $this->response->json(['error' => 'Mã đơn đặt tour không hợp lệ.'], 400);
+                $this->response->json(['error' => 'Vui lòng chọn tour hoặc đơn đặt để gửi đánh giá.'], 400);
                 return;
             }
-            $this->flash('danger', 'Mã đơn đặt tour không hợp lệ.');
-            $this->redirect('/my-bookings');
+            $this->flash('danger', 'Thông tin tour đánh giá không hợp lệ.');
+            $this->redirect('/');
             return;
         }
 
         try {
-            $created = $this->reviewModel->createReview($touristId, $bookingId, $rating, $comment);
+            if ($serviceId > 0) {
+                // Submitted from tour detail page (services/show.php)
+                $created = $this->reviewModel->submitTourReview($touristId, $serviceId, $rating, $comment, $bookingId > 0 ? $bookingId : null);
+                $redirectUrl = '/services/' . $serviceId;
+            } else {
+                // Submitted from booking detail page (bookings/detail.php)
+                $created = $this->reviewModel->createReview($touristId, $bookingId, $rating, $comment);
+                $redirectUrl = '/bookings/' . $bookingId;
+            }
 
             $message = 'Cảm ơn bạn đã gửi đánh giá trải nghiệm chuyến đi!';
             if ($request->isAjax()) {
@@ -70,7 +79,7 @@ class ReviewController extends BaseController
             }
 
             $this->flash('success', $message);
-            $this->redirect('/bookings/' . $bookingId);
+            $this->redirect($redirectUrl);
             return;
         } catch (Exception $e) {
             $errorMsg = $e->getMessage();
@@ -79,7 +88,8 @@ class ReviewController extends BaseController
                 return;
             }
             $this->flash('danger', $errorMsg);
-            $this->redirect('/bookings/' . $bookingId);
+            $redirectUrl = ($serviceId > 0) ? ('/services/' . $serviceId) : ('/bookings/' . $bookingId);
+            $this->redirect($redirectUrl);
             return;
         }
     }

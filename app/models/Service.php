@@ -16,8 +16,13 @@ class Service extends BaseModel
     /**
      * Get all approved experiences with host info, category, homestay and average rating.
      */
-    public function getAllApproved(?int $categoryId = null, ?string $keyword = null, int $limit = 12): array
-    {
+    public function getAllApproved(
+        ?int $categoryId = null,
+        ?string $keyword = null,
+        int $limit = 12,
+        ?int $maxPrice = null,
+        ?int $minPrice = null
+    ): array {
         $sql = "
             SELECT 
                 s.id, s.host_id, s.category_id, s.title, s.slug, s.description,
@@ -47,6 +52,16 @@ class Service extends BaseModel
             $sql .= " AND (s.title LIKE ? OR s.location LIKE ?)";
             $params[] = "%{$keyword}%";
             $params[] = "%{$keyword}%";
+        }
+
+        if ($minPrice !== null && $minPrice > 0) {
+            $sql .= " AND s.base_price >= ?";
+            $params[] = $minPrice;
+        }
+
+        if ($maxPrice !== null && $maxPrice > 0) {
+            $sql .= " AND s.base_price <= ?";
+            $params[] = $maxPrice;
         }
 
         $sql .= " GROUP BY s.id ORDER BY avg_rating DESC, s.created_at DESC LIMIT " . (int)$limit;

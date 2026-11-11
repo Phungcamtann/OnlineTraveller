@@ -299,7 +299,7 @@ class TourService
         }
 
         $targetPath = $targetDir . DIRECTORY_SEPARATOR . $filename;
-        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        if (!@move_uploaded_file($file['tmp_name'], $targetPath) && !@copy($file['tmp_name'], $targetPath)) {
             throw new RuntimeException('Lưu tệp ảnh lên máy chủ thất bại.');
         }
 

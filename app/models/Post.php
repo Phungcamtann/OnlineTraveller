@@ -51,6 +51,95 @@ class Post extends BaseModel
     }
 
     /**
+     * Create community article for any authenticated user (Tourist, Host, Admin).
+     */
+    public function createCommunityPost(
+        int $userId,
+        string $title,
+        ?string $slug = null,
+        string $content = '',
+        ?string $thumbnail = null
+    ): array {
+        $title = trim($title);
+        $content = trim($content);
+
+        if (mb_strlen($title, 'UTF-8') < 5) {
+            throw new RuntimeException('Tiêu đề bài viết phải có ít nhất 5 ký tự.');
+        }
+
+        if (mb_strlen($content, 'UTF-8') < 20) {
+            throw new RuntimeException('Nội dung bài viết phải có ít nhất 20 ký tự để chia sẻ trải nghiệm.');
+        }
+
+        $slug = !empty($slug) ? trim($slug) : $this->generateUniqueSlug($title);
+
+        $rows = $this->callProcedure('pct_sp_community_posts_create', [
+            $userId,
+            $title,
+            $slug,
+            $content,
+            $thumbnail,
+        ]);
+
+        return $rows[0] ?? [];
+    }
+
+    /**
+     * Handle article thumbnail upload.
+     *
+     * @param array $file $_FILES['thumbnail_file']
+     * @return string Relative URL path to saved image
+     * @throws RuntimeException
+     */
+    public function handleThumbnailUpload(array $file): string
+    {
+        if (!isset($file['error']) || is_array($file['error'])) {
+            throw new RuntimeException('Dữ liệu tệp ảnh tải lên không hợp lệ.');
+        }
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('Lỗi tải tệp lên máy chủ: Mã lỗi ' . $file['error']);
+        }
+
+        // Max 5MB
+        if ($file['size'] > 5 * 1024 * 1024) {
+            throw new RuntimeException('Dung lượng ảnh vượt quá giới hạn cho phép (tối đa 5MB).');
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        $allowedMimes = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        if (!array_key_exists($mimeType, $allowedMimes)) {
+            throw new RuntimeException('Định dạng ảnh không được hỗ trợ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.');
+        }
+
+        $ext = $allowedMimes[$mimeType];
+        $filename = 'post_' . bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
+
+        $projectRoot = dirname(__DIR__, 2);
+        $targetDir = $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'posts';
+
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0755, true) && !is_dir($targetDir)) {
+                throw new RuntimeException('Không thể khởi tạo thư mục lưu trữ ảnh bài viết.');
+            }
+        }
+
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $filename;
+        if (!@move_uploaded_file($file['tmp_name'], $targetPath) && !@copy($file['tmp_name'], $targetPath)) {
+            throw new RuntimeException('Lưu tệp ảnh lên máy chủ thất bại.');
+        }
+
+        return '/assets/images/posts/' . $filename;
+    }
+
+    /**
      * Delete article via Stored Procedure pct_sp_posts_delete.
      */
     public function deletePost(int $adminId, int $id): bool
@@ -69,7 +158,7 @@ class Post extends BaseModel
     public function getById(int $id): ?array
     {
         $sql = "
-            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar
+            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role
             FROM tbl_posts p
             JOIN tbl_users u ON p.author_id = u.id
             WHERE p.id = ?
@@ -84,7 +173,7 @@ class Post extends BaseModel
     public function getBySlug(string $slug): ?array
     {
         $sql = "
-            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar
+            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role
             FROM tbl_posts p
             JOIN tbl_users u ON p.author_id = u.id
             WHERE p.slug = ?
@@ -96,10 +185,10 @@ class Post extends BaseModel
     /**
      * Get published posts for public blog.
      */
-    public function getAllPublished(int $limit = 10, int $offset = 0): array
+    public function getAllPublished(int $limit = 20, int $offset = 0): array
     {
         $sql = "
-            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar
+            SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role
             FROM tbl_posts p
             JOIN tbl_users u ON p.author_id = u.id
             WHERE p.is_published = 1

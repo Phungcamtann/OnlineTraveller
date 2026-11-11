@@ -27,9 +27,29 @@ class User extends BaseModel
     /**
      * Update user profile using dhs_sp_users_update_profile.
      */
-    public function updateProfile(int $userId, string $name, string $phone, ?string $livingArea, ?string $bio, ?string $avatar = null): ?array
-    {
-        return $this->callProcedureOne('dhs_sp_users_update_profile', [$userId, $name, $phone, $livingArea ?? '', $bio ?? '', $avatar]);
+    public function updateProfile(
+        int $userId,
+        string $name,
+        string $phone,
+        ?string $livingArea,
+        ?string $bio,
+        ?string $avatar = null,
+        string $gender = 'other',
+        ?string $birthDate = null
+    ): ?array {
+        $cleanGender = in_array($gender, ['male', 'female', 'other'], true) ? $gender : 'other';
+        $cleanBirthDate = (!empty($birthDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthDate)) ? $birthDate : null;
+
+        return $this->callProcedureOne('dhs_sp_users_update_profile', [
+            $userId,
+            $name,
+            $phone,
+            $livingArea ?? '',
+            $bio ?? '',
+            $avatar,
+            $cleanGender,
+            $cleanBirthDate
+        ]);
     }
 
     /**
@@ -45,7 +65,7 @@ class User extends BaseModel
      */
     public function getById(int $id): ?array
     {
-        return $this->fetchOne("SELECT id, role, name, email, phone, avatar, living_area, bio, status, created_at FROM tbl_users WHERE id = ?", [$id]);
+        return $this->fetchOne("SELECT id, role, name, email, phone, avatar, living_area, bio, gender, birth_date, status, created_at FROM tbl_users WHERE id = ?", [$id]);
     }
 
     /**
@@ -53,7 +73,7 @@ class User extends BaseModel
      */
     public function getAllUsers(?string $role = null, ?string $status = null, ?string $search = null, int $limit = 20, int $offset = 0): array
     {
-        $sql = "SELECT id, role, name, email, phone, avatar, living_area, bio, status, created_at, updated_at FROM tbl_users WHERE 1=1";
+        $sql = "SELECT id, role, name, email, phone, avatar, living_area, bio, gender, birth_date, status, created_at, updated_at FROM tbl_users WHERE 1=1";
         $params = [];
 
         if (!empty($role) && in_array($role, ['tourist', 'host', 'admin'], true)) {

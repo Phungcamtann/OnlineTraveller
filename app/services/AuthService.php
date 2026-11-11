@@ -104,12 +104,20 @@ class AuthService
     }
 
     /**
-     * Update user profile, living area, and host bio.
+     * Update user profile, living area, host bio, gender, and birth date.
      *
      * @throws RuntimeException If update fails
      */
-    public function updateProfile(int $userId, string $name, string $phone, ?string $livingArea, ?string $bio, ?string $avatar = null): array
-    {
+    public function updateProfile(
+        int $userId,
+        string $name,
+        string $phone,
+        ?string $livingArea,
+        ?string $bio,
+        ?string $avatar = null,
+        string $gender = 'other',
+        ?string $birthDate = null
+    ): array {
         $cleanName = trim($name);
         $cleanPhone = trim($phone);
         $cleanArea = trim((string)$livingArea);
@@ -119,7 +127,16 @@ class AuthService
             throw new RuntimeException('Họ và tên không được để trống.');
         }
 
-        $updated = $this->userModel->updateProfile($userId, $cleanName, $cleanPhone, $cleanArea, $cleanBio, $avatar);
+        $updated = $this->userModel->updateProfile(
+            $userId,
+            $cleanName,
+            $cleanPhone,
+            $cleanArea,
+            $cleanBio,
+            $avatar,
+            $gender,
+            $birthDate
+        );
 
         if (!$updated) {
             throw new RuntimeException('Không thể cập nhật hồ sơ người dùng.');

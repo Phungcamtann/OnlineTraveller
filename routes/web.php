@@ -55,6 +55,8 @@ return function (Router $router): void {
 
     // 4. ADMIN DASHBOARD & MODERATION (TV1 & TV4)
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->get('/admin/services', [AdminController::class, 'services'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/services/{id}/moderate', [AdminController::class, 'moderateService'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/users', [AdminController::class, 'users'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/users/{id}/status', [AdminController::class, 'setUserStatus'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/categories', [CategoryController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
@@ -92,8 +94,10 @@ return function (Router $router): void {
     $router->post('/reviews', [ReviewController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/services/{id}/reviews', [ReviewController::class, 'index']);
 
-    // 10. TRAVEL BLOG & COMMUNITY POSTS (TV4-06)
+    // 10. TRAVEL BLOG & COMMUNITY POSTS (TV4-06 & Phase 3)
     $router->get('/posts', [PostController::class, 'index']);
+    $router->get('/posts/create', [PostController::class, 'create'], [AuthMiddleware::class]);
+    $router->post('/posts', [PostController::class, 'store'], [AuthMiddleware::class, CsrfMiddleware::class]);
     $router->get('/posts/{slug}', [PostController::class, 'show']);
     $router->get('/admin/posts', [PostController::class, 'adminIndex'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->get('/admin/posts/create', [PostController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class]);

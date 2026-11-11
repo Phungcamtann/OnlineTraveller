@@ -94,7 +94,7 @@ class AuthController extends BaseController
     }
 
     /**
-     * Update user profile, living area, and host bio.
+     * Update user profile, living area, host bio, gender, and birth date.
      */
     public function updateProfile(Request $request): void
     {
@@ -107,9 +107,23 @@ class AuthController extends BaseController
         $phone = (string)$request->post('phone', '');
         $livingArea = (string)$request->post('living_area', '');
         $bio = (string)$request->post('bio', '');
+        $gender = (string)$request->post('gender', 'other');
+        $birthDate = $request->post('birth_date', null);
+        if ($birthDate === '' || !is_string($birthDate)) {
+            $birthDate = null;
+        }
 
         try {
-            $this->authService->updateProfile((int)$currentUser['id'], $name, $phone, $livingArea, $bio);
+            $this->authService->updateProfile(
+                (int)$currentUser['id'],
+                $name,
+                $phone,
+                $livingArea,
+                $bio,
+                null,
+                $gender,
+                $birthDate
+            );
             $this->flash('success', 'Thông tin hồ sơ và câu chuyện bản địa đã được cập nhật thành công!');
         } catch (Exception $e) {
             $this->flash('danger', $e->getMessage());

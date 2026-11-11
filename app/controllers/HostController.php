@@ -12,6 +12,7 @@ use App\Services\ScheduleService;
 use App\Services\BookingService;
 use App\Models\Service;
 use App\Models\Booking;
+use FormatHelper;
 use Exception;
 
 /**
@@ -110,11 +111,13 @@ class HostController extends BaseController
         }
 
         $categories = $this->serviceModel->getCategories();
+        $provinces = FormatHelper::getProvincesList();
 
         $this->view('host/services/create', [
             'title' => 'Đăng Ký Gói Trải Nghiệm Mới — Host',
             'user' => $user,
             'categories' => $categories,
+            'provinces' => $provinces,
         ]);
     }
 
@@ -137,6 +140,24 @@ class HostController extends BaseController
                 $bannerUrl = $this->tourService->handleBannerUpload($_FILES['banner_file']);
             }
 
+            // Location & Geocoding calculation
+            $location = trim((string)$request->post('location', ''));
+            $province = trim((string)$request->post('province', ''));
+            if (!empty($province) && !str_contains($location, $province)) {
+                $location = !empty($location) ? ($location . ', ' . $province) : $province;
+            }
+
+            $rawLat = $request->post('latitude');
+            $rawLng = $request->post('longitude');
+            $latitude = ($rawLat !== null && $rawLat !== '') ? (float)$rawLat : null;
+            $longitude = ($rawLng !== null && $rawLng !== '') ? (float)$rawLng : null;
+
+            if (empty($latitude) || empty($longitude)) {
+                $geo = FormatHelper::lookupCoordinates($location . ' ' . $province);
+                $latitude = $geo['latitude'];
+                $longitude = $geo['longitude'];
+            }
+
             // Main tour data
             $tourData = [
                 'category_id' => (int)$request->post('category_id', 0),
@@ -147,9 +168,9 @@ class HostController extends BaseController
                 'base_price' => (float)$request->post('base_price', 0),
                 'min_price' => (float)$request->post('min_price', 0),
                 'max_price' => (float)$request->post('max_price', 0),
-                'location' => (string)$request->post('location', ''),
-                'latitude' => $request->post('latitude') !== '' ? (float)$request->post('latitude') : null,
-                'longitude' => $request->post('longitude') !== '' ? (float)$request->post('longitude') : null,
+                'location' => $location,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'duration_days' => max(1, (int)$request->post('duration_days', 1)),
                 'banner_image' => $bannerUrl,
             ];
@@ -166,21 +187,45 @@ class HostController extends BaseController
                 ];
             }
 
-            // 3D Stops data
+            // Stops data with direct file upload & fallback URL support
             $stops = [];
             $stopImages = (array)$request->post('stop_image_urls', []);
             $stopCaptions = (array)$request->post('stop_captions', []);
             $stopStories = (array)$request->post('stop_stories', []);
             $stopVideos = (array)$request->post('stop_videos', []);
+            $uploadedStopFiles = $_FILES['stop_files'] ?? null;
 
-            foreach ($stopImages as $i => $imgUrl) {
-                if (!empty($imgUrl)) {
+            $maxStops = max(
+                count($stopImages),
+                count($stopCaptions),
+                (isset($uploadedStopFiles['name']) && is_array($uploadedStopFiles['name'])) ? count($uploadedStopFiles['name']) : 0
+            );
+
+            for ($i = 0; $i < $maxStops; $i++) {
+                $caption = trim((string)($stopCaptions[$i] ?? ''));
+                $story = trim((string)($stopStories[$i] ?? ''));
+                $video = !empty($stopVideos[$i]) ? trim((string)$stopVideos[$i]) : null;
+                $imageUrl = trim((string)($stopImages[$i] ?? ''));
+
+                // Handle direct file upload if present
+                if (isset($uploadedStopFiles['name'][$i]) && !empty($uploadedStopFiles['name'][$i]) && ($uploadedStopFiles['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                    $singleFile = [
+                        'name' => $uploadedStopFiles['name'][$i],
+                        'type' => $uploadedStopFiles['type'][$i] ?? 'image/jpeg',
+                        'tmp_name' => $uploadedStopFiles['tmp_name'][$i],
+                        'error' => $uploadedStopFiles['error'][$i],
+                        'size' => $uploadedStopFiles['size'][$i],
+                    ];
+                    $imageUrl = $this->tourService->handleStopImageUpload($singleFile);
+                }
+
+                if (!empty($imageUrl)) {
                     $stops[] = [
-                        'image_url' => trim((string)$imgUrl),
-                        'caption' => trim((string)($stopCaptions[$i] ?? '')),
-                        'story_text' => trim((string)($stopStories[$i] ?? '')),
-                        'video_url' => !empty($stopVideos[$i]) ? trim((string)$stopVideos[$i]) : null,
-                        'sort_order' => $i + 1,
+                        'image_url' => $imageUrl,
+                        'caption' => $caption !== '' ? $caption : ('Điểm dừng ' . (count($stops) + 1)),
+                        'story_text' => $story,
+                        'video_url' => $video,
+                        'sort_order' => count($stops) + 1,
                     ];
                 }
             }
@@ -211,12 +256,14 @@ class HostController extends BaseController
         try {
             $tour = $this->tourService->getTourDetailForHost($hostId, $tourId);
             $categories = $this->serviceModel->getCategories();
+            $provinces = FormatHelper::getProvincesList();
 
             $this->view('host/services/edit', [
                 'title' => 'Chỉnh Sửa Gói Trải Nghiệm — Host',
                 'user' => $user,
                 'tour' => $tour,
                 'categories' => $categories,
+                'provinces' => $provinces,
             ]);
         } catch (Exception $e) {
             $this->flash('danger', $e->getMessage());
@@ -244,6 +291,24 @@ class HostController extends BaseController
                 $bannerUrl = $this->tourService->handleBannerUpload($_FILES['banner_file']);
             }
 
+            // Location & Geocoding calculation
+            $location = trim((string)$request->post('location', ''));
+            $province = trim((string)$request->post('province', ''));
+            if (!empty($province) && !str_contains($location, $province)) {
+                $location = !empty($location) ? ($location . ', ' . $province) : $province;
+            }
+
+            $rawLat = $request->post('latitude');
+            $rawLng = $request->post('longitude');
+            $latitude = ($rawLat !== null && $rawLat !== '') ? (float)$rawLat : null;
+            $longitude = ($rawLng !== null && $rawLng !== '') ? (float)$rawLng : null;
+
+            if (empty($latitude) || empty($longitude)) {
+                $geo = FormatHelper::lookupCoordinates($location . ' ' . $province);
+                $latitude = $geo['latitude'];
+                $longitude = $geo['longitude'];
+            }
+
             $tourData = [
                 'category_id' => (int)$request->post('category_id', 0),
                 'title' => (string)$request->post('title', ''),
@@ -253,9 +318,9 @@ class HostController extends BaseController
                 'base_price' => (float)$request->post('base_price', 0),
                 'min_price' => (float)$request->post('min_price', 0),
                 'max_price' => (float)$request->post('max_price', 0),
-                'location' => (string)$request->post('location', ''),
-                'latitude' => $request->post('latitude') !== '' ? (float)$request->post('latitude') : null,
-                'longitude' => $request->post('longitude') !== '' ? (float)$request->post('longitude') : null,
+                'location' => $location,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'duration_days' => max(1, (int)$request->post('duration_days', 1)),
                 'banner_image' => $bannerUrl,
             ];
@@ -271,21 +336,45 @@ class HostController extends BaseController
                 'notes' => (string)$request->post('homestay_notes', ''),
             ];
 
-            // 3D Stops data
+            // Stops data with direct file upload & fallback URL support
             $stops = [];
             $stopImages = (array)$request->post('stop_image_urls', []);
             $stopCaptions = (array)$request->post('stop_captions', []);
             $stopStories = (array)$request->post('stop_stories', []);
             $stopVideos = (array)$request->post('stop_videos', []);
+            $uploadedStopFiles = $_FILES['stop_files'] ?? null;
 
-            foreach ($stopImages as $i => $imgUrl) {
-                if (!empty($imgUrl)) {
+            $maxStops = max(
+                count($stopImages),
+                count($stopCaptions),
+                (isset($uploadedStopFiles['name']) && is_array($uploadedStopFiles['name'])) ? count($uploadedStopFiles['name']) : 0
+            );
+
+            for ($i = 0; $i < $maxStops; $i++) {
+                $caption = trim((string)($stopCaptions[$i] ?? ''));
+                $story = trim((string)($stopStories[$i] ?? ''));
+                $video = !empty($stopVideos[$i]) ? trim((string)$stopVideos[$i]) : null;
+                $imageUrl = trim((string)($stopImages[$i] ?? ''));
+
+                // Handle direct file upload if present
+                if (isset($uploadedStopFiles['name'][$i]) && !empty($uploadedStopFiles['name'][$i]) && ($uploadedStopFiles['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                    $singleFile = [
+                        'name' => $uploadedStopFiles['name'][$i],
+                        'type' => $uploadedStopFiles['type'][$i] ?? 'image/jpeg',
+                        'tmp_name' => $uploadedStopFiles['tmp_name'][$i],
+                        'error' => $uploadedStopFiles['error'][$i],
+                        'size' => $uploadedStopFiles['size'][$i],
+                    ];
+                    $imageUrl = $this->tourService->handleStopImageUpload($singleFile);
+                }
+
+                if (!empty($imageUrl)) {
                     $stops[] = [
-                        'image_url' => trim((string)$imgUrl),
-                        'caption' => trim((string)($stopCaptions[$i] ?? '')),
-                        'story_text' => trim((string)($stopStories[$i] ?? '')),
-                        'video_url' => !empty($stopVideos[$i]) ? trim((string)$stopVideos[$i]) : null,
-                        'sort_order' => $i + 1,
+                        'image_url' => $imageUrl,
+                        'caption' => $caption !== '' ? $caption : ('Điểm dừng ' . (count($stops) + 1)),
+                        'story_text' => $story,
+                        'video_url' => $video,
+                        'sort_order' => count($stops) + 1,
                     ];
                 }
             }

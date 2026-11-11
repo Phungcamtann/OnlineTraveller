@@ -32,6 +32,9 @@ $unitPrice = (float)$receipt['unit_price'];
         </nav>
 
         <div class="d-flex align-items-center gap-2">
+            <a href="/" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
+                <i class="bi bi-house me-1"></i> Trang Chủ
+            </a>
             <a href="/bookings/<?= (int)$receipt['booking_id'] ?>" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
                 <i class="bi bi-arrow-left me-1"></i> Chi Tiết Đơn Đặt
             </a>
@@ -142,8 +145,31 @@ $unitPrice = (float)$receipt['unit_price'];
                                     <td class="text-end text-success font-monospace">-<?= FormatHelper::formatVnd((float)$receipt['discount_amount']) ?></td>
                                 </tr>
                             <?php endif; ?>
+                            <?php
+                            $vatInfo = FormatHelper::calculateVat($totalPrice, 0.08);
+                            $netAmount = $vatInfo['net'];
+                            $vatAmount = $vatInfo['vat'];
+                            ?>
                             <tr>
-                                <td colspan="3" class="text-end fw-semibold text-dark">Tổng chi phí gói tour:</td>
+                                <td colspan="3" class="text-end text-muted small">
+                                    Tiền dịch vụ trước thuế (Net):
+                                </td>
+                                <td class="text-end font-monospace small text-muted">
+                                    <?= FormatHelper::formatVnd($netAmount) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end text-muted small">
+                                    Thuế GTGT (VAT 8%):
+                                </td>
+                                <td class="text-end font-monospace small text-muted">
+                                    <?= FormatHelper::formatVnd($vatAmount) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end fw-semibold text-dark">
+                                    Tổng chi phí gói tour (Đã bao gồm 8% thuế GTGT):
+                                </td>
                                 <td class="text-end font-monospace fw-bold text-dark fs-6"><?= FormatHelper::formatVnd($totalPrice) ?></td>
                             </tr>
                             <tr class="table-success bg-opacity-25">

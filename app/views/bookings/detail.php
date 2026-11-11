@@ -19,9 +19,113 @@ $remaining = (int)$booking['remaining_amount'];
 $plan = (string)$booking['payment_plan'];
 ?>
 
+<style>
+@media print {
+    /* 1. Hide interactive / navigation elements */
+    .top-floating-header,
+    header,
+    footer,
+    nav[aria-label="breadcrumb"],
+    .breadcrumb,
+    .no-print,
+    .btn,
+    button,
+    #cancelModal,
+    .modal,
+    .modal-backdrop,
+    .alert-primary a.btn,
+    .alert-warning a.btn {
+        display: none !important;
+    }
+
+    /* 2. Page & Layout Reset for standard A4 */
+    @page {
+        size: A4 portrait;
+        margin: 12mm 10mm 12mm 10mm;
+    }
+    html, body {
+        background: #ffffff !important;
+        color: #111827 !important;
+        font-size: 11pt !important;
+        line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* 3. Card & Box Styling for Print */
+    .card {
+        border: 1px solid #d1d5db !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        page-break-inside: avoid;
+    }
+    .shadow-sm, .shadow {
+        box-shadow: none !important;
+    }
+    .border-0 {
+        border: 1px solid #e5e7eb !important;
+    }
+    .bg-light {
+        background-color: #f9fafb !important;
+    }
+
+    /* 4. Column display in Print (maintain side-by-side layout) */
+    .row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+    .col-lg-8 {
+        width: 64% !important;
+        flex: 0 0 64% !important;
+    }
+    .col-lg-4 {
+        width: 36% !important;
+        flex: 0 0 36% !important;
+    }
+
+    /* 5. Print watermark & voucher header */
+    .print-receipt-header {
+        display: block !important;
+        border-bottom: 2px solid #10b981 !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 20px !important;
+    }
+}
+
+@media screen {
+    .print-receipt-header {
+        display: none !important;
+    }
+}
+</style>
+
 <div class="container py-4">
+    <!-- PRINT ONLY HEADER (PHIẾU ĐẶT CHỖ CHUẨN IN A4) -->
+    <div class="print-receipt-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">ONLINETRAVELLER</h3>
+                <div class="small text-muted">Nền Tảng Du Lịch & Trải Nghiệm Cùng Dân Bản Địa</div>
+                <div class="small text-muted">Hotline CSKH: 1900 6868 | Email: hotro@onlinetraveller.vn</div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-dark text-white px-3 py-1 fs-6 font-monospace mb-1 d-inline-block">
+                    #<?= $code ?>
+                </span>
+                <div class="fw-bold text-success">PHIẾU XÁC NHẬN ĐẶT TOUR</div>
+                <div class="small text-muted">Ngày in: <?= date('d/m/Y H:i') ?></div>
+            </div>
+        </div>
+    </div>
+
     <!-- BREADCRUMB -->
-    <nav aria-label="breadcrumb" class="mb-4">
+    <nav aria-label="breadcrumb" class="mb-4 no-print">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted"><i class="bi bi-house"></i> Trang chủ</a></li>
             <li class="breadcrumb-item"><a href="/my-bookings" class="text-decoration-none text-muted">Chuyến đi của tôi</a></li>
@@ -36,7 +140,7 @@ $plan = (string)$booking['payment_plan'];
                 <span class="badge bg-dark text-white rounded-pill px-3 py-1 font-monospace">
                     #<?= $code ?>
                 </span>
-                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill" onclick="navigator.clipboard.writeText('<?= $code ?>'); alert('Đã sao chép mã đơn hàng: <?= $code ?>');">
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill no-print" onclick="navigator.clipboard.writeText('<?= $code ?>'); alert('Đã sao chép mã đơn hàng: <?= $code ?>');">
                     <i class="bi bi-copy"></i>
                 </button>
             </div>
@@ -46,7 +150,7 @@ $plan = (string)$booking['payment_plan'];
             </small>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 no-print">
             <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm" onclick="window.print();">
                 <i class="bi bi-printer me-1"></i> In Đơn
             </button>
@@ -97,7 +201,7 @@ $plan = (string)$booking['payment_plan'];
                     </div>
                 </div>
                 <div>
-                    <a href="/payments/checkout?booking_id=<?= (int)$booking['id'] ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
+                    <a href="/payments/checkout?booking_id=<?= (int)$booking['id'] ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold no-print">
                         <i class="bi bi-wallet2 me-2"></i> Thanh Toán Cọc MoMo (<?= FormatHelper::formatVnd($deposit) ?>)
                     </a>
                 </div>
@@ -423,12 +527,26 @@ $plan = (string)$booking['payment_plan'];
                             <strong>-<?= FormatHelper::formatVnd($discount) ?></strong>
                         </div>
                     <?php endif; ?>
+                    <?php
+                    $vatData = FormatHelper::calculateVat($totalPrice, 0.08);
+                    ?>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                        <span>Tiền dịch vụ trước thuế (Net):</span>
+                        <span><?= FormatHelper::formatVnd($vatData['net']) ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                        <span>Thuế GTGT (VAT 8%):</span>
+                        <span><?= FormatHelper::formatVnd($vatData['vat']) ?></span>
+                    </div>
                 </div>
 
                 <!-- Total Summary -->
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-baseline mb-2">
-                        <span class="fw-bold text-dark">Tổng giá trị đơn:</span>
+                        <div>
+                            <span class="fw-bold text-dark d-block">Tổng giá trị đơn:</span>
+                            <small class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-check-circle me-1"></i>Đã bao gồm 8% thuế GTGT</small>
+                        </div>
                         <span class="fs-4 fw-bold font-editorial text-dark">
                             <?= FormatHelper::formatVnd($totalPrice) ?>
                         </span>
@@ -461,18 +579,20 @@ $plan = (string)$booking['payment_plan'];
                 </div>
 
                 <!-- Actions for Cancel or Back -->
-                <?php if (in_array($status, ['pending', 'awaiting_payment'], true)): ?>
-                    <button type="button" 
-                            class="btn btn-outline-danger w-100 py-2 rounded-pill fw-semibold btn-sm mb-2" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#cancelModal">
-                        <i class="bi bi-x-circle me-1"></i> Hủy Đặt Chỗ Này
-                    </button>
-                <?php endif; ?>
+                <div class="no-print">
+                    <?php if (in_array($status, ['pending', 'awaiting_payment'], true)): ?>
+                        <button type="button" 
+                                class="btn btn-outline-danger w-100 py-2 rounded-pill fw-semibold btn-sm mb-2" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#cancelModal">
+                            <i class="bi bi-x-circle me-1"></i> Hủy Đặt Chỗ Này
+                        </button>
+                    <?php endif; ?>
 
-                <a href="/services" class="btn btn-light w-100 py-2 rounded-pill text-muted small">
-                    <i class="bi bi-search me-1"></i> Tìm Kiếm Gói Tour Khác
-                </a>
+                    <a href="/services" class="btn btn-light w-100 py-2 rounded-pill text-muted small">
+                        <i class="bi bi-search me-1"></i> Tìm Kiếm Gói Tour Khác
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -480,7 +600,7 @@ $plan = (string)$booking['payment_plan'];
 
 <!-- CANCEL BOOKING MODAL -->
 <?php if (in_array($status, ['pending', 'awaiting_payment', 'confirmed'], true)): ?>
-<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+<div class="modal fade no-print" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
             <form action="/bookings/<?= (int)$booking['id'] ?>/cancel" method="POST">

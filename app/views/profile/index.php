@@ -2,6 +2,14 @@
 /** @var array $user */
 $user = $user ?? [];
 $role = $user['role'] ?? 'tourist';
+$currentGender = $user['gender'] ?? 'other';
+$currentBirthDate = $user['birth_date'] ?? '';
+$provinces = FormatHelper::getProvincesList();
+$currentArea = trim((string)($user['living_area'] ?? ''));
+
+$bioPlaceholder = ($role === 'host')
+    ? 'Chia sẻ đôi nét về bạn, sự gắn bó với quê hương, làng nghề truyền thống hoặc lý do bạn mong muốn dẫn dắt khách du lịch khám phá mảnh đất của mình...'
+    : 'Chia sẻ sở thích du lịch, phong cách xê dịch, các vùng đất bạn yêu thích và mong muốn trải nghiệm cùng dân bản địa...';
 ?>
 
 <div class="container py-4">
@@ -59,10 +67,26 @@ $role = $user['role'] ?? 'tourist';
                         <span class="text-muted">Ngày tham gia:</span>
                         <span class="text-dark fw-semibold"><?= FormatHelper::formatDateTime($user['created_at'] ?? 'now', 'd/m/Y') ?></span>
                     </div>
-                    <?php if (!empty($user['living_area'])): ?>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Giới tính:</span>
+                        <span class="text-dark fw-semibold">
+                            <?php 
+                            if ($currentGender === 'male') echo 'Nam';
+                            elseif ($currentGender === 'female') echo 'Nữ';
+                            else echo 'Chưa cập nhật';
+                            ?>
+                        </span>
+                    </div>
+                    <?php if (!empty($currentBirthDate)): ?>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Ngày sinh:</span>
+                            <span class="text-dark fw-semibold"><?= date('d/m/Y', strtotime($currentBirthDate)) ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($currentArea)): ?>
                         <div class="d-flex justify-content-between">
-                            <span class="text-muted">Vùng bản địa:</span>
-                            <span class="text-dark fw-semibold"><?= htmlspecialchars($user['living_area']) ?></span>
+                            <span class="text-muted">Vùng cư trú:</span>
+                            <span class="text-dark fw-semibold"><?= htmlspecialchars($currentArea) ?></span>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -83,7 +107,7 @@ $role = $user['role'] ?? 'tourist';
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
                     <div>
                         <h4 class="font-editorial fw-bold text-dark mb-1">Thông Tin Hồ Sơ</h4>
-                        <p class="text-muted small mb-0">Hồ sơ công khai hiển thị trên trang tour và tương tác với du khách từ xa</p>
+                        <p class="text-muted small mb-0">Hồ sơ cá nhân và câu chuyện bản địa kết nối du khách cùng dân bản địa</p>
                     </div>
 
                     <!-- Mode Indicator & Edit Toggle Button -->
@@ -127,6 +151,29 @@ $role = $user['role'] ?? 'tourist';
                         </div>
                     </div>
 
+                    <!-- Gender & Birth Date -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Giới tính</label>
+                            <select name="gender" id="inputGender" 
+                                    class="form-select profile-editable-input bg-light border-0" 
+                                    data-original-val="<?= htmlspecialchars($currentGender) ?>" 
+                                    disabled>
+                                <option value="male" <?= $currentGender === 'male' ? 'selected' : '' ?>>Nam</option>
+                                <option value="female" <?= $currentGender === 'female' ? 'selected' : '' ?>>Nữ</option>
+                                <option value="other" <?= ($currentGender === 'other' || empty($currentGender)) ? 'selected' : '' ?>>Khác / Không công khai</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Ngày sinh (Date of birth)</label>
+                            <input type="date" name="birth_date" id="inputBirthDate" 
+                                   class="form-control profile-editable-input bg-light border-0" 
+                                   value="<?= htmlspecialchars($currentBirthDate) ?>" 
+                                   data-original-val="<?= htmlspecialchars($currentBirthDate) ?>" 
+                                   readonly>
+                        </div>
+                    </div>
+
                     <!-- KHỐI DÀNH RIÊNG CHO DÂN BẢN ĐỊA & CÂU CHUYỆN VĂN HÓA -->
                     <div class="p-4 rounded-4 mb-4 border <?= $role === 'host' ? 'border-success bg-success-subtle bg-opacity-25' : 'bg-light' ?>">
                         <div class="d-flex align-items-center gap-2 mb-3">
@@ -141,23 +188,43 @@ $role = $user['role'] ?? 'tourist';
                             </div>
                         </div>
 
+                        <!-- Combobox Tỉnh / Thành Phố Cư Trú -->
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-muted">Địa bàn / Tỉnh thành cư trú (Living Area)</label>
-                            <input type="text" name="living_area" id="inputLivingArea" 
-                                   class="form-control profile-editable-input bg-light border-0" 
-                                   value="<?= htmlspecialchars($user['living_area'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
-                                   data-original-val="<?= htmlspecialchars($user['living_area'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
-                                   placeholder="Ví dụ: Cầu Đất, Đà Lạt, Lâm Đồng hoặc Phố cổ Hội An, Quảng Nam" readonly>
+                            <select name="living_area" id="inputLivingArea" 
+                                    class="form-select profile-editable-input bg-light border-0" 
+                                    data-original-val="<?= htmlspecialchars($currentArea) ?>" 
+                                    disabled>
+                                <option value="">-- Chọn Tỉnh / Thành phố cư trú --</option>
+                                <?php 
+                                $matched = false;
+                                foreach ($provinces as $pKey => $pInfo):
+                                    $pName = $pInfo['name'];
+                                    $isSelected = ($currentArea === $pKey || $currentArea === $pName || (strlen($pKey) > 3 && str_contains($currentArea, $pKey)));
+                                    if ($isSelected) { $matched = true; }
+                                ?>
+                                    <option value="<?= htmlspecialchars($pKey) ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($pName) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                <?php if (!empty($currentArea) && !$matched): ?>
+                                    <option value="<?= htmlspecialchars($currentArea) ?>" selected>
+                                        <?= htmlspecialchars($currentArea) ?> (Tùy chỉnh)
+                                    </option>
+                                <?php endif; ?>
+                            </select>
                         </div>
 
+                        <!-- Tiểu sử Bio với Placeholder Cá Nhân Hóa -->
                         <div class="mb-0">
-                            <label class="form-label small fw-bold text-muted">Tiểu sử & Câu chuyện bản địa (Host Bio)</label>
+                            <label class="form-label small fw-bold text-muted">
+                                <?= $role === 'host' ? 'Tiểu sử & Câu chuyện bản địa (Host Bio)' : 'Giới thiệu bản thân & Phong cách du lịch' ?>
+                            </label>
                             <textarea name="bio" id="inputBio" rows="4" 
                                       class="form-control profile-editable-input bg-light border-0" 
                                       data-original-val="<?= htmlspecialchars($user['bio'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
-                                      placeholder="Chia sẻ đôi nét về bạn, sự gắn bó với quê hương, làng nghề truyền thống hoặc lý do bạn mong muốn dẫn dắt khách du lịch khám phá mảnh đất của mình..." 
+                                      placeholder="<?= htmlspecialchars($bioPlaceholder) ?>" 
                                       readonly><?= htmlspecialchars($user['bio'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
-                            <small class="text-muted d-block mt-1" style="font-size: 0.78rem;">Được lưu trữ qua thủ tục <code>dhs_sp_users_update_profile</code> trong CSDL.</small>
                         </div>
                     </div>
 
@@ -187,12 +254,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const badgeMode = document.getElementById('badgeMode');
     const editableInputs = document.querySelectorAll('.profile-editable-input');
     const inputName = document.getElementById('inputName');
+    const profileForm = document.getElementById('profileForm');
 
     function setEditMode(isEditing) {
         if (isEditing) {
             // Enable editing
             editableInputs.forEach(input => {
-                input.removeAttribute('readonly');
+                if (input.tagName === 'SELECT') {
+                    input.removeAttribute('disabled');
+                } else {
+                    input.removeAttribute('readonly');
+                }
                 input.classList.remove('bg-light', 'border-0');
                 input.classList.add('bg-white', 'border');
             });
@@ -210,7 +282,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // Revert back to readonly mode
             editableInputs.forEach(input => {
-                input.setAttribute('readonly', 'readonly');
+                if (input.tagName === 'SELECT') {
+                    input.setAttribute('disabled', 'disabled');
+                } else {
+                    input.setAttribute('readonly', 'readonly');
+                }
                 input.classList.remove('bg-white', 'border');
                 input.classList.add('bg-light', 'border-0');
                 // Restore original value
@@ -237,6 +313,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnCancelEdit) {
         btnCancelEdit.addEventListener('click', function () {
             setEditMode(false);
+        });
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function () {
+            editableInputs.forEach(input => {
+                input.removeAttribute('disabled');
+            });
         });
     }
 });

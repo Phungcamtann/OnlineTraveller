@@ -149,10 +149,58 @@
                     </div>
                 <?php endif; ?>
                 <hr>
+                <?php 
+                $hostVat = FormatHelper::calculateVat((int)$booking['total_price'], 0.08);
+                ?>
+                <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.8rem;">
+                    <span>Tiền trước thuế (Net):</span>
+                    <span><?= FormatHelper::formatVnd($hostVat['net']) ?></span>
+                </div>
+                <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.8rem;">
+                    <span>Thuế GTGT (VAT 8%):</span>
+                    <span><?= FormatHelper::formatVnd($hostVat['vat']) ?></span>
+                </div>
                 <div class="d-flex justify-content-between mb-3 align-items-center">
-                    <span class="fw-bold text-dark">Tổng tiền tour:</span>
+                    <div>
+                        <span class="fw-bold text-dark d-block">Tổng tiền tour:</span>
+                        <small class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-info-circle me-1"></i>Đã gồm 8% thuế GTGT</small>
+                    </div>
                     <span class="fs-4 fw-bold text-primary font-editorial"><?= FormatHelper::formatVnd((int)$booking['total_price']) ?></span>
                 </div>
+
+                <!-- Payment Status Box for Host -->
+                <?php if ($booking['status'] === 'confirmed'): ?>
+                    <div class="p-3 bg-success-subtle border border-success rounded-4 mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-shield-fill-check fs-4 text-success"></i>
+                            <div>
+                                <span class="badge bg-success text-white px-2 py-1 rounded-pill small">
+                                    <?= ($booking['payment_plan'] === 'deposit_50') ? 'Đã cọc 50% qua MoMo' : 'Đã thanh toán 100%' ?>
+                                </span>
+                                <div class="fw-bold text-dark mt-1">Đơn Hàng Đã Xác Nhận</div>
+                            </div>
+                        </div>
+                        <div class="small border-top border-success border-opacity-25 pt-2">
+                            <div class="d-flex justify-content-between text-muted mb-1">
+                                <span>Tiền cọc đã nhận online:</span>
+                                <strong class="text-success"><?= FormatHelper::formatVnd((int)$booking['deposit_amount']) ?></strong>
+                            </div>
+                            <?php 
+                            $remainingToCollect = (int)($booking['total_price'] - $booking['deposit_amount']);
+                            if ($remainingToCollect > 0): 
+                            ?>
+                                <div class="d-flex justify-content-between text-danger fw-bold">
+                                    <span>Host thu trực tiếp khi đón khách:</span>
+                                    <span><?= FormatHelper::formatVnd($remainingToCollect) ?></span>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-success small fw-semibold">
+                                    <i class="bi bi-check-all me-1"></i>Đã thanh toán đủ toàn phần, không cần thu thêm.
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Kế hoạch trả -->
                 <div class="p-3 bg-light rounded-4 mb-3">
