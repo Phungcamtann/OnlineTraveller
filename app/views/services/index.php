@@ -43,18 +43,18 @@ $priceRange = $priceRange ?? '';
                 <div class="col-lg-4 col-md-4">
                     <label class="d-block small fw-bold text-white mb-1">Điểm đến / Địa danh</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-dark border-0 text-secondary"><i class="bi bi-search"></i></span>
-                        <input type="text" name="location" class="form-control bg-dark border-0 text-white" placeholder="Tìm theo tên tour, địa danh (Đà Lạt, Hội An...)" value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>">
+                        <span class="input-group-text"><i class="bi bi-search text-info"></i></span>
+                        <input type="text" name="location" class="form-control" placeholder="Tìm theo tên tour, địa danh (Đà Lạt, Hội An...)" value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                 </div>
 
                 <!-- 2. Danh mục văn hóa -->
                 <div class="col-lg-3 col-md-3">
                     <label class="d-block small fw-bold text-white mb-1">Danh mục văn hóa</label>
-                    <select name="category_id" class="form-select bg-dark border-0 text-white">
-                        <option value="" class="bg-dark text-white">-- Tất cả danh mục văn hóa --</option>
+                    <select name="category_id" class="form-select">
+                        <option value="">-- Tất cả danh mục văn hóa --</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?= (int)$cat['id'] ?>" class="bg-dark text-white" <?= $selectedCategoryId === (int)$cat['id'] ? 'selected' : '' ?>>
+                            <option value="<?= (int)$cat['id'] ?>" <?= $selectedCategoryId === (int)$cat['id'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
@@ -141,21 +141,21 @@ $priceRange = $priceRange ?? '';
                                 <!-- Badge rating góc trên phải -->
                                 <div class="position-absolute top-0 end-0 m-3">
                                     <span class="glass-pill px-2 py-1 small fw-semibold text-white" style="font-size: 0.75rem;">
-                                        ★ <?= number_format((float)($srv['avg_rating'] ?? 5.0), 1) ?>
+                                        <span class="text-warning">★</span> <?= number_format((float)($srv['avg_rating'] ?? 5.0), 1) ?>
                                     </span>
                                 </div>
 
                                 <!-- Lớp phủ overlay chân ảnh -->
                                 <div class="experience-poster-overlay">
                                     <div></div>
-                                    <div>
+                                    <div class="poster-glass-info w-100">
                                         <div class="fw-bold fs-6 text-white text-truncate mb-1">
                                             <i class="bi bi-geo-alt-fill text-danger me-1" style="font-size: 0.85rem;"></i><?= htmlspecialchars($srv['location'], ENT_QUOTES, 'UTF-8') ?>
                                         </div>
-                                        <div class="small text-light opacity-90 fw-medium text-truncate mb-1" title="<?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <div class="small text-white-50 fw-medium text-truncate mb-1" title="<?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>">
                                             <?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>
                                         </div>
-                                        <div class="small text-light opacity-75 text-truncate mb-1" style="font-size: 0.78rem;">
+                                        <div class="small text-white-50 text-truncate mb-1" style="font-size: 0.78rem;">
                                             <i class="bi bi-person text-info me-1"></i>Host: <?= htmlspecialchars($srv['host_name'] ?? 'Dân bản địa', ENT_QUOTES, 'UTF-8') ?>
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between pt-1">
@@ -163,9 +163,9 @@ $priceRange = $priceRange ?? '';
                                                 <div class="fw-bold text-info" style="font-size: 0.95rem;">
                                                     <?= FormatHelper::formatVnd((int)$srv['base_price']) ?>
                                                 </div>
-                                                <small class="text-light opacity-60" style="font-size: 0.7rem;">Đã gồm 8% VAT</small>
+                                                <small class="text-white-50" style="font-size: 0.7rem;">Đã gồm 8% VAT</small>
                                             </div>
-                                            <div class="small text-light opacity-75">
+                                            <div class="small text-white-50">
                                                 <i class="bi bi-clock me-1"></i><?= (int)($srv['duration_days'] ?? 1) ?> ngày
                                             </div>
                                         </div>

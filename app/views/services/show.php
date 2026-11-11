@@ -52,6 +52,10 @@ $mapQuery = urlencode(($service['location'] ?? 'Đà Lạt') . ', Việt Nam');
 if (!empty($service['latitude']) && !empty($service['longitude'])) {
     $mapQuery = $service['latitude'] . ',' . $service['longitude'];
 }
+
+// Kiểm tra thông tin lưu trú Homestay
+$homestayName = trim((string)($service['homestay_name'] ?? ''));
+$hasHomestay = !empty($homestayName) && mb_strtolower($homestayName, 'UTF-8') !== 'không' && mb_strtolower($homestayName, 'UTF-8') !== 'không có';
 ?>
 
 <div class="main-container">
@@ -75,7 +79,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold">CHỜ DUYỆT (PENDING)</span>
                             <span class="badge bg-dark text-white px-2 py-1 rounded-pill">Quản Trị Viên</span>
                         </div>
-                        <h6 class="fw-bold text-dark mb-0">Trải nghiệm này đang ở trạng thái CHỜ KIỂM DUYỆT</h6>
+                        <h6 class="fw-bold mb-0" style="color: var(--text-main);">Trải nghiệm này đang ở trạng thái CHỜ KIỂM DUYỆT</h6>
                         <small class="text-muted">Tour chưa hiển thị công khai trên sàn cho du khách. Bạn có thể duyệt mở bán hoặc từ chối yêu cầu của Host.</small>
                     </div>
                 </div>
@@ -110,7 +114,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             <div class="modal-body py-2">
                                 <p class="small text-muted mb-2">Vui lòng cung cấp lý do để Host nắm được và cập nhật lại:</p>
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark">Lý do từ chối:</label>
+                                    <label class="form-label small fw-bold" style="color: var(--text-main);">Lý do từ chối:</label>
                                     <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Nhập lý do chi tiết..." required></textarea>
                                 </div>
                             </div>
@@ -133,7 +137,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             <span class="badge bg-danger px-2 py-1 rounded-pill">ĐÃ TỪ CHỐI (REJECTED)</span>
                             <span class="badge bg-dark text-white px-2 py-1 rounded-pill">Quản Trị Viên</span>
                         </div>
-                        <h6 class="fw-bold text-dark mb-0">Trải nghiệm này đã bị từ chối phê duyệt</h6>
+                        <h6 class="fw-bold mb-0" style="color: var(--text-main);">Trải nghiệm này đã bị từ chối phê duyệt</h6>
                         <small class="text-danger">Lý do: <?= htmlspecialchars($service['rejection_reason'] ?? 'Chưa cung cấp lý do') ?></small>
                     </div>
                 </div>
@@ -419,27 +423,48 @@ $srvStatus = $service['status'] ?? 'approved';
                 </div>
             </div>
 
-            <!-- Ô 2: 🏠 Lưu Trú Homestay Nhà Dân -->
+            <!-- Ô 2: 🏠 Lưu Trú Homestay Nhà Dân hoặc Tour Trong Ngày -->
             <div class="col">
                 <div class="included-outline-box d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-15 text-success" style="width: 44px; height: 44px; font-size: 1.25rem;">
-                                <i class="bi bi-house-door"></i>
-                            </span>
-                            <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-1" style="font-size: 0.7rem;">
-                                <?= (int)($service['homestay_nights'] ?? 1) ?> đêm
-                            </span>
+                    <?php if ($hasHomestay): ?>
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-15 text-success" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                    <i class="bi bi-house-door"></i>
+                                </span>
+                                <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                    <?= (int)($service['homestay_nights'] ?? 1) ?> đêm
+                                </span>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="color: var(--text-main);">Homestay Nhà Dân</h6>
+                            <div class="fw-semibold text-success small mb-2"><?= htmlspecialchars($service['homestay_name'] ?? 'Homestay Nhà Dân Bản Địa', ENT_QUOTES, 'UTF-8') ?></div>
+                            <p class="small mb-3" style="color: var(--text-muted); line-height: 1.5;">
+                                Loại phòng: <strong><?= htmlspecialchars($service['homestay_room_type'] ?? 'Phòng riêng hướng vườn/hồ') ?></strong>. Bao gồm bữa sáng đặc sản, wifi và không gian sinh hoạt chung ấm cúng.
+                            </p>
                         </div>
-                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">Homestay Nhà Dân</h6>
-                        <div class="fw-semibold text-success small mb-2"><?= htmlspecialchars($service['homestay_name'] ?? 'Homestay Nhà Dân Bản Địa', ENT_QUOTES, 'UTF-8') ?></div>
-                        <p class="small mb-3" style="color: var(--text-muted); line-height: 1.5;">
-                            Loại phòng: <strong><?= htmlspecialchars($service['homestay_room_type'] ?? 'Phòng riêng hướng vườn/hồ') ?></strong>. Bao gồm bữa sáng đặc sản, wifi và không gian sinh hoạt chung ấm cúng.
-                        </p>
-                    </div>
-                    <div class="pt-2 border-top border-subtle small" style="color: var(--text-muted);">
-                        <i class="bi bi-check2-circle text-success me-1"></i>Trải nghiệm nếp sống gia đình địa phương
-                    </div>
+                        <div class="pt-2 border-top border-subtle small" style="color: var(--text-muted);">
+                            <i class="bi bi-check2-circle text-success me-1"></i>Trải nghiệm nếp sống gia đình địa phương
+                        </div>
+                    <?php else: ?>
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary bg-opacity-15 text-secondary" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                    <i class="bi bi-sun"></i>
+                                </span>
+                                <span class="badge bg-secondary bg-opacity-15 text-secondary rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                    Tour trong ngày
+                                </span>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="color: var(--text-main);">Lưu Trú &amp; Nghỉ Ngơi</h6>
+                            <div class="fw-semibold small mb-2" style="color: var(--text-muted);">Không gồm lưu trú qua đêm</div>
+                            <p class="small mb-3" style="color: var(--text-muted); line-height: 1.5;">
+                                Chuyến đi được thiết kế trọn vẹn trong ngày và kết thúc trước buổi tối. Du khách tự do sắp xếp chỗ nghỉ cá nhân hoặc nhờ Host gợi ý khách sạn/homestay lân cận.
+                            </p>
+                        </div>
+                        <div class="pt-2 border-top border-subtle small" style="color: var(--text-muted);">
+                            <i class="bi bi-info-circle me-1"></i>Thích hợp đi về trong ngày, tự do buổi tối
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -657,14 +682,16 @@ $srvStatus = $service['status'] ?? 'approved';
                             <span class="text-light opacity-75"><i class="bi bi-clock-history text-primary me-1"></i> Thời lượng:</span>
                             <strong class="text-white"><?= (int)($service['duration_days'] ?? 1) ?> ngày trải nghiệm</strong>
                         </div>
-                        <?php if (!empty($service['homestay_name'])): ?>
-                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                                <span class="text-light opacity-75"><i class="bi bi-house-door text-success me-1"></i> Lưu trú:</span>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                            <span class="text-light opacity-75"><i class="bi bi-house-door text-success me-1"></i> Lưu trú:</span>
+                            <?php if ($hasHomestay): ?>
                                 <strong class="text-white text-truncate ps-2" title="<?= htmlspecialchars($service['homestay_name'], ENT_QUOTES, 'UTF-8') ?>">
                                     <?= htmlspecialchars($service['homestay_name'], ENT_QUOTES, 'UTF-8') ?> (<?= (int)($service['homestay_nights'] ?? 1) ?> đêm)
                                 </strong>
-                            </div>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <strong class="text-white ps-2">Không gồm lưu trú (Tour trong ngày)</strong>
+                            <?php endif; ?>
+                        </div>
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
                             <span class="text-light opacity-75"><i class="bi bi-receipt text-info me-1"></i> Thuế &amp; Phí:</span>
                             <span class="text-white">Đã gồm 8% thuế GTGT</span>

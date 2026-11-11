@@ -406,11 +406,11 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                             <!-- Lớp phủ overlay chân ảnh -->
                             <div class="experience-poster-overlay">
                                 <div></div>
-                                <div>
+                                <div class="poster-glass-info w-100">
                                     <div class="fw-bold fs-6 text-white text-truncate mb-1">
-                                        <?= htmlspecialchars($srv['location'], ENT_QUOTES, 'UTF-8') ?>
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= htmlspecialchars($srv['location'], ENT_QUOTES, 'UTF-8') ?>
                                     </div>
-                                    <div class="small text-light opacity-75 text-truncate mb-1">
+                                    <div class="small text-white-50 text-truncate mb-1">
                                         <?= htmlspecialchars($srv['title'], ENT_QUOTES, 'UTF-8') ?>
                                     </div>
                                     <div class="fw-bold text-info" style="font-size: 0.95rem;">
