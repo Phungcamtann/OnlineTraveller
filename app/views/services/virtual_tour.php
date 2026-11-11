@@ -1,7 +1,8 @@
 <?php
 /**
- * DEDICATED FULLSCREEN 3D VIRTUAL TOUR PAGE (THREE.JS Z-SCROLL)
- * OnlineTraveller - Trình Chiếu Không Gian 3D Đa Lớp Có Chiều Sâu
+ * DEDICATED FULLSCREEN 3D VIRTUAL TOUR PAGE (THREE.JS CONTINUOUS Z-SCROLL & SPLIT-STAGE)
+ * Theo đặc tả 4 Frame kịch bản trong docs/UPGRADE_3D_SCROLL_CANVA_SPEC.md
+ * OnlineTraveller v4.0
  */
 $service = $service ?? [];
 $stops = $stops ?? [];
@@ -24,6 +25,14 @@ $user = $user ?? null;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
+        :root {
+            --vt-card-bg: rgba(15, 23, 42, 0.82);
+            --vt-card-border: rgba(255, 255, 255, 0.22);
+            --vt-pill-bg: #cbd5e1;
+            --vt-axis-color: rgba(56, 189, 248, 0.65);
+            --vt-text-main: #f8fafc;
+        }
+
         html, body {
             margin: 0;
             padding: 0;
@@ -33,8 +42,10 @@ $user = $user ?? null;
             background-color: #070e17;
             font-family: var(--font-body, system-ui, -apple-system, sans-serif);
             color: #f1f5f9;
+            user-select: none;
         }
 
+        /* Canvas 3D Viewport chiếm trọn toàn màn hình */
         #threejs-viewport {
             position: fixed;
             inset: 0;
@@ -43,69 +54,257 @@ $user = $user ?? null;
             z-index: 1;
             cursor: grab;
         }
-
         #threejs-viewport:active {
             cursor: grabbing;
         }
 
-        /* Top Bar */
+        /* Top Bar điều hướng */
         .tour-top-bar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 50;
-            padding: 16px 24px;
-            background: linear-gradient(to bottom, rgba(7, 14, 23, 0.92) 0%, rgba(7, 14, 23, 0.4) 75%, transparent 100%);
+            padding: 16px 28px;
+            background: linear-gradient(to bottom, rgba(7, 14, 23, 0.94) 0%, rgba(7, 14, 23, 0.5) 75%, transparent 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
             pointer-events: none;
         }
-
         .tour-top-bar > * {
             pointer-events: auto;
         }
 
-        /* Glass HUD Panel */
-        .tour-hud-card {
-            position: fixed;
-            bottom: 32px;
-            left: 32px;
-            max-width: 520px;
-            z-index: 50;
-            background: rgba(11, 23, 38, 0.88);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: 20px;
-            padding: 24px 28px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
-            transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+        .btn-nav-glass {
+            background: rgba(15, 29, 48, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 9px 18px;
+            border-radius: 9999px;
+            transition: all 0.22s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-nav-glass:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+            transform: translateY(-2px);
         }
 
-        /* Floating Controls */
-        .tour-controls-floating {
+        .hint-pill {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 9999px;
+            padding: 4px 14px;
+        }
+
+        /* ==========================================================================
+           BỐ CỤC SPLIT-STAGE: CỘT TRÁI (TRỤC DỌC NÉT ĐỨT + GLASS STORY CARD)
+           ========================================================================== */
+        .vt-left-story-column {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
-            z-index: 50;
+            top: 76px;
+            bottom: 28px;
+            left: clamp(20px, 3.5vw, 56px);
+            width: clamp(300px, 28vw, 390px);
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        /* Vùng viewport cắt dọc cho Card trượt từ dưới lên */
+        .vt-story-track-viewport {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            overflow: visible;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
         }
 
-        /* Bottom Timeline Rail */
-        .tour-station-rail {
-            position: fixed;
-            bottom: 32px;
+        /* Đường trục dọc nét đứt nối xuyên tâm cột trái */
+        .vt-dashed-axis-line {
+            position: absolute;
+            left: 50%;
+            top: -12px;
+            bottom: -8px;
+            width: 3px;
+            transform: translateX(-50%);
+            background-image: linear-gradient(
+                to bottom,
+                var(--vt-axis-color, rgba(56, 189, 248, 0.6)) 55%,
+                transparent 45%
+            );
+            background-position: center;
+            background-size: 3px 18px;
+            background-repeat: repeat-y;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Mũi tên tam giác ở đáy trục nét đứt chỉ xuống cụm nút */
+        .vt-dashed-axis-arrow {
+            position: absolute;
+            left: 50%;
+            bottom: -18px;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid var(--vt-axis-color, rgba(56, 189, 248, 0.85));
+            z-index: 2;
+        }
+
+        /* Thẻ Glass Story Card theo đúng mẫu Canva (có Pill "Trạm X" gắn trên đỉnh) */
+        .vt-glass-story-card {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            padding: 34px 26px 26px;
+            border-radius: 24px;
+            background: var(--vt-card-bg, rgba(15, 23, 42, 0.82));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--vt-card-border, rgba(255, 255, 255, 0.22));
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+            color: var(--vt-text-main, #f8fafc);
+            pointer-events: auto;
+            will-change: transform, opacity;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+        }
+
+        /* Viên thuốc "Trạm X" nằm đè lên mép trên chính giữa của Card */
+        .vt-station-top-pill {
+            position: absolute;
+            top: -17px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 50;
+            padding: 6px 30px;
+            border-radius: 999px;
+            background: var(--vt-pill-bg, rgba(203, 213, 225, 0.95));
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        /* Card phụ trồi từ dưới lên khi cuộn dở giữa 2 trạm (Frame 2 & 3) */
+        .vt-glass-preview-card {
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(160%);
+        }
+
+        /* Con trỏ nhấp nháy cho hiệu ứng Typing chữ */
+        .vt-typing-cursor {
+            display: inline-block;
+            width: 2.5px;
+            height: 1.1em;
+            background-color: #38bdf8;
+            margin-left: 4px;
+            vertical-align: text-bottom;
+            animation: vtCursorBlink 0.75s infinite;
+        }
+
+        @keyframes vtCursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Cụm nút [↩ Quay lại] + [Trạm tiếp →] đặt ngay dưới chân trục dọc */
+        .vt-bottom-left-controls {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding-top: 24px;
+            pointer-events: auto;
+        }
+
+        .vt-btn-undo-prev {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--vt-card-bg, rgba(15, 23, 42, 0.82));
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--vt-card-border, rgba(255, 255, 255, 0.24));
+            color: var(--vt-text-main, #f8fafc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .vt-btn-undo-prev:hover:not(:disabled) {
+            transform: translateY(-2px) rotate(-15deg);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 10px 24px rgba(56, 189, 248, 0.4);
+        }
+        .vt-btn-undo-prev:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .vt-btn-next-pill {
+            min-width: 180px;
+            height: 48px;
+            padding: 0 28px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(2, 132, 199, 0.98));
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .vt-btn-next-pill:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            box-shadow: 0 14px 34px rgba(56, 189, 248, 0.6);
+        }
+        .vt-btn-next-pill:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Bottom Timeline Rail (Center-Bottom) */
+        .tour-station-rail {
+            position: fixed;
+            bottom: 28px;
+            right: clamp(24px, 4vw, 56px);
+            z-index: 45;
             background: rgba(11, 23, 38, 0.82);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 9999px;
             padding: 6px 10px;
             display: flex;
@@ -124,13 +323,12 @@ $user = $user ?? null;
             border-radius: 9999px;
             transition: all 0.2s ease;
             white-space: nowrap;
+            cursor: pointer;
         }
-
         .tour-rail-btn:hover {
             color: #ffffff;
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.14);
         }
-
         .tour-rail-btn.active {
             color: #070e17;
             background: #38bdf8;
@@ -138,75 +336,27 @@ $user = $user ?? null;
             box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
         }
 
-        .btn-nav-glass {
-            background: rgba(15, 29, 48, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 9999px;
-            transition: all 0.22s ease;
-        }
-
-        .btn-nav-glass:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        .btn-nav-next {
-            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            font-weight: 700;
-            padding: 10px 22px;
-            border-radius: 9999px;
-            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.45);
-            transition: all 0.22s ease;
-        }
-
-        .btn-nav-next:hover {
-            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.6);
-        }
-
-        /* Keyboard & scroll hints */
-        .hint-pill {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 9999px;
-            padding: 4px 12px;
-        }
-
+        /* Responsive Breakpoints */
         @media (max-width: 991px) {
             .tour-station-rail {
                 display: none !important;
             }
-            .tour-hud-card {
+            .vt-left-story-column {
                 left: 16px;
                 right: 16px;
-                bottom: 84px;
-                max-width: none;
-                padding: 18px 20px;
-            }
-            .tour-controls-floating {
-                right: 16px;
+                width: auto;
+                top: auto;
                 bottom: 20px;
-                width: calc(100% - 32px);
-                justify-content: space-between;
             }
-            .btn-nav-glass, .btn-nav-next {
-                flex: 1;
-                text-align: center;
-                justify-content: center;
+            .vt-dashed-axis-line,
+            .vt-dashed-axis-arrow {
+                display: none !important;
+            }
+            .vt-glass-story-card {
+                padding: 24px 20px 20px;
+            }
+            .vt-bottom-left-controls {
+                padding-top: 12px;
             }
         }
     </style>
@@ -216,7 +366,7 @@ $user = $user ?? null;
     <!-- TOP BAR -->
     <header class="tour-top-bar">
         <div class="d-flex align-items-center gap-3">
-            <a href="/services/<?= (int)($service['id'] ?? 1) ?>" class="btn btn-nav-glass py-2 px-3 small">
+            <a href="/services/<?= (int)($service['id'] ?? 1) ?>" class="btn-nav-glass small">
                 <i class="bi bi-arrow-left me-1"></i> Trở về Chi Tiết Tour
             </a>
             <div class="d-none d-md-block">
@@ -231,7 +381,7 @@ $user = $user ?? null;
 
         <div class="d-flex align-items-center gap-2">
             <div class="hint-pill d-none d-lg-inline-flex align-items-center gap-2">
-                <i class="bi bi-mouse"></i> Lăn chuột
+                <i class="bi bi-mouse"></i> Lăn chuột từng nấc
                 <span class="opacity-40">|</span>
                 <i class="bi bi-arrows"></i> Phím &larr; / &rarr;
             </div>
@@ -241,35 +391,61 @@ $user = $user ?? null;
         </div>
     </header>
 
-    <!-- WEBGL CANVAS VIEWPORT -->
+    <!-- WEBGL CANVAS VIEWPORT (RIGHT STAGE 3D THREE.JS) -->
     <div id="threejs-viewport">
         <canvas id="virtualTourCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
     </div>
 
-    <!-- STATION STORY GLASS HUD CARD -->
-    <div class="tour-hud-card" id="stationHudCard">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-30 rounded-pill px-3 py-1" id="hudBadge">
-                Trạm 1 / <?= count($stops) ?>
-            </span>
-            <small class="text-white opacity-50" id="hudIndexIndicator">1 of <?= count($stops) ?></small>
+    <!-- CỘT TRÁI: TRỤC DỌC NÉT ĐỨT + GLASS STORY CARD + HIỆU ỨNG TYPING -->
+    <div class="vt-left-story-column">
+        <!-- Vùng viewport cho 2 Card trượt theo tiến độ cuộn liên tục -->
+        <div class="vt-story-track-viewport" id="storyTrackViewport">
+            <!-- Trục dọc nét đứt xuyên tâm -->
+            <div class="vt-dashed-axis-line" id="dashedAxisLine"></div>
+            <div class="vt-dashed-axis-arrow"></div>
+
+            <!-- Card chính của Trạm hiện tại -->
+            <div class="vt-glass-story-card tour-hud-card" id="station-overlay">
+                <div class="vt-station-top-pill" id="station-badge">Trạm 1</div>
+                <h3 class="fw-bold text-white font-editorial mb-2 mt-1" id="station-caption">
+                    <?= htmlspecialchars($stops[0]['caption'] ?? 'Điểm Dừng Chân') ?>
+                </h3>
+                <div class="text-light opacity-80 mb-3" id="station-story" style="line-height: 1.65; font-size: 0.95rem; min-height: 72px;">
+                    <span class="vt-typed-content"><?= htmlspecialchars($stops[0]['story_text'] ?? '') ?></span><span class="vt-typing-cursor"></span>
+                </div>
+                <!-- Chứa nội dung văn bản thô phục vụ kiểm thử tự động -->
+                <span class="d-none" id="station-story-raw"><?= htmlspecialchars($stops[0]['story_text'] ?? '') ?></span>
+                <div class="d-flex align-items-center gap-2" id="hudVideoWrapper">
+                    <?php if (!empty($stops[0]['video_url'])): ?>
+                        <a href="<?= htmlspecialchars($stops[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="hudVideoBtn">
+                            <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Card phụ trôi từ dưới lên khi cuộn dở dang giữa 2 trạm (Frame 2 -> 3) -->
+            <div class="vt-glass-story-card vt-glass-preview-card position-absolute" id="station-next-card">
+                <div class="vt-station-top-pill" id="next-station-badge">Trạm 2</div>
+                <h3 class="fw-bold text-white font-editorial mb-2 mt-1" id="next-station-caption">Trạm 2</h3>
+                <div class="text-light opacity-75 mb-3" id="next-station-story" style="line-height: 1.6; font-size: 0.95rem;">
+                    ...
+                </div>
+            </div>
         </div>
-        <h3 class="fw-bold text-white font-editorial mb-2" id="hudCaption">
-            <?= htmlspecialchars($stops[0]['caption'] ?? 'Điểm Dừng Chân') ?>
-        </h3>
-        <p class="text-light opacity-80 mb-3" id="hudStory" style="line-height: 1.6; font-size: 0.95rem;">
-            <?= htmlspecialchars($stops[0]['story_text'] ?? 'Khám phá vẻ đẹp bản địa nguyên sơ và văn hóa đặc sắc cùng người dân địa phương.') ?>
-        </p>
-        <div class="d-flex align-items-center gap-2" id="hudVideoWrapper">
-            <?php if (!empty($stops[0]['video_url'])): ?>
-                <a href="<?= htmlspecialchars($stops[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="hudVideoBtn">
-                    <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
-                </a>
-            <?php endif; ?>
+
+        <!-- Cụm nút điều hướng chân trục dọc: [↩ Quay lại] + [Trạm tiếp →] -->
+        <div class="vt-bottom-left-controls">
+            <button type="button" class="vt-btn-undo-prev" id="btnPrevStation" title="Quay lại trạm trước">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+            <button type="button" class="vt-btn-next-pill" id="btnNextStation">
+                <span>Trạm tiếp</span> <i class="bi bi-arrow-right"></i>
+            </button>
         </div>
     </div>
 
-    <!-- QUICK STATION TIMELINE RAIL (CENTER) -->
+    <!-- DẢI VIÊN THUỐC TRỤC TRẠM NHANH (ĐÁY PHẢI) -->
     <div class="tour-station-rail d-none d-md-flex" id="tourStationRail">
         <?php foreach ($stops as $idx => $st): ?>
             <button type="button" 
@@ -280,173 +456,224 @@ $user = $user ?? null;
         <?php endforeach; ?>
     </div>
 
-    <!-- FLOATING NAVIGATION BUTTONS (RIGHT) -->
-    <div class="tour-controls-floating">
-        <button type="button" class="btn btn-nav-glass d-inline-flex align-items-center gap-2" id="btnPrevStation">
-            <i class="bi bi-chevron-left"></i> <span>Trạm Trước</span>
-        </button>
-        <button type="button" class="btn btn-nav-next d-inline-flex align-items-center gap-2" id="btnNextStation">
-            <span>Trạm Tiếp</span> <i class="bi bi-chevron-right"></i>
-        </button>
-    </div>
-
-    <!-- THREE.JS Z-SCROLL INTERACTIVE SCRIPT -->
+    <!-- THREE.JS CONTINUOUS Z-SCROLL & SPLIT-STAGE ENGINE -->
     <script>
     (function() {
         const tourStops = <?= json_encode($stops, JSON_UNESCAPED_UNICODE) ?>;
         if (!tourStops || !tourStops.length) return;
 
-        // Check if specific station was requested via query param ?station=X
+        // Trích xuất tham số ?station=X nếu có
         const urlParams = new URLSearchParams(window.location.search);
-        let currentStopIndex = parseInt(urlParams.get('station'), 10);
-        if (isNaN(currentStopIndex) || currentStopIndex < 0 || currentStopIndex >= tourStops.length) {
-            currentStopIndex = 0;
+        let initialStop = parseInt(urlParams.get('station'), 10);
+        if (isNaN(initialStop) || initialStop < 0 || initialStop >= tourStops.length) {
+            initialStop = 0;
         }
 
-        const viewportEl = document.getElementById('threejs-viewport');
+        // Các phần tử DOM
         const canvasEl = document.getElementById('virtualTourCanvas');
-        const hudCard = document.getElementById('stationHudCard');
-        const hudBadge = document.getElementById('hudBadge');
-        const hudCaption = document.getElementById('hudCaption');
-        const hudStory = document.getElementById('hudStory');
-        const hudVideoWrapper = document.getElementById('hudVideoWrapper');
-        const topCounter = document.getElementById('topStationCounter');
-        const hudIndexIndicator = document.getElementById('hudIndexIndicator');
-        const railButtons = document.querySelectorAll('[data-station-idx]');
+        const overlayCard = document.getElementById('station-overlay');
+        const badgeEl = document.getElementById('station-badge');
+        const captionEl = document.getElementById('station-caption');
+        const storyEl = document.getElementById('station-story');
+        const rawStoryEl = document.getElementById('station-story-raw');
+        const videoWrapper = document.getElementById('hudVideoWrapper');
+        const nextCard = document.getElementById('station-next-card');
+        const nextBadgeEl = document.getElementById('next-station-badge');
+        const nextCaptionEl = document.getElementById('next-station-caption');
+        const nextStoryEl = document.getElementById('next-station-story');
         const btnPrev = document.getElementById('btnPrevStation');
         const btnNext = document.getElementById('btnNextStation');
+        const topCounter = document.getElementById('topStationCounter');
+        const railButtons = document.querySelectorAll('[data-station-idx]');
 
-        const SPACING_Z = 18;
-        const CAMERA_OFFSET_Z = 6.2;
+        // Biến trạng thái Cuộn Liên Tục
+        let targetProgress = initialStop;
+        let currentProgress = initialStop;
+        let lastSettledIndex = -1;
+        let snapTimer = null;
+        let typeTimer = null;
 
+        // Three.js Khởi tạo
         let scene, camera, renderer, animId;
         const stationGroups = [];
-        let targetCameraZ = (-currentStopIndex * SPACING_Z) + CAMERA_OFFSET_Z;
         let mouseX = 0, mouseY = 0;
         let targetMouseX = 0, targetMouseY = 0;
 
-        // Wheel dampening & smoothing
-        let wheelAccumulator = 0;
-        let lastWheelTime = 0;
-        const WHEEL_THRESHOLD = 90;
-        const WHEEL_COOLDOWN = 650; // ms
+        // Độ dịch làn sang bên phải màn hình để nhường Cột Trái cho Story Card
+        function getStageXOffset() {
+            return window.innerWidth >= 992 ? 1.85 : 0;
+        }
 
-        // Update HUD card & timeline rail with smooth entrance
-        function updateHud(idx) {
+        // Tạo Texture bo góc mềm cho tấm ảnh 3D (canvas offscreen bo 36px)
+        function createRoundedCardTexture(imgUrl, radius = 36, width = 1024, height = 640) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+
+                    // Vẽ hình chữ nhật bo góc
+                    ctx.beginPath();
+                    ctx.moveTo(radius, 0);
+                    ctx.lineTo(width - radius, 0);
+                    ctx.quadraticCurveTo(width, 0, width, radius);
+                    ctx.lineTo(width, height - radius);
+                    ctx.quadraticCurveTo(width, height, width - radius, height);
+                    ctx.lineTo(radius, height);
+                    ctx.quadraticCurveTo(0, height, 0, height - radius);
+                    ctx.lineTo(0, radius);
+                    ctx.quadraticCurveTo(0, 0, radius, 0);
+                    ctx.closePath();
+                    ctx.clip();
+
+                    // Vẽ ảnh phủ trọn khung
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Viền sáng mềm mại
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+
+                    const texture = new THREE.CanvasTexture(canvas);
+                    texture.needsUpdate = true;
+                    resolve(texture);
+                };
+                img.onerror = () => {
+                    // Fallback nếu ảnh lỗi
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(0, 0, width, height);
+                    const texture = new THREE.CanvasTexture(canvas);
+                    resolve(texture);
+                };
+                img.src = imgUrl;
+            });
+        }
+
+        // Hiệu ứng Typing gõ từng chữ cho phần mô tả
+        function runTypewriter(fullText) {
+            if (typeTimer) clearInterval(typeTimer);
+            if (!storyEl) return;
+
+            if (rawStoryEl) rawStoryEl.textContent = fullText;
+
+            storyEl.innerHTML = '<span class="vt-typed-content"></span><span class="vt-typing-cursor"></span>';
+            const contentSpan = storyEl.querySelector('.vt-typed-content');
+            if (!contentSpan) return;
+
+            let charIdx = 0;
+            typeTimer = setInterval(() => {
+                if (charIdx < fullText.length) {
+                    contentSpan.textContent += fullText.charAt(charIdx);
+                    charIdx++;
+                } else {
+                    clearInterval(typeTimer);
+                    typeTimer = null;
+                }
+            }, 18);
+        }
+
+        // Cập nhật trạng thái Trạm khi Camera dừng lại hẳn
+        function onStationSettled(idx) {
             const st = tourStops[idx];
             if (!st) return;
 
+            if (badgeEl) badgeEl.innerText = `Trạm ${idx + 1}`;
+            if (captionEl) captionEl.innerText = st.caption || `Trạm ${idx + 1}`;
             if (topCounter) topCounter.innerText = `Trạm ${idx + 1} / ${tourStops.length}`;
-            if (hudIndexIndicator) hudIndexIndicator.innerText = `${idx + 1} of ${tourStops.length}`;
 
-            // Sync timeline rail active state
+            // Chạy hiệu ứng Typing
+            runTypewriter(st.story_text || 'Khám phá vẻ đẹp bản địa nguyên sơ và văn hóa đặc sắc.');
+
+            if (videoWrapper) {
+                if (st.video_url) {
+                    videoWrapper.innerHTML = `
+                        <a href="${st.video_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1">
+                            <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
+                        </a>
+                    `;
+                } else {
+                    videoWrapper.innerHTML = '';
+                }
+            }
+
+            // Đồng bộ trạng thái các nút
+            if (btnPrev) btnPrev.disabled = (idx <= 0);
+            if (btnNext) btnNext.disabled = (idx >= tourStops.length - 1);
+
             railButtons.forEach((btn, i) => {
                 btn.classList.toggle('active', i === idx);
             });
-
-            // Animate HUD card exit and enter
-            if (hudCard) {
-                hudCard.style.opacity = '0';
-                hudCard.style.transform = 'translateY(20px)';
-            }
-
-            setTimeout(() => {
-                if (hudBadge) hudBadge.innerText = `Trạm ${idx + 1} / ${tourStops.length}`;
-                if (hudCaption) hudCaption.innerText = st.caption || `Trạm ${idx + 1}`;
-                if (hudStory) hudStory.innerText = st.story_text || 'Khám phá vẻ đẹp bản địa nguyên sơ và văn hóa đặc sắc.';
-
-                if (hudVideoWrapper) {
-                    if (st.video_url) {
-                        hudVideoWrapper.innerHTML = `
-                            <a href="${st.video_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1">
-                                <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
-                            </a>
-                        `;
-                    } else {
-                        hudVideoWrapper.innerHTML = '';
-                    }
-                }
-
-                if (hudCard) {
-                    hudCard.style.opacity = '1';
-                    hudCard.style.transform = 'translateY(0)';
-                }
-            }, 150);
         }
 
-        // Navigate camera to station index (clamped, no violent wrapping)
-        function goToStation(idx) {
-            const clamped = Math.max(0, Math.min(tourStops.length - 1, idx));
-            if (clamped === currentStopIndex && Math.abs(camera.position.z - targetCameraZ) < 0.1) return;
-            currentStopIndex = clamped;
-            targetCameraZ = (-currentStopIndex * SPACING_Z) + CAMERA_OFFSET_Z;
-            updateHud(currentStopIndex);
-        }
-
-        // Initialize Three.js scene
+        // Khởi tạo Scene Three.js
         function initScene() {
             const width = window.innerWidth;
             const height = window.innerHeight;
 
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x070e17, 0.034);
+            scene.fog = new THREE.FogExp2(0x070e17, 0.032);
 
-            camera = new THREE.PerspectiveCamera(54, width / height, 0.1, 160);
-            camera.position.set(0, 0, targetCameraZ);
+            camera = new THREE.PerspectiveCamera(54, width / height, 0.1, 140);
+            camera.position.set(0, 0, 7.2);
 
             renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-            const textureLoader = new THREE.TextureLoader();
+            const stageX = getStageXOffset();
 
+            // Tạo các nhóm Trạm 3D
             tourStops.forEach((st, i) => {
                 const group = new THREE.Group();
-                const zPos = -i * SPACING_Z;
-                const xOffset = (i % 2 === 0 ? -0.4 : 0.4);
+                group.position.set(stageX, -100, 0); // Ban đầu tạm ẩn xa
 
-                // Deep layers initialize at lower Y to rise up smoothly as camera approaches
-                group.position.set(xOffset, i === currentStopIndex ? 0 : -3.8, zPos);
-
-                // Layer 1 (Back-Plate Z = -0.48): Frosted glass panel with subtle cyan/blue glow
-                const backGeo = new THREE.PlaneGeometry(8.2, 5.0);
+                // Tầng 1: Back-Plate Kính sẫm bo góc
+                const backGeo = new THREE.PlaneGeometry(8.1, 5.0);
                 const backMat = new THREE.MeshBasicMaterial({
                     color: 0x38bdf8,
                     transparent: true,
-                    opacity: 0.12,
+                    opacity: 0.14,
                     side: THREE.DoubleSide
                 });
                 const backMesh = new THREE.Mesh(backGeo, backMat);
-                backMesh.position.z = -0.48;
+                backMesh.position.z = -0.42;
                 group.add(backMesh);
 
-                // Layer 2 (Main Photo Z = 0): High-resolution tour station photography
-                const photoGeo = new THREE.PlaneGeometry(7.6, 4.5);
+                // Tầng 2: Main Photo bo góc mềm
+                const photoGeo = new THREE.PlaneGeometry(7.6, 4.6);
                 const photoMat = new THREE.MeshBasicMaterial({
                     color: 0xffffff,
                     transparent: true,
                     opacity: 1
                 });
-
-                if (st.image_url) {
-                    textureLoader.load(st.image_url, (tex) => {
-                        photoMat.map = tex;
-                        photoMat.needsUpdate = true;
-                    });
-                }
                 const photoMesh = new THREE.Mesh(photoGeo, photoMat);
                 photoMesh.position.z = 0;
                 group.add(photoMesh);
 
-                // Layer 3 (Foreground Depth Frame Z = +0.38): Glowing depth frame
-                const borderGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(7.88, 4.7));
+                // Nạp Texture bo góc
+                if (st.image_url) {
+                    createRoundedCardTexture(st.image_url, 38).then(tex => {
+                        photoMat.map = tex;
+                        photoMat.needsUpdate = true;
+                    });
+                }
+
+                // Tầng 3: Khung viền sáng nổi phía trước
+                const borderGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(7.78, 4.78));
                 const borderMat = new THREE.LineBasicMaterial({
                     color: 0xffffff,
                     transparent: true,
-                    opacity: 0.42
+                    opacity: 0.4
                 });
                 const borderLines = new THREE.LineSegments(borderGeo, borderMat);
-                borderLines.position.z = 0.38;
+                borderLines.position.z = 0.35;
                 group.add(borderLines);
 
                 group.userData = { index: i, backMesh, photoMesh, borderLines };
@@ -454,127 +681,211 @@ $user = $user ?? null;
                 stationGroups.push(group);
             });
 
-            // Mouse parallax tracking
+            // Lắng nghe di chuột tạo Parallax
             window.addEventListener('mousemove', (e) => {
                 targetMouseX = ((e.clientX / window.innerWidth) - 0.5) * 2;
                 targetMouseY = ((e.clientY / window.innerHeight) - 0.5) * 2;
             });
 
-            // Smooth Wheel Scrolling with accumulated delta & threshold (NO wild jumping)
+            // =========================================================================
+            // CƠ CHẾ CUỘN LIÊN TỤC TỪNG NẤC (SCROLL PROGRESS)
+            // =========================================================================
             window.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                const now = Date.now();
-                if (now - lastWheelTime < WHEEL_COOLDOWN) return;
 
-                wheelAccumulator += e.deltaY;
+                // Mỗi nấc lăn chuột chỉ nhích khoảng 8% - 10% quãng đường
+                const stepDelta = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY) * 0.0011, 0.12);
+                targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + stepDelta));
 
-                if (Math.abs(wheelAccumulator) >= WHEEL_THRESHOLD) {
-                    if (wheelAccumulator > 0) {
-                        goToStation(currentStopIndex + 1);
-                    } else {
-                        goToStation(currentStopIndex - 1);
-                    }
-                    wheelAccumulator = 0;
-                    lastWheelTime = now;
-                }
+                // Magnetic Snap: Khi người dùng dừng lăn chuột sau 380ms, tự động hút về trạm gần nhất
+                clearTimeout(snapTimer);
+                snapTimer = setTimeout(() => {
+                    targetProgress = Math.round(targetProgress);
+                }, 380);
             }, { passive: false });
 
-            // Keyboard navigation (Arrow keys)
+            // Phím mũi tên
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                     e.preventDefault();
-                    goToStation(currentStopIndex + 1);
+                    targetProgress = Math.min(tourStops.length - 1, Math.round(targetProgress) + 1);
                 } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                     e.preventDefault();
-                    goToStation(currentStopIndex - 1);
+                    targetProgress = Math.max(0, Math.round(targetProgress) - 1);
                 }
             });
 
-            // Touch Swipe navigation for mobile
+            // Cảm ứng vuốt trên Mobile
             let touchStartY = 0;
-            let touchStartX = 0;
             window.addEventListener('touchstart', (e) => {
                 touchStartY = e.touches[0].clientY;
-                touchStartX = e.touches[0].clientX;
             }, { passive: true });
 
-            window.addEventListener('touchend', (e) => {
-                const deltaY = touchStartY - e.changedTouches[0].clientY;
-                const deltaX = touchStartX - e.changedTouches[0].clientX;
-                if (Math.abs(deltaY) > 45 || Math.abs(deltaX) > 45) {
-                    if (Math.abs(deltaY) >= Math.abs(deltaX)) {
-                        goToStation(deltaY > 0 ? currentStopIndex + 1 : currentStopIndex - 1);
-                    } else {
-                        goToStation(deltaX > 0 ? currentStopIndex + 1 : currentStopIndex - 1);
-                    }
-                }
+            window.addEventListener('touchmove', (e) => {
+                const dy = touchStartY - e.touches[0].clientY;
+                touchStartY = e.touches[0].clientY;
+                const touchStep = (dy / window.innerHeight) * 1.6;
+                targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + touchStep));
             }, { passive: true });
 
-            // Animation loop with silky smooth lerp
+            window.addEventListener('touchend', () => {
+                clearTimeout(snapTimer);
+                snapTimer = setTimeout(() => {
+                    targetProgress = Math.round(targetProgress);
+                }, 280);
+            }, { passive: true });
+
+            // Vòng lặp Render 60fps
             function animate() {
                 animId = requestAnimationFrame(animate);
 
-                // Smooth mouse interpolation
+                // Nội suy tiến độ cuộn liên tục
+                currentProgress += (targetProgress - currentProgress) * 0.085;
+
+                // Chuột Parallax mượt mà
                 mouseX += (targetMouseX - mouseX) * 0.05;
                 mouseY += (targetMouseY - mouseY) * 0.05;
 
-                // Smooth camera motion along Z-axis
-                camera.position.z += (targetCameraZ - camera.position.z) * 0.055;
-                camera.position.x += (mouseX * 0.4 - camera.position.x) * 0.05;
-                camera.position.y += (-mouseY * 0.28 - camera.position.y) * 0.05;
+                const stageX = getStageXOffset();
 
-                // Depth layer Y-Rise effect: deep layers emerge from below
-                stationGroups.forEach((grp) => {
-                    const distFromCam = camera.position.z - grp.position.z;
-                    const relativeDist = distFromCam - CAMERA_OFFSET_Z;
+                // Cập nhật vị trí từng trạm theo công thức 4 Frame kịch bản
+                stationGroups.forEach((grp, i) => {
+                    const offset = i - currentProgress;
 
-                    let targetY = 0;
-                    let targetRotX = 0;
-
-                    if (relativeDist > 1.2) {
-                        // Deep upcoming station: sits below, rising up as camera approaches
-                        targetY = -Math.min(relativeDist * 0.22, 4.0);
-                        targetRotX = Math.min(relativeDist * 0.016, 0.25);
-                    } else if (relativeDist < -1.2) {
-                        // Passed station: flies gently upward
-                        targetY = Math.min(Math.abs(relativeDist) * 0.15, 2.0);
+                    if (Math.abs(offset) > 2.2) {
+                        // Trạm ở quá xa -> Ẩn đi để tối ưu hiệu năng
+                        grp.visible = false;
+                        return;
                     }
 
-                    grp.position.y += (targetY - grp.position.y) * 0.08;
-                    grp.rotation.x += (targetRotX - grp.rotation.x) * 0.08;
-                    grp.rotation.y += (-mouseX * 0.06 - grp.rotation.y) * 0.08;
+                    grp.visible = true;
 
-                    // Parallax shift between sublayers
+                    let posY = 0;
+                    let posZ = 0;
+                    let rotX = 0;
+                    let scale = 1.0;
+                    let opacity = 1.0;
+
+                    if (offset < 0) {
+                        // Frame 2 & Frame 3: Trạm cũ trôi lên trên & lùi sâu vào không gian 3D
+                        const absOff = Math.abs(offset);
+                        posY = absOff * 5.6;
+                        posZ = -absOff * 4.5;
+                        rotX = absOff * 0.16;
+                        scale = Math.max(0.65, 1 - absOff * 0.2);
+                        opacity = Math.max(0, 1 - absOff * 0.7);
+                    } else if (offset > 0) {
+                        // Frame 3: Trạm mới từ dưới đáy sâu trồi lên
+                        posY = -offset * 5.8;
+                        posZ = -offset * 5.2;
+                        rotX = -offset * 0.18;
+                        scale = Math.max(0.7, 1 - offset * 0.18);
+                        opacity = Math.max(0, 1 - Math.max(0, offset - 0.2) * 0.85);
+                    } else {
+                        // Frame 1 & Frame 4: Trạm dừng ngay tại tâm
+                        posY = 0;
+                        posZ = 0;
+                        rotX = 0;
+                        scale = 1.0;
+                        opacity = 1.0;
+                    }
+
+                    // Tọa độ X ở làn bên phải + Parallax
+                    grp.position.set(
+                        stageX + mouseX * 0.25,
+                        posY - mouseY * 0.2,
+                        posZ
+                    );
+
+                    grp.rotation.set(
+                        rotX + mouseY * 0.05,
+                        -mouseX * 0.06,
+                        0
+                    );
+
+                    grp.scale.set(scale, scale, scale);
+
+                    // Độ mờ alpha
+                    if (grp.userData.photoMesh) {
+                        grp.userData.photoMesh.material.opacity = opacity;
+                    }
                     if (grp.userData.backMesh) {
-                        grp.userData.backMesh.position.x = -mouseX * 0.22;
-                        grp.userData.backMesh.position.y = mouseY * 0.16;
+                        grp.userData.backMesh.material.opacity = opacity * 0.14;
                     }
                     if (grp.userData.borderLines) {
-                        grp.userData.borderLines.position.x = mouseX * 0.18;
-                        grp.userData.borderLines.position.y = -mouseY * 0.14;
+                        grp.userData.borderLines.material.opacity = opacity * 0.4;
                     }
                 });
+
+                // Đồng bộ vị trí Card Trái trên trục nét đứt khi cuộn dở giữa 2 trạm
+                const baseIndex = Math.floor(currentProgress);
+                const frac = currentProgress - baseIndex;
+                const nextIndex = Math.min(tourStops.length - 1, baseIndex + 1);
+
+                if (overlayCard && nextCard) {
+                    if (frac > 0.02 && baseIndex < tourStops.length - 1) {
+                        // Đang trượt giữa trạm baseIndex và nextIndex
+                        const stNext = tourStops[nextIndex];
+                        if (stNext) {
+                            if (nextBadgeEl) nextBadgeEl.innerText = `Trạm ${nextIndex + 1}`;
+                            if (nextCaptionEl) nextCaptionEl.innerText = stNext.caption || `Trạm ${nextIndex + 1}`;
+                            if (nextStoryEl) nextStoryEl.innerText = (stNext.story_text || '').substring(0, 120) + '...';
+                        }
+
+                        // Card chính trượt dần lên
+                        overlayCard.style.transform = `translateY(-${frac * 115}%)`;
+                        overlayCard.style.opacity = `${Math.max(0, 1 - frac * 1.5)}`;
+
+                        // Card tiếp theo trồi từ dưới đáy lên
+                        nextCard.style.opacity = `${Math.min(1, frac * 1.5)}`;
+                        nextCard.style.transform = `translateY(${(1 - frac) * 115}%)`;
+                    } else {
+                        // Dừng gần trạm
+                        overlayCard.style.transform = 'translateY(0)';
+                        overlayCard.style.opacity = '1';
+                        nextCard.style.opacity = '0';
+                        nextCard.style.transform = 'translateY(160%)';
+                    }
+                }
+
+                // Phát hiện khi Camera dừng hẳn tại trạm để chạy gõ chữ
+                const settledIndex = Math.round(currentProgress);
+                if (Math.abs(currentProgress - settledIndex) < 0.06 && settledIndex !== lastSettledIndex) {
+                    lastSettledIndex = settledIndex;
+                    onStationSettled(settledIndex);
+                }
 
                 renderer.render(scene, camera);
             }
 
             animate();
-            updateHud(currentStopIndex);
+            onStationSettled(initialStop);
         }
 
-        // Navigation button listeners
-        if (btnPrev) btnPrev.addEventListener('click', () => goToStation(currentStopIndex - 1));
-        if (btnNext) btnNext.addEventListener('click', () => goToStation(currentStopIndex + 1));
+        // Nút bấm chân trục dọc
+        if (btnPrev) {
+            btnPrev.addEventListener('click', () => {
+                targetProgress = Math.max(0, Math.round(targetProgress) - 1);
+            });
+        }
 
-        // Station rail pill listeners
+        if (btnNext) {
+            btnNext.addEventListener('click', () => {
+                targetProgress = Math.min(tourStops.length - 1, Math.round(targetProgress) + 1);
+            });
+        }
+
+        // Dải viên thuốc
         railButtons.forEach((btn) => {
             btn.addEventListener('click', function() {
                 const idx = parseInt(this.getAttribute('data-station-idx'), 10);
-                if (!isNaN(idx)) goToStation(idx);
+                if (!isNaN(idx)) {
+                    targetProgress = idx;
+                }
             });
         });
 
-        // Window resize handler
+        // Resize màn hình
         window.addEventListener('resize', () => {
             if (renderer && camera) {
                 const w = window.innerWidth;
@@ -585,7 +896,7 @@ $user = $user ?? null;
             }
         });
 
-        // Initialize on load
+        // Khởi động
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initScene);
         } else {
