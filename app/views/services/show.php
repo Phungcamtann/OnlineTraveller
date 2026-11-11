@@ -515,7 +515,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-15 text-warning" style="width: 44px; height: 44px; font-size: 1.25rem;">
                                 <i class="bi bi-cloud-sun"></i>
                             </span>
-                            <span class="badge bg-secondary bg-opacity-15 rounded-pill px-2 py-1" style="font-size: 0.68rem; color: var(--text-muted);">
+                            <span class="badge bg-secondary bg-opacity-15 text-secondary rounded-pill px-2 py-1" style="font-size: 0.68rem;">
                                 OpenWeather JSON
                             </span>
                         </div>
@@ -542,7 +542,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-15 text-danger" style="width: 44px; height: 44px; font-size: 1.25rem;">
                                 <i class="bi bi-geo-alt"></i>
                             </span>
-                            <span class="badge bg-secondary bg-opacity-15 rounded-pill px-2 py-1" style="font-size: 0.68rem; color: var(--text-muted);">
+                            <span class="badge bg-secondary bg-opacity-15 text-secondary rounded-pill px-2 py-1" style="font-size: 0.68rem;">
                                 Google Maps
                             </span>
                         </div>
@@ -618,23 +618,23 @@ $srvStatus = $service['status'] ?? 'approved';
                                 $discId = (int)$disc['id'];
                                 $isHost = (($disc['user_role'] ?? '') === 'host');
                                 $roleBadge = $isHost ? 'Host bản địa' : 'Du khách';
-                                $roleBadgeClass = $isHost ? 'bg-success bg-opacity-25 text-success border border-success border-opacity-25' : 'bg-secondary bg-opacity-25 text-light opacity-75';
+                                $roleBadgeClass = $isHost ? 'bg-success bg-opacity-15 text-success' : 'bg-secondary bg-opacity-15 text-secondary';
                                 $timeStr = date('H:i d/m', strtotime($disc['created_at']));
                                 ?>
-                                <div class="discussion-item p-3 rounded-3" id="discussion-item-<?= $discId ?>" style="background: rgba(15, 25, 36, 0.6); border: 1px solid rgba(155, 203, 229, 0.15);">
+                                <div class="discussion-item discussion-item-box p-3 rounded-3" id="discussion-item-<?= $discId ?>">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                            <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-15 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
                                                 <i class="bi <?= $isHost ? 'bi-house-heart-fill text-success' : 'bi-person-fill' ?>"></i>
                                             </span>
-                                            <strong class="text-white small"><?= htmlspecialchars($disc['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                            <strong class="small" style="color: var(--text-main);"><?= htmlspecialchars($disc['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
                                             <span class="badge <?= $roleBadgeClass ?>" style="font-size: 0.7rem;"><?= $roleBadge ?></span>
                                         </div>
-                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                        <small style="font-size: 0.72rem; color: var(--text-muted);">
                                             <i class="bi bi-clock me-1"></i><?= $timeStr ?>
                                         </small>
                                     </div>
-                                    <p class="small text-light opacity-85 mb-2 ps-4">
+                                    <p class="small mb-2 ps-4" style="color: var(--text-main); line-height: 1.5;">
                                         <?= htmlspecialchars($disc['message'], ENT_QUOTES, 'UTF-8') ?>
                                     </p>
 
@@ -646,26 +646,26 @@ $srvStatus = $service['status'] ?? 'approved';
                                                 $replyIsHost = (($reply['user_role'] ?? '') === 'host');
                                                 $replyRoleBadge = $replyIsHost ? 'Host phản hồi' : 'Thành viên';
                                                 ?>
-                                                <div class="p-2 rounded-2" style="background: rgba(24, 78, 108, 0.25); border-left: 2px solid var(--brand-mid);">
+                                                <div class="discussion-reply-box p-2 rounded-2">
                                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                                         <div class="d-flex align-items-center gap-2">
                                                             <strong class="text-info small" style="font-size: 0.78rem;"><?= htmlspecialchars($reply['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
-                                                            <span class="badge <?= $replyIsHost ? 'bg-success bg-opacity-25 text-success' : 'bg-secondary bg-opacity-25 text-light' ?>" style="font-size: 0.65rem;">
+                                                            <span class="badge <?= $replyIsHost ? 'bg-success bg-opacity-15 text-success' : 'bg-secondary bg-opacity-15 text-secondary' ?>" style="font-size: 0.65rem;">
                                                                 <?= $replyRoleBadge ?>
                                                             </span>
                                                         </div>
-                                                        <small class="text-light opacity-50" style="font-size: 0.7rem;">
+                                                        <small style="font-size: 0.7rem; color: var(--text-muted);">
                                                             <?= date('H:i d/m', strtotime($reply['created_at'])) ?>
                                                         </small>
                                                     </div>
-                                                    <small class="text-light opacity-80 d-block ps-1"><?= htmlspecialchars($reply['message'], ENT_QUOTES, 'UTF-8') ?></small>
+                                                    <small class="d-block ps-1" style="color: var(--text-main);"><?= htmlspecialchars($reply['message'], ENT_QUOTES, 'UTF-8') ?></small>
                                                 </div>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
 
                                     <!-- Nút & Khung Trả lời -->
-                                    <div class="text-end mt-2 pt-1 border-top border-secondary border-opacity-25">
+                                    <div class="text-end mt-2 pt-1 border-top border-subtle">
                                         <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 reply-toggle-btn" style="font-size: 0.75rem;" data-target="reply-form-<?= $discId ?>">
                                             <i class="bi bi-reply-fill me-1"></i> Trả lời
                                         </button>
@@ -674,7 +674,7 @@ $srvStatus = $service['status'] ?? 'approved';
                                             <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
                                             <input type="hidden" name="parent_id" value="<?= $discId ?>">
                                             <div class="input-group input-group-sm">
-                                                <input type="text" name="message" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
+                                                <input type="text" name="message" class="form-control discussion-reply-input rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
                                                 <button type="submit" class="btn btn-alpine btn-sm rounded-end-pill px-3">
                                                     <i class="bi bi-send"></i>
                                                 </button>
@@ -712,48 +712,48 @@ $srvStatus = $service['status'] ?? 'approved';
                     </div>
 
                     <!-- Bảng chi tiết các mục dịch vụ & cam kết thanh toán -->
-                    <div class="p-3 rounded-3 mb-3 border border-secondary border-opacity-25 small" style="background: rgba(15, 25, 36, 0.55);">
-                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-tag text-info me-1"></i> Chế độ giá:</span>
-                            <strong class="text-white text-uppercase"><?= htmlspecialchars($service['price_mode'] ?? 'per_person') ?></strong>
+                    <div class="pricing-summary-box p-3 rounded-3 mb-3 small">
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
+                            <span class="pricing-label"><i class="bi bi-tag text-info me-1"></i> Chế độ giá:</span>
+                            <strong class="pricing-value text-uppercase"><?= htmlspecialchars($service['price_mode'] ?? 'per_person') ?></strong>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-clock-history text-primary me-1"></i> Thời lượng:</span>
-                            <strong class="text-white"><?= (int)($service['duration_days'] ?? 1) ?> ngày trải nghiệm</strong>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
+                            <span class="pricing-label"><i class="bi bi-clock-history text-primary me-1"></i> Thời lượng:</span>
+                            <strong class="pricing-value"><?= (int)($service['duration_days'] ?? 1) ?> ngày trải nghiệm</strong>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-house-door text-success me-1"></i> Lưu trú:</span>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
+                            <span class="pricing-label"><i class="bi bi-house-door text-success me-1"></i> Lưu trú:</span>
                             <?php if ($hasHomestay): ?>
-                                <strong class="text-white text-truncate ps-2" title="<?= htmlspecialchars($service['homestay_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                <strong class="pricing-value text-truncate ps-2" title="<?= htmlspecialchars($service['homestay_name'], ENT_QUOTES, 'UTF-8') ?>">
                                     <?= htmlspecialchars($service['homestay_name'], ENT_QUOTES, 'UTF-8') ?> (<?= (int)($service['homestay_nights'] ?? 1) ?> đêm)
                                 </strong>
                             <?php else: ?>
-                                <strong class="text-white ps-2">Không gồm lưu trú (Tour trong ngày)</strong>
+                                <strong class="pricing-value ps-2">Không gồm lưu trú (Tour trong ngày)</strong>
                             <?php endif; ?>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-receipt text-info me-1"></i> Thuế &amp; Phí:</span>
-                            <span class="text-white">Đã gồm 8% thuế GTGT</span>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
+                            <span class="pricing-label"><i class="bi bi-receipt text-info me-1"></i> Thuế &amp; Phí:</span>
+                            <span class="pricing-value">Đã gồm 8% thuế GTGT</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-wallet2 text-warning me-1"></i> Thanh toán giữ chỗ:</span>
+                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
+                            <span class="pricing-label"><i class="bi bi-wallet2 text-warning me-1"></i> Thanh toán giữ chỗ:</span>
                             <span class="text-success fw-bold">MoMo Sandbox</span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-light opacity-75"><i class="bi bi-patch-check text-info me-1"></i> Cam kết:</span>
-                            <span class="text-white">Hoàn tiền 100% nếu Host hủy</span>
+                            <span class="pricing-label"><i class="bi bi-patch-check text-info me-1"></i> Cam kết:</span>
+                            <span class="pricing-value">Hoàn tiền 100% nếu Host hủy</span>
                         </div>
                     </div>
 
                     <!-- Dropdown chọn lịch trình -->
                     <div class="mb-3">
-                        <label class="small text-light opacity-75 d-block mb-2" for="scheduleSelect">
+                        <label class="small text-muted d-block mb-2" for="scheduleSelect">
                             <i class="bi bi-calendar-event me-1 text-info"></i> Lịch trình &amp; Giờ khởi hành
                         </label>
-                        <select class="form-select bg-dark bg-opacity-50 text-white border border-secondary border-opacity-50 rounded-3 py-2 px-3 shadow-none search-field-select" id="scheduleSelect">
-                            <option value="<?= (int)($service['id'] ?? 1) ?>" class="bg-dark text-white">🗓️ Chọn chuyến đi khả dụng</option>
-                            <option value="<?= (int)($service['id'] ?? 1) ?>" class="bg-dark text-white">Khởi hành cuối tuần này (Còn 4 chỗ)</option>
-                            <option value="<?= (int)($service['id'] ?? 1) ?>" class="bg-dark text-white">Khởi hành giữa tuần tới (Còn 8 chỗ)</option>
+                        <select class="form-select schedule-theme-select rounded-3 py-2 px-3 shadow-none search-field-select" id="scheduleSelect">
+                            <option value="<?= (int)($service['id'] ?? 1) ?>">🗓️ Chọn chuyến đi khả dụng</option>
+                            <option value="<?= (int)($service['id'] ?? 1) ?>">Khởi hành cuối tuần này (Còn 4 chỗ)</option>
+                            <option value="<?= (int)($service['id'] ?? 1) ?>">Khởi hành giữa tuần tới (Còn 8 chỗ)</option>
                         </select>
                     </div>
 
@@ -767,23 +767,23 @@ $srvStatus = $service['status'] ?? 'approved';
 
                 <!-- Host Profile Card -->
                 <div class="glass-panel p-3 p-lg-4">
-                    <h6 class="fw-bold text-white mb-3">Thông Tin Người Dân Bản Địa</h6>
+                    <h6 class="fw-bold mb-3" style="color: var(--text-main);">Thông Tin Người Dân Bản Địa</h6>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fs-4 flex-shrink-0" style="width: 48px; height: 48px;">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-15 text-info rounded-circle fs-4 flex-shrink-0" style="width: 48px; height: 48px;">
                             <i class="bi bi-person-check-fill"></i>
                         </div>
                         <div>
-                            <div class="fw-bold text-white"><?= htmlspecialchars($service['host_name'] ?? 'Dân bản địa', ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="fw-bold" style="color: var(--text-main);"><?= htmlspecialchars($service['host_name'] ?? 'Dân bản địa', ENT_QUOTES, 'UTF-8') ?></div>
                             <small class="text-success fw-semibold d-block">
                                 <i class="bi bi-patch-check-fill me-1"></i> Dân Bản Địa Đã Xác Minh
                             </small>
-                            <small class="text-light opacity-75">
+                            <small class="text-muted">
                                 <?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Việt Nam'), ENT_QUOTES, 'UTF-8') ?>
                             </small>
                         </div>
                     </div>
                     <?php if (!empty($service['host_bio'])): ?>
-                        <div class="small text-light opacity-75 fst-italic p-2 rounded-2 mt-2" style="background: rgba(15, 25, 36, 0.45); border-left: 2px solid var(--brand-mid);">
+                        <div class="host-bio-box small fst-italic p-3 rounded-3 mt-2">
                             "<?= htmlspecialchars($service['host_bio'], ENT_QUOTES, 'UTF-8') ?>"
                         </div>
                     <?php endif; ?>
@@ -1389,28 +1389,28 @@ $srvStatus = $service['status'] ?? 'approved';
                         const discId = d.id;
                         const isHost = (d.user_role === 'host');
                         const roleBadge = isHost ? 'Host bản địa' : 'Du khách';
-                        const roleBadgeClass = isHost ? 'bg-success bg-opacity-25 text-success border border-success border-opacity-25' : 'bg-secondary bg-opacity-25 text-light opacity-75';
+                        const roleBadgeClass = isHost ? 'bg-success bg-opacity-15 text-success' : 'bg-secondary bg-opacity-15 text-secondary';
                         const timeStr = formatShortDate(d.created_at);
 
                         const cardHtml = `
-                            <div class="discussion-item p-3 rounded-3" id="discussion-item-${discId}" style="background: rgba(15, 25, 36, 0.6); border: 1px solid rgba(155, 203, 229, 0.3); animation: fadeIn 0.4s ease;">
+                            <div class="discussion-item discussion-item-box p-3 rounded-3" id="discussion-item-${discId}" style="animation: fadeIn 0.4s ease;">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                        <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-15 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.8rem;">
                                             <i class="bi ${isHost ? 'bi-house-heart-fill text-success' : 'bi-person-fill'}"></i>
                                         </span>
-                                        <strong class="text-white small">${escapeHtml(d.user_name)}</strong>
+                                        <strong class="small" style="color: var(--text-main);">${escapeHtml(d.user_name)}</strong>
                                         <span class="badge ${roleBadgeClass}" style="font-size: 0.7rem;">${roleBadge}</span>
                                     </div>
-                                    <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                    <small style="font-size: 0.72rem; color: var(--text-muted);">
                                         <i class="bi bi-clock me-1"></i>${timeStr}
                                     </small>
                                 </div>
-                                <p class="small text-light opacity-85 mb-2 ps-4">
+                                <p class="small mb-2 ps-4" style="color: var(--text-main); line-height: 1.5;">
                                     ${escapeHtml(d.message)}
                                 </p>
                                 <div class="replies-container ms-4 d-flex flex-column gap-2" id="replies-for-${discId}"></div>
-                                <div class="text-end mt-2 pt-1 border-top border-secondary border-opacity-25">
+                                <div class="text-end mt-2 pt-1 border-top border-subtle">
                                     <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 reply-toggle-btn" style="font-size: 0.75rem;" data-target="reply-form-${discId}">
                                         <i class="bi bi-reply-fill me-1"></i> Trả lời
                                     </button>
@@ -1419,7 +1419,7 @@ $srvStatus = $service['status'] ?? 'approved';
                                         <input type="hidden" name="service_id" value="${d.service_id}">
                                         <input type="hidden" name="parent_id" value="${discId}">
                                         <div class="input-group input-group-sm">
-                                            <input type="text" name="message" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
+                                            <input type="text" name="message" class="form-control discussion-reply-input rounded-start-pill px-3 shadow-none" placeholder="Nhập câu trả lời..." required>
                                             <button type="submit" class="btn btn-alpine btn-sm rounded-end-pill px-3">
                                                 <i class="bi bi-send"></i>
                                             </button>
@@ -1477,17 +1477,17 @@ $srvStatus = $service['status'] ?? 'approved';
                         const timeStr = formatShortDate(rep.created_at);
 
                         const replyHtml = `
-                            <div class="p-2 rounded-2" style="background: rgba(24, 78, 108, 0.25); border-left: 2px solid var(--brand-mid); animation: fadeIn 0.3s ease;">
+                            <div class="discussion-reply-box p-2 rounded-2" style="animation: fadeIn 0.3s ease;">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
                                     <div class="d-flex align-items-center gap-2">
                                         <strong class="text-info small" style="font-size: 0.78rem;">${escapeHtml(rep.user_name)}</strong>
-                                        <span class="badge ${repIsHost ? 'bg-success bg-opacity-25 text-success' : 'bg-secondary bg-opacity-25 text-light'}" style="font-size: 0.65rem;">
+                                        <span class="badge ${repIsHost ? 'bg-success bg-opacity-15 text-success' : 'bg-secondary bg-opacity-15 text-secondary'}" style="font-size: 0.65rem;">
                                             ${repBadge}
                                         </span>
                                     </div>
-                                    <small class="text-light opacity-50" style="font-size: 0.7rem;">${timeStr}</small>
+                                    <small style="font-size: 0.7rem; color: var(--text-muted);">${timeStr}</small>
                                 </div>
-                                <small class="text-light opacity-80 d-block ps-1">${escapeHtml(rep.message)}</small>
+                                <small class="d-block ps-1" style="color: var(--text-main);">${escapeHtml(rep.message)}</small>
                             </div>
                         `;
                         repliesContainer.insertAdjacentHTML('beforeend', replyHtml);

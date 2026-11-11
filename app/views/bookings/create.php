@@ -61,9 +61,12 @@
                 <!-- Tour Header Card -->
                 <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
                     <div class="d-flex align-items-start gap-3">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-dark text-white rounded-circle flex-shrink-0" style="width: 48px; height: 48px;">
-                            <i class="bi bi-compass fs-4 text-warning"></i>
-                        </div>
+                        <img src="/assets/images/logo.svg" 
+                             alt="OnlineTraveller" 
+                             width="48" 
+                             height="48" 
+                             class="rounded-circle shadow-sm flex-shrink-0"
+                             style="object-fit: cover;">
                         <div class="flex-grow-1">
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 mb-2">
                                 <i class="bi bi-star-fill text-warning me-1"></i> Trải Nghiệm Bản Địa Đích Thực

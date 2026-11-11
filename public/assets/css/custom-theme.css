@@ -1000,9 +1000,9 @@ h1, h2, h3, h4, h5, h6,
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: none !important;
     background-color: var(--bg-surface);
-    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease;
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.28s ease;
     flex-shrink: 0;
     user-select: none;
     text-decoration: none;
@@ -1021,7 +1021,7 @@ h1, h2, h3, h4, h5, h6,
 
 .vertical-station-card.milestone-thumb-card:hover {
     transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.95);
+    border: none !important;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
     z-index: 20;
 }
@@ -1031,8 +1031,8 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .vertical-station-card.milestone-thumb-card.active {
-    border-color: #38bdf8 !important;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7), 0 10px 24px rgba(0, 0, 0, 0.45);
+    border: none !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.75), 0 10px 24px rgba(0, 0, 0, 0.45);
     transform: translateY(-8px);
     z-index: 10;
 }
@@ -1420,4 +1420,164 @@ select option {
 .station-timeline-item:hover {
     transform: translateY(-3px);
 }
+
+/* ==========================================================================
+   16. BÙ ĐẮP OPACITY & ĐỒNG BỘ ĐỘ TƯƠNG PHẢN KHỐI MÀU (LIGHT & DARK MODE)
+   ========================================================================== */
+.bg-opacity-10 { --bs-bg-opacity: 0.10 !important; }
+.bg-opacity-15 { --bs-bg-opacity: 0.15 !important; }
+.bg-opacity-20 { --bs-bg-opacity: 0.20 !important; }
+.bg-opacity-25 { --bs-bg-opacity: 0.25 !important; }
+
+/* Đảm bảo nền màu có độ trong suốt thực tế cho tất cả trình duyệt */
+.bg-info.bg-opacity-15,
+.bg-info.bg-opacity-20,
+.badge.bg-info.bg-opacity-15,
+.badge.bg-info.bg-opacity-20,
+.badge.bg-info.bg-opacity-25 {
+    background-color: rgba(14, 165, 233, 0.15) !important;
+}
+.bg-success.bg-opacity-15,
+.bg-success.bg-opacity-20,
+.badge.bg-success.bg-opacity-15,
+.badge.bg-success.bg-opacity-20,
+.badge.bg-success.bg-opacity-25 {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+}
+.bg-warning.bg-opacity-15,
+.bg-warning.bg-opacity-20,
+.badge.bg-warning.bg-opacity-15,
+.badge.bg-warning.bg-opacity-20,
+.badge.bg-warning.bg-opacity-25 {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+}
+.bg-danger.bg-opacity-15,
+.bg-danger.bg-opacity-20,
+.badge.bg-danger.bg-opacity-15,
+.badge.bg-danger.bg-opacity-20,
+.badge.bg-danger.bg-opacity-25 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+}
+.bg-secondary.bg-opacity-15,
+.bg-secondary.bg-opacity-20,
+.badge.bg-secondary.bg-opacity-15,
+.badge.bg-secondary.bg-opacity-20,
+.badge.bg-secondary.bg-opacity-25 {
+    background-color: rgba(100, 116, 139, 0.15) !important;
+}
+
+/* Tinh chỉnh màu chữ và icon cho chế độ SÁNG (Day Mode) để không bao giờ bị chìm/mất chữ */
+[data-theme="light"] .text-info,
+[data-theme="light"] i.text-info,
+[data-theme="light"] span.text-info {
+    color: #0284c7 !important;
+}
+[data-theme="light"] .text-success,
+[data-theme="light"] i.text-success,
+[data-theme="light"] span.text-success {
+    color: #15803d !important;
+}
+[data-theme="light"] .text-warning,
+[data-theme="light"] i.text-warning,
+[data-theme="light"] span.text-warning {
+    color: #b45309 !important;
+}
+[data-theme="light"] .text-danger,
+[data-theme="light"] i.text-danger,
+[data-theme="light"] span.text-danger {
+    color: #b91c1c !important;
+}
+[data-theme="light"] .text-secondary,
+[data-theme="light"] i.text-secondary,
+[data-theme="light"] span.text-secondary {
+    color: #475569 !important;
+}
+
+/* Tinh chỉnh màu chữ và icon cho chế độ TỐI (Night Mode) */
+[data-theme="dark"] .text-info,
+[data-theme="dark"] i.text-info,
+[data-theme="dark"] span.text-info {
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .text-success,
+[data-theme="dark"] i.text-success,
+[data-theme="dark"] span.text-success {
+    color: #4ade80 !important;
+}
+[data-theme="dark"] .text-warning,
+[data-theme="dark"] i.text-warning,
+[data-theme="dark"] span.text-warning {
+    color: #fbbf24 !important;
+}
+[data-theme="dark"] .text-danger,
+[data-theme="dark"] i.text-danger,
+[data-theme="dark"] span.text-danger {
+    color: #f87171 !important;
+}
+[data-theme="dark"] .text-secondary,
+[data-theme="dark"] i.text-secondary,
+[data-theme="dark"] span.text-secondary {
+    color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   17. KHỐI THANH TOÁN, PROFILE HOST & KHUNG CHAT KẾT NỐI ĐỒNG BỘ 2 CHẾ ĐỘ
+   ========================================================================== */
+.pricing-summary-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-main) !important;
+}
+.pricing-summary-box .pricing-label {
+    color: var(--text-muted) !important;
+}
+.pricing-summary-box .pricing-value {
+    color: var(--text-main) !important;
+}
+
+.host-bio-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-left: 3px solid #0284c7 !important;
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .host-bio-box {
+    border-left: 3px solid #38bdf8 !important;
+}
+
+.schedule-theme-select {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+.schedule-theme-select option {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+
+.discussion-item-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-main) !important;
+}
+.discussion-reply-box {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-left: 3px solid #0284c7 !important;
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .discussion-reply-box {
+    border-left: 3px solid #38bdf8 !important;
+}
+.discussion-reply-input {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+.discussion-reply-input:focus {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: #0284c7 !important;
+}
+
 
