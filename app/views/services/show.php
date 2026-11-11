@@ -154,17 +154,17 @@ $srvStatus = $service['status'] ?? 'approved';
     </section>
 <?php endif; ?>
 
-    <!-- 1. HERO BANNER: CHỮ BÊN TRÁI + DẢI 4 ẢNH TRẠM + NÚT ĐẶT LỊCH NGAY -->
-    <section class="container-xxl pt-2">
+    <!-- 1. HERO BANNER + CỘT MỐC ĐỔI ẢNH NỀN (INTERACTIVE BANNER SWITCHER - CHUẨN JAPAN TOURS) -->
+    <section class="container-fluid px-2 px-md-3 px-lg-4 pt-2">
         <div class="row">
             <div class="col-12">
-                <div class="hero-ambient-wrapper">
-                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 540px; background-position: center bottom; background-size: cover;">
-                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center p-4 p-lg-5">
+                <div class="hero-ambient-wrapper" id="detailHeroAmbientWrapper">
+                    <div class="hero-banner-box position-relative" id="detailHeroBanner" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 76vh; border-radius: 24px; background-position: center bottom; background-size: cover;">
+                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5" style="border-radius: 24px;">
+                            <!-- Nửa trên Banner: Tiêu đề lớn, Host & Nhãn địa danh -->
                             <div class="container-fluid p-0">
-                                <div class="row align-items-center justify-content-between g-4">
-                                    <!-- Cột trái: Thông tin Tour, Host & Nút Đặt Lịch Ngay -->
-                                    <div class="col-lg-7 col-md-7">
+                                <div class="row align-items-start justify-content-between g-4 pt-2 pt-lg-3">
+                                    <div class="col-lg-7 col-md-8">
                                         <div class="d-inline-flex align-items-center gap-2 mb-2">
                                             <span class="glass-pill px-3 py-1 small fw-semibold text-info">
                                                 <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= htmlspecialchars($service['location'] ?? 'Đà Lạt') ?>
@@ -173,7 +173,7 @@ $srvStatus = $service['status'] ?? 'approved';
                                                 <i class="bi bi-clock me-1"></i><?= (int)($service['duration_days'] ?? 1) ?> ngày
                                             </span>
                                         </div>
-                                        <h1 class="font-editorial display-4 fw-bold text-white mb-2 lh-sm">
+                                        <h1 class="font-editorial display-3 fw-bold text-white mb-2 lh-sm">
                                             <?= htmlspecialchars($service['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm', ENT_QUOTES, 'UTF-8') ?>
                                         </h1>
                                         <div class="small text-light opacity-90 fs-6 mb-3">
@@ -181,185 +181,199 @@ $srvStatus = $service['status'] ?? 'approved';
                                             (<?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Đà Lạt')) ?>) &bull; 
                                             <span class="text-warning fw-bold">&#9733; <?= number_format((float)($service['avg_rating'] ?? 5.0), 1) ?></span>
                                         </div>
-                                        <p class="text-light opacity-75 small mb-4" style="max-width: 520px; line-height: 1.6;">
-                                            <?= htmlspecialchars(mb_substr(strip_tags($service['description'] ?? 'Hòa mình vào không gian bình minh trong lành, thưởng ngoạn cảnh sắc hồ Tuyền Lâm cùng người dân bản địa.'), 0, 160, 'UTF-8') . '...') ?>
+                                        <p class="text-light opacity-75 small mb-0" style="max-width: 560px; line-height: 1.6;">
+                                            <?= htmlspecialchars(mb_substr(strip_tags($service['short_description'] ?? ($service['description'] ?? 'Hòa mình vào không gian bình minh trong lành cùng người dân bản địa.')), 0, 160, 'UTF-8') . '...') ?>
                                         </p>
-                                        <div>
-                                            <a href="#bookingSection" class="btn btn-glass-hero px-4 py-2 fs-6">
-                                                Đặt Lịch Ngay <i class="bi bi-arrow-down-circle ms-1"></i>
-                                            </a>
-                                        </div>
                                     </div>
 
-                                    <!-- Cột phải: Dải card ảnh các trạm đặt dọc theo đúng ảnh mẫu -->
-                                    <div class="col-lg-5 col-md-5">
-                                        <div class="p-3 rounded-4" style="background: rgba(11, 25, 36, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15);">
-                                            <div class="d-flex align-items-center justify-content-between px-1 pb-2 mb-2 border-bottom border-light border-opacity-10">
-                                                <span class="small text-white fw-bold">
-                                                    <i class="bi bi-signpost-split text-info me-1"></i> Lịch Trình Các Trạm Dừng
-                                                </span>
-                                                <span class="badge glass-pill text-white" style="font-size: 0.72rem;">
-                                                    <?= count($stations) ?> điểm dừng
-                                                </span>
-                                            </div>
-                                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-1 row-cols-4 g-2" style="max-height: 380px; overflow-y: auto;">
-                                                <?php foreach (array_slice($stations, 0, 4) as $stIndex => $station): ?>
-                                                    <div class="col">
-                                                        <a href="#station-<?= (int)($station['id'] ?? ($stIndex + 1)) ?>" class="vertical-station-card">
-                                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                                 alt="<?= htmlspecialchars($station['caption'] ?? 'Trạm ' . ($stIndex + 1), ENT_QUOTES, 'UTF-8') ?>"
-                                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
-                                                            <div class="text-truncate">
-                                                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill py-0 px-2" style="font-size: 0.68rem;">
-                                                                    Trạm <?= $stIndex + 1 ?>
-                                                                </span>
-                                                                <div class="text-white small fw-semibold text-truncate mt-1" style="max-width: 200px;">
-                                                                    <?= htmlspecialchars($station['caption'] ?? ('Điểm dừng ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            </div>
+                                    <!-- Cột phải: Khoảng thoáng đãng khoe trọn cảnh quan chuẩn Japan Tours -->
+                                    <div class="col-lg-5 col-md-4 text-end d-none d-md-block">
+                                        <div class="d-inline-flex gap-2">
+                                            <span class="glass-pill px-3 py-1 small text-white opacity-75">
+                                                <i class="bi bi-camera me-1"></i> <?= count($stations) ?> cột mốc
+                                            </span>
+                                            <span class="glass-pill px-3 py-1 small text-white opacity-75">
+                                                <i class="bi bi-shield-check text-success me-1"></i> Bản địa xác minh
+                                            </span>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Nửa dưới chân Banner: Hàng thẻ ảnh cột mốc bên trái + Nút Đặt lịch bên phải -->
+                            <div class="row align-items-end justify-content-between mt-auto pt-4 g-3">
+                                <!-- Bên trái: 4-5 thẻ ảnh dọc nhỏ cột mốc tương tác đổi ảnh nền -->
+                                <div class="col-lg-8 col-md-9">
+                                    <div class="d-flex align-items-center gap-2 gap-md-3 overflow-auto pb-1 row-cols-4" id="milestonesContainer">
+                                        <!-- Thẻ 0: Ảnh bìa chính -->
+                                        <div class="vertical-station-card milestone-thumb-card active" 
+                                             data-image="<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>"
+                                             data-caption="Toàn cảnh <?= htmlspecialchars($service['location'] ?? 'Trải nghiệm', ENT_QUOTES, 'UTF-8') ?>"
+                                             title="Ảnh chính: <?= htmlspecialchars($service['title'] ?? '') ?>">
+                                            <img src="<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>" 
+                                                 alt="Ảnh chính"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
+                                            <div class="milestone-thumb-overlay">
+                                                <span class="badge bg-white bg-opacity-25 text-white rounded-pill mb-1" style="font-size: 0.6rem; width: fit-content;">
+                                                    Toàn cảnh
+                                                </span>
+                                                <div class="milestone-thumb-title">
+                                                    <?= htmlspecialchars($service['location'] ?? 'Điểm Đến') ?>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Thẻ 1..N: Các trạm trải nghiệm -->
+                                        <?php foreach (array_slice($stations, 0, 4) as $stIndex => $station): ?>
+                                            <div class="vertical-station-card milestone-thumb-card" 
+                                                 data-station-id="<?= (int)($station['id'] ?? ($stIndex + 1)) ?>"
+                                                 data-image="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>"
+                                                 data-caption="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
+                                                 title="Trạm <?= $stIndex + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '') ?>">
+                                                <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                     alt="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
+                                                     onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
+                                                <div class="milestone-thumb-overlay">
+                                                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill mb-1" style="font-size: 0.6rem; width: fit-content;">
+                                                        Trạm <?= $stIndex + 1 ?>
+                                                    </span>
+                                                    <div class="milestone-thumb-title">
+                                                        <?= htmlspecialchars($station['caption'] ?? ('Điểm dừng ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+
+                                <!-- Bên phải: Nút Đặt Lịch Ngay chuẩn nút Book bên phải của Japan Tours -->
+                                <div class="col-lg-4 col-md-3 text-end">
+                                    <a href="#bookingSection" class="btn btn-theme-primary rounded-pill px-4 py-2 fs-6 shadow">
+                                        Đặt Lịch Ngay <i class="bi bi-arrow-down-circle ms-1"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <!-- Ambient Glow Blur dưới chân Banner -->
-                    <div class="hero-ambient-glow" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
+                    <div class="hero-ambient-glow" id="detailAmbientGlow" style="background-image: url('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 2. HÀNH TRÌNH & CÁC TRẠM TRẢI NGHIỆM (ABOUT THE TOUR) -->
+    <!-- 2. HÀNH TRÌNH & CÁC TRẠM TRẢI NGHIỆM (ABOUT THE TOUR - CHUẨN JAPAN TOURS) -->
     <section class="container my-5 pt-4">
-        <!-- Hàng tiêu đề có đường kẻ ngang 2 bên -->
+        <!-- Hàng tiêu đề có đường kẻ ngang 2 bên chuẩn Japan Tours -->
         <div class="row mb-5">
             <div class="col-12 text-center">
-                <h3 class="section-divider-title">HÀNH TRÌNH & CÁC TRẠM TRẢI NGHIỆM</h3>
+                <h3 class="section-divider-title font-editorial fw-bold tracking-wider">
+                    <span>HÀNH TRÌNH &amp; CÁC TRẠM TRẢI NGHIỆM</span>
+                </h3>
             </div>
         </div>
 
         <div class="row g-5 align-items-start">
-            <!-- Cột trái: Mô tả + Thẻ Homestay + Thời tiết & Maps -->
-            <div class="col-lg-5">
-                <!-- 1. Mô tả hành trình -->
-                <div class="text-light opacity-75 lh-lg mb-4" style="font-size: 0.95rem;">
-                    <?= nl2br(htmlspecialchars($service['description'] ?? 'Câu chuyện hành trình của Host bản địa mang lại trải nghiệm du lịch chân thực và đáng nhớ nhất.', ENT_QUOTES, 'UTF-8')) ?>
-                </div>
-
-                <!-- 2. Thẻ Homestay Nhà Dân Bản Địa -->
-                <div class="glass-panel p-3 mb-4">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-4">
-                            <div class="rounded-3 overflow-hidden shadow-sm" style="aspect-ratio: 4/3; background: rgba(11, 25, 36, 0.6);">
-                                <img src="/assets/images/tours/dalat-san-may.jpg" 
-                                     alt="Homestay Nhà Dân" 
-                                     class="w-100 h-100 object-fit-cover"
-                                     onerror="this.src='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&auto=format&fit=crop&q=80'">
-                            </div>
-                        </div>
-                        <div class="col-8">
-                            <h6 class="fw-bold text-white mb-1"><?= htmlspecialchars($service['homestay_name'] ?? 'Homestay Nhà Dân Bản Địa', ENT_QUOTES, 'UTF-8') ?></h6>
-                            <div class="small text-light opacity-75 mb-1">Lưu trú tại Nhà Dân Bản Địa</div>
-                            <div class="small text-light opacity-75">Người bản xứ: <?= htmlspecialchars($service['host_name'] ?? 'Dân địa phương', ENT_QUOTES, 'UTF-8') ?></div>
-                            <div class="small text-info mt-1" style="font-size: 0.8rem;">
-                                <?= htmlspecialchars($service['homestay_room_type'] ?? 'Phòng riêng') ?> &bull; <?= (int)($service['homestay_nights'] ?? 1) ?> đêm
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Thẻ Thời Tiết & Google Maps -->
-                <div class="glass-panel p-3 mb-4 overflow-hidden" id="weatherDestinationCard">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.68rem; letter-spacing: 0.04em;">
-                            WEBSERVICE OPENWEATHER JSON API
+            <!-- Cột trái (col-lg-5): CHỈ CHỨA MÔ TẢ TOUR VÀ LỜI NHẮN TỪ HOST -->
+            <div class="col-lg-5 d-flex flex-column justify-content-between py-2" style="min-height: 480px;">
+                <div>
+                    <div class="d-inline-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-3 py-1 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                            GIỚI THIỆU CHUYẾN ĐI
                         </span>
-                        <small class="text-secondary" style="font-size: 0.72rem;">Dự báo trực tiếp</small>
                     </div>
-                    <div class="row g-2 align-items-stretch mb-2">
-                        <div class="col-5 p-2 d-flex flex-column justify-content-center text-center text-sm-start rounded-3" style="background: rgba(15, 25, 36, 0.4);">
-                            <div class="d-flex align-items-center justify-content-center justify-content-sm-start gap-1 mb-1">
-                                <?php if (!empty($weather['icon_url'])): ?>
-                                    <img src="<?= htmlspecialchars($weather['icon_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                         alt="Weather" width="38" height="38"
-                                         style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                                    <i class="bi bi-cloud-sun fs-2 text-info" style="display: none;"></i>
-                                <?php else: ?>
-                                    <img src="https://openweathermap.org/img/wn/02d.png" 
-                                         alt="Weather" width="38" height="38"
-                                         style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                                    <i class="bi bi-cloud-sun fs-2 text-info" style="display: none;"></i>
-                                <?php endif; ?>
-                                <span class="fs-2 fw-bold text-info lh-1"><?= (int)($weather['temp'] ?? 18) ?>°C</span>
-                            </div>
-                            <div class="small text-white fw-semibold mb-0"><?= htmlspecialchars($service['location'] ?? 'Đà Lạt') ?></div>
-                            <div class="small text-secondary" style="font-size: 0.72rem;"><?= htmlspecialchars($weather['description'] ?? 'Thời tiết hôm nay') ?></div>
-                        </div>
-                        <div class="col-7" style="min-height: 130px;">
-                            <div class="rounded-3 overflow-hidden h-100" style="min-height: 130px;">
-                                <iframe width="100%" 
-                                        height="100%" 
-                                        style="border:0; min-height: 130px;" 
-                                        loading="lazy" 
-                                        allowfullscreen 
-                                        referrerpolicy="no-referrer-when-downgrade"
-                                        src="https://maps.google.com/maps?q=<?= $mapQuery ?>&t=&z=13&ie=UTF8&iwloc=&output=embed">
-                                </iframe>
-                            </div>
-                        </div>
+                    <h4 class="fw-bold font-editorial mb-3" style="color: var(--text-main);">
+                        Trải nghiệm trọn vẹn văn hóa &amp; thiên nhiên bản địa
+                    </h4>
+                    <div class="lh-lg mb-4" style="color: var(--text-muted); font-size: 1rem;">
+                        <?= nl2br(htmlspecialchars(!empty($service['short_description']) ? $service['short_description'] : ($service['description'] ?? 'Hành trình được thiết kế thuận tiện và mộc mạc nhất để du khách khám phá trọn vẹn vẻ đẹp địa phương cùng người dân bản xứ.'), ENT_QUOTES, 'UTF-8')) ?>
                     </div>
-                    <?php if (!empty($weather['advice'])): ?>
-                        <div class="pt-2 border-top border-secondary border-opacity-25 small text-light opacity-90">
-                            <strong class="text-info">Lời khuyên chuẩn bị từ Host:</strong> <?= htmlspecialchars($weather['advice'], ENT_QUOTES, 'UTF-8') ?>
+                </div>
+
+                <!-- Khoảng nghỉ thoáng & Đoạn mô tả chi tiết thứ 2 chuẩn mẫu Japan Tours -->
+                <div class="pt-4 border-top border-subtle">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-chat-heart text-info"></i>
+                        <span class="small fw-bold text-uppercase tracking-wider" style="color: var(--text-muted); font-size: 0.75rem;">LỜI NHẮN TỪ HOST BẢN ĐỊA</span>
+                    </div>
+                    <div class="lh-lg" style="color: var(--text-muted); font-size: 0.95rem;">
+                        <?= nl2br(htmlspecialchars($service['description'] ?? 'Bạn không cần lo lắng về đường đi hay lịch trình — người dân bản địa sẽ dẫn bạn tới những góc đẹp nhất, thưởng thức ẩm thực chuẩn vị và tận hưởng chuyến đi.', ENT_QUOTES, 'UTF-8')) ?>
+                    </div>
+                    <?php if (!empty($service['host_bio'])): ?>
+                        <div class="small p-3 rounded-3 mt-3 surface-card border-subtle fst-italic">
+                            "<?= htmlspecialchars($service['host_bio'], ENT_QUOTES, 'UTF-8') ?>"
+                            <div class="mt-1 fw-bold not-italic" style="color: var(--text-main); font-style: normal;">
+                                — <?= htmlspecialchars($service['host_name'] ?? 'Host bản địa', ENT_QUOTES, 'UTF-8') ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Cột phải: Trục dọc Timeline các trạm & Nút Không Gian 3D ở cuối trục -->
+            <!-- Cột phải (col-lg-7): TRỤC DỌC SO LE (ZIGZAG) CHUẨN JAPAN TOURS -->
             <div class="col-lg-7">
-                <div class="station-timeline ps-4 position-relative">
+                <div class="japan-timeline station-timeline position-relative">
                     <?php foreach ($stations as $index => $station): ?>
-                        <div class="station-timeline-item position-relative mb-4">
-                            <span class="station-timeline-dot"></span>
-                            <div class="glass-panel p-3">
-                                <div class="row g-3 align-items-center">
-                                    <div class="col-sm-4">
-                                        <div class="rounded-3 overflow-hidden shadow-sm" style="height: 95px;">
-                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                 class="w-100 h-100 object-fit-cover" 
-                                                 alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <h6 class="fw-bold text-white mb-1">
-                                            Trạm <?= $index + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                        </h6>
-                                        <p class="small text-light opacity-75 mb-0 line-clamp-2">
-                                            <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
+                        <?php 
+                            $isEven = ($index % 2 === 0);
+                            $stId = (int)($station['id'] ?? ($index + 1));
+                            $stationTitle = 'Trạm ' . ($index + 1) . ': ' . ($station['caption'] ?? '');
+                        ?>
+                        <div class="japan-timeline-step station-timeline-item position-relative mb-5" id="station-<?= $stId ?>">
+                            <span class="japan-timeline-dot station-timeline-dot"></span>
+
+                            <?php if ($isEven): ?>
+                                <!-- Nhánh bên TRÁI trục giữa -->
+                                <div class="japan-timeline-col text-end pe-3">
+                                    <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
+                                        Trạm <?= $index + 1 ?>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--text-main);">
+                                        <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
+                                    </h6>
+                                    <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
+                                        <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                    </p>
+                                    <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
+                                        <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                             class="w-100 h-100 object-fit-cover hover-lift" 
+                                             alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                             onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
                                     </div>
                                 </div>
-                            </div>
+                                <div class="japan-timeline-col d-none d-md-block"></div>
+                            <?php else: ?>
+                                <!-- Nhánh bên PHẢI trục giữa -->
+                                <div class="japan-timeline-col d-none d-md-block"></div>
+                                <div class="japan-timeline-col text-start ps-3">
+                                    <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
+                                        Trạm <?= $index + 1 ?>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--text-main);">
+                                        <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
+                                    </h6>
+                                    <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
+                                        <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                    </p>
+                                    <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
+                                        <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                             class="w-100 h-100 object-fit-cover hover-lift" 
+                                             alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                             onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
 
                     <!-- Nút mở Modal Trình Chiếu 3D Three.js Z-Scroll ở cuối trục Timeline -->
-                    <div class="mt-4">
+                    <div class="mt-4 pt-2 text-center">
                         <button type="button" 
-                                class="btn btn-alpine w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2"
+                                class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#virtualTour3DModal">
                             <i class="bi bi-stars"></i>
-                            <span>Trải Nghiệm Không Gian 3D (Z-Scroll) &rarr;</span>
+                            <span>✨ Trải Nghiệm Không Gian 3D (Z-Scroll) &rarr;</span>
                         </button>
                     </div>
                 </div>
@@ -367,12 +381,135 @@ $srvStatus = $service['status'] ?? 'approved';
         </div>
     </section>
 
-    <!-- 3. KẾT NỐI TRỰC TIẾP & ĐẶT LỊCH -->
+    <!-- 3. TIỆN ÍCH & THÔNG TIN BẢN ĐỊA (CHUẨN MẪU WHAT'S INCLUDED CỦA JAPAN TOURS) -->
+    <section class="container my-5 pt-3">
+        <!-- Hàng tiêu đề có đường kẻ ngang bên phải -->
+        <div class="row mb-4">
+            <div class="col-12 d-flex align-items-center gap-3">
+                <h4 class="fw-bold font-editorial tracking-wider mb-0" style="color: var(--text-main); white-space: nowrap;">
+                    TIỆN ÍCH &amp; THÔNG TIN BẢN ĐỊA
+                </h4>
+                <div class="flex-grow-1" style="height: 1px; background-color: var(--border-subtle);"></div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 align-items-stretch">
+            <!-- Ô 1: 👤 Dân Bản Địa Đồng Hành -->
+            <div class="col">
+                <div class="included-outline-box d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-15 text-info" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="bi bi-person-badge"></i>
+                            </span>
+                            <span class="badge bg-success bg-opacity-15 text-success rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                Đã xác minh
+                            </span>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">Dân Bản Địa Dẫn Đường</h6>
+                        <div class="fw-semibold text-info small mb-2"><?= htmlspecialchars($service['host_name'] ?? 'Nguyễn Văn Bản Địa', ENT_QUOTES, 'UTF-8') ?></div>
+                        <p class="small mb-3" style="color: var(--text-muted); line-height: 1.5;">
+                            Khu vực sinh sống: <strong><?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Đà Lạt')) ?></strong>. Am hiểu tường tận văn hóa và những góc chụp ảnh đẹp nhất.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-top border-subtle small d-flex justify-content-between" style="color: var(--text-muted);">
+                        <span><i class="bi bi-clock me-1"></i><?= (int)($service['duration_days'] ?? 1) ?> ngày</span>
+                        <span><i class="bi bi-people me-1"></i>Tối đa <?= (int)($service['max_guests'] ?? 8) ?> khách</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ô 2: 🏠 Lưu Trú Homestay Nhà Dân -->
+            <div class="col">
+                <div class="included-outline-box d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-15 text-success" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="bi bi-house-door"></i>
+                            </span>
+                            <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                <?= (int)($service['homestay_nights'] ?? 1) ?> đêm
+                            </span>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">Homestay Nhà Dân</h6>
+                        <div class="fw-semibold text-success small mb-2"><?= htmlspecialchars($service['homestay_name'] ?? 'Homestay Nhà Dân Bản Địa', ENT_QUOTES, 'UTF-8') ?></div>
+                        <p class="small mb-3" style="color: var(--text-muted); line-height: 1.5;">
+                            Loại phòng: <strong><?= htmlspecialchars($service['homestay_room_type'] ?? 'Phòng riêng hướng vườn/hồ') ?></strong>. Bao gồm bữa sáng đặc sản, wifi và không gian sinh hoạt chung ấm cúng.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-top border-subtle small" style="color: var(--text-muted);">
+                        <i class="bi bi-check2-circle text-success me-1"></i>Trải nghiệm nếp sống gia đình địa phương
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ô 3: ⛅ Thời Tiết Điểm Đến Thực Tế (OpenWeather API) -->
+            <div class="col">
+                <div class="included-outline-box d-flex flex-column justify-content-between" id="weatherDestinationCard">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-15 text-warning" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="bi bi-cloud-sun"></i>
+                            </span>
+                            <span class="badge bg-secondary bg-opacity-15 rounded-pill px-2 py-1" style="font-size: 0.68rem; color: var(--text-muted);">
+                                OpenWeather JSON
+                            </span>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">Thời Tiết Điểm Đến</h6>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fs-2 fw-bold text-info lh-1"><?= (int)($weather['temp'] ?? 18) ?>°C</span>
+                            <span class="small" style="color: var(--text-muted);"><?= htmlspecialchars($weather['description'] ?? 'Se lạnh mù sương', ENT_QUOTES, 'UTF-8') ?></span>
+                        </div>
+                        <p class="small mb-2" style="color: var(--text-muted); line-height: 1.4;">
+                            Điểm đến: <strong><?= htmlspecialchars($service['location'] ?? 'Đà Lạt') ?></strong>
+                        </p>
+                    </div>
+                    <div class="pt-2 border-top border-subtle small" style="color: var(--text-muted); font-size: 0.75rem;">
+                        <i class="bi bi-info-circle text-info me-1"></i><?= htmlspecialchars($weather['advice'] ?? 'Thời tiết mát dịu, hãy chuẩn bị áo ấm và máy ảnh!', ENT_QUOTES, 'UTF-8') ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ô 4: 📍 Vị Trí Bản Đồ Google Maps -->
+            <div class="col">
+                <div class="included-outline-box d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-15 text-danger" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="bi bi-geo-alt"></i>
+                            </span>
+                            <span class="badge bg-secondary bg-opacity-15 rounded-pill px-2 py-1" style="font-size: 0.68rem; color: var(--text-muted);">
+                                Google Maps
+                            </span>
+                        </div>
+                        <h6 class="fw-bold mb-2" style="color: var(--text-main);">Vị Trí Bản Đồ</h6>
+                        <div class="rounded-3 overflow-hidden mb-2" style="height: 105px;">
+                            <iframe width="100%" 
+                                    height="100%" 
+                                    style="border:0;" 
+                                    loading="lazy" 
+                                    allowfullscreen 
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    src="https://maps.google.com/maps?q=<?= $mapQuery ?>&t=&z=13&ie=UTF8&iwloc=&output=embed">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="pt-1">
+                        <a href="https://maps.google.com/maps?q=<?= $mapQuery ?>" target="_blank" rel="noopener" class="small text-info text-decoration-none d-flex align-items-center gap-1">
+                            <span>Mở rộng trên Google Maps</span> <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. KẾT NỐI TRỰC TIẾP & ĐẶT LỊCH -->
     <section class="container my-5 pt-3" id="bookingSection">
         <!-- Hàng tiêu đề có đường kẻ ngang 2 bên -->
         <div class="row mb-4">
             <div class="col-12 text-center">
-                <h3 class="section-divider-title">KẾT NỐI TRỰC TIẾP & ĐẶT LỊCH</h3>
+                <h3 class="section-divider-title font-editorial fw-bold tracking-wider">KẾT NỐI TRỰC TIẾP &amp; ĐẶT LỊCH</h3>
             </div>
         </div>
 
@@ -529,7 +666,7 @@ $srvStatus = $service['status'] ?? 'approved';
                             </div>
                         <?php endif; ?>
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                            <span class="text-light opacity-75"><i class="bi bi-receipt text-info me-1"></i> Thuế & Phí:</span>
+                            <span class="text-light opacity-75"><i class="bi bi-receipt text-info me-1"></i> Thuế &amp; Phí:</span>
                             <span class="text-white">Đã gồm 8% thuế GTGT</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25">
@@ -545,7 +682,7 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Dropdown chọn lịch trình -->
                     <div class="mb-3">
                         <label class="small text-light opacity-75 d-block mb-2" for="scheduleSelect">
-                            <i class="bi bi-calendar-event me-1 text-info"></i> Lịch trình & Giờ khởi hành
+                            <i class="bi bi-calendar-event me-1 text-info"></i> Lịch trình &amp; Giờ khởi hành
                         </label>
                         <select class="form-select bg-dark bg-opacity-50 text-white border border-secondary border-opacity-50 rounded-3 py-2 px-3 shadow-none search-field-select" id="scheduleSelect">
                             <option value="<?= (int)($service['id'] ?? 1) ?>" class="bg-dark text-white">🗓️ Chọn chuyến đi khả dụng</option>
@@ -589,165 +726,171 @@ $srvStatus = $service['status'] ?? 'approved';
         </div>
     </section>
 
-    <!-- 4. KHỐI ĐÁNH GIÁ TRẢI NGHIỆM & CẢM NHẬN DU KHÁCH (PHASE 2) -->
-    <section class="section-mb pb-4" id="reviewsSection">
-        <div class="glass-divider mb-4">
-            <span class="glass-divider-line"></span>
-            <span class="glass-divider-text text-uppercase tracking-wider">ĐÁNH GIÁ TỪ DU KHÁCH</span>
-            <span class="glass-divider-line"></span>
-        </div>
+    <!-- 5. KHỐI ĐÁNH GIÁ TRẢI NGHIỆM & CẢM NHẬN DU KHÁCH (NẰM GỌN TRONG CONTAINER) -->
+    <section class="container my-5 pb-4" id="reviewsSection">
+        <div class="row">
+            <div class="col-12">
+                <div class="section-divider-title w-100 text-center mb-4 d-flex align-items-center justify-content-center">
+                    <span class="divider-line flex-grow-1" style="height: 1px; background-color: var(--border-subtle);"></span>
+                    <span class="mx-3 font-editorial fw-bold text-uppercase tracking-wider" style="color: var(--text-main);">ĐÁNH GIÁ TỪ DU KHÁCH</span>
+                    <span class="divider-line flex-grow-1" style="height: 1px; background-color: var(--border-subtle);"></span>
+                </div>
 
-        <div class="row g-4">
-            <!-- Cột trái: Tóm tắt điểm số & Form gửi đánh giá -->
-            <div class="col-lg-4">
-                <div class="glass-panel p-4 mb-4">
-                    <h5 class="fw-bold text-white mb-3">Đánh Giá Tổng Quan</h5>
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="fs-1 fw-bold text-warning lh-1 font-editorial">
-                            <?= number_format((float)($reviewStats['avg_rating'] ?? 5.0), 1) ?>
-                        </div>
-                        <div>
-                            <div class="text-warning mb-1" style="font-size: 0.95rem;">
+                <div class="row g-4">
+                    <!-- Cột trái: Tóm tắt điểm số & Form gửi đánh giá -->
+                    <div class="col-lg-4">
+                        <div class="glass-panel p-4 mb-4">
+                            <h5 class="fw-bold text-white mb-3">Đánh Giá Tổng Quan</h5>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="fs-1 fw-bold text-warning lh-1 font-editorial">
+                                    <?= number_format((float)($reviewStats['avg_rating'] ?? 5.0), 1) ?>
+                                </div>
+                                <div>
+                                    <div class="text-warning mb-1" style="font-size: 0.95rem;">
+                                        <?php
+                                        $roundedAvg = (int)round((float)($reviewStats['avg_rating'] ?? 5.0));
+                                        for ($i = 1; $i <= 5; $i++):
+                                        ?>
+                                            <i class="bi <?= $i <= $roundedAvg ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <small class="text-light opacity-75">
+                                        Dựa trên <strong><?= (int)($reviewStats['reviews_count'] ?? count($reviews ?? [])) ?></strong> đánh giá
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Thanh phân bổ sao -->
+                            <div class="vstack gap-2 small text-light opacity-75 border-top border-secondary border-opacity-25 pt-3 mb-4">
                                 <?php
-                                $roundedAvg = (int)round((float)($reviewStats['avg_rating'] ?? 5.0));
-                                for ($i = 1; $i <= 5; $i++):
+                                $totalRev = max((int)($reviewStats['reviews_count'] ?? 1), 1);
+                                for ($star = 5; $star >= 1; $star--):
+                                    $starCount = (int)($reviewStats['count_' . $star] ?? 0);
+                                    $starPercent = round(($starCount / $totalRev) * 100);
                                 ?>
-                                    <i class="bi <?= $i <= $roundedAvg ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="width: 42px; font-size: 0.75rem;"><?= $star ?> sao</span>
+                                        <div class="progress flex-grow-1 bg-dark bg-opacity-50" style="height: 6px;">
+                                            <div class="progress-bar bg-warning" style="width: <?= $starPercent ?>%;"></div>
+                                        </div>
+                                        <span class="text-end" style="width: 25px; font-size: 0.72rem;"><?= $starCount ?></span>
+                                    </div>
                                 <?php endfor; ?>
                             </div>
-                            <small class="text-light opacity-75">
-                                Dựa trên <strong><?= (int)($reviewStats['reviews_count'] ?? count($reviews ?? [])) ?></strong> đánh giá
-                            </small>
+
+                            <!-- Form gửi đánh giá -->
+                            <div class="border-top border-secondary border-opacity-25 pt-3">
+                                <h6 class="fw-bold text-white mb-2">Gửi Cảm Nhận Của Bạn</h6>
+                                <?php if (!empty($user)): ?>
+                                    <?php if (!empty($hasReviewed)): ?>
+                                        <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 text-white small">
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                            Bạn đã gửi đánh giá cho chuyến đi này rồi. Cảm ơn bạn đã đóng góp cho cộng đồng!
+                                        </div>
+                                    <?php else: ?>
+                                        <form id="tourReviewForm" action="/reviews" method="POST">
+                                            <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
+                                            <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
+                                            
+                                            <?php if (!empty($isEligibleVerified)): ?>
+                                                <div class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-3 py-1 mb-2 d-inline-flex align-items-center" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-patch-check-fill me-1"></i> Đánh giá sẽ có huy hiệu: Đã tự trải nghiệm
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <div class="mb-2">
+                                                <label class="small text-light opacity-75 d-block mb-1">Số sao đánh giá:</label>
+                                                <div class="rating-stars-select d-flex gap-2 text-warning fs-5" id="ratingStars">
+                                                    <i class="bi bi-star-fill star-option" data-value="1" style="cursor: pointer;"></i>
+                                                    <i class="bi bi-star-fill star-option" data-value="2" style="cursor: pointer;"></i>
+                                                    <i class="bi bi-star-fill star-option" data-value="3" style="cursor: pointer;"></i>
+                                                    <i class="bi bi-star-fill star-option" data-value="4" style="cursor: pointer;"></i>
+                                                    <i class="bi bi-star-fill star-option" data-value="5" style="cursor: pointer;"></i>
+                                                </div>
+                                                <input type="hidden" name="rating" id="reviewRatingInput" value="5">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <textarea name="comment" id="reviewCommentInput" rows="3" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-3 p-2 small shadow-none" placeholder="Chia sẻ cảm nhận chi tiết về chuyến đi, người bản địa, cảnh đẹp..." required></textarea>
+                                            </div>
+
+                                            <button type="submit" id="btnSubmitReview" class="btn btn-alpine w-100 py-2 btn-sm rounded-pill fw-bold text-white shadow">
+                                                <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="p-3 rounded-3 text-center border border-secondary border-opacity-25" style="background: rgba(15, 25, 36, 0.55);">
+                                        <p class="small text-light opacity-75 mb-2">
+                                            Vui lòng đăng nhập tài khoản để gửi đánh giá và nhận xét về tour này.
+                                        </p>
+                                        <a href="/login" class="btn btn-alpine btn-sm rounded-pill px-4">
+                                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Để Đánh Giá
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Thanh phân bổ sao -->
-                    <div class="vstack gap-2 small text-light opacity-75 border-top border-secondary border-opacity-25 pt-3 mb-4">
-                        <?php
-                        $totalRev = max((int)($reviewStats['reviews_count'] ?? 1), 1);
-                        for ($star = 5; $star >= 1; $star--):
-                            $starCount = (int)($reviewStats['count_' . $star] ?? 0);
-                            $starPercent = round(($starCount / $totalRev) * 100);
-                        ?>
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="width: 42px; font-size: 0.75rem;"><?= $star ?> sao</span>
-                                <div class="progress flex-grow-1 bg-dark bg-opacity-50" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" style="width: <?= $starPercent ?>%;"></div>
-                                </div>
-                                <span class="text-end" style="width: 25px; font-size: 0.72rem;"><?= $starCount ?></span>
+                    <!-- Cột phải: Danh sách các đánh giá từ du khách -->
+                    <div class="col-lg-8">
+                        <div class="glass-panel p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                                <h5 class="fw-bold text-white mb-0">Cảm Nhận Thực Tế</h5>
+                                <span class="badge bg-light bg-opacity-10 text-light border border-secondary border-opacity-25 rounded-pill px-3 py-1 small" id="reviewsCountBadge">
+                                    <?= count($reviews ?? []) ?> nhận xét
+                                </span>
                             </div>
-                        <?php endfor; ?>
-                    </div>
 
-                    <!-- Form gửi đánh giá -->
-                    <div class="border-top border-secondary border-opacity-25 pt-3">
-                        <h6 class="fw-bold text-white mb-2">Gửi Cảm Nhận Của Bạn</h6>
-                        <?php if (!empty($user)): ?>
-                            <?php if (!empty($hasReviewed)): ?>
-                                <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 text-white small">
-                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                    Bạn đã gửi đánh giá cho chuyến đi này rồi. Cảm ơn bạn đã đóng góp cho cộng đồng!
-                                </div>
-                            <?php else: ?>
-                                <form id="tourReviewForm" action="/reviews" method="POST">
-                                    <input type="hidden" name="_csrf_token" value="<?= SecurityHelper::csrfToken() ?>">
-                                    <input type="hidden" name="service_id" value="<?= (int)($service['id'] ?? 1) ?>">
-                                    
-                                    <?php if (!empty($isEligibleVerified)): ?>
-                                        <div class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-3 py-1 mb-2 d-inline-flex align-items-center" style="font-size: 0.72rem;">
-                                            <i class="bi bi-patch-check-fill me-1"></i> Đánh giá sẽ có huy hiệu: Đã tự trải nghiệm
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <div class="mb-2">
-                                        <label class="small text-light opacity-75 d-block mb-1">Số sao đánh giá:</label>
-                                        <div class="rating-stars-select d-flex gap-2 text-warning fs-5" id="ratingStars">
-                                            <i class="bi bi-star-fill star-option" data-value="1" style="cursor: pointer;"></i>
-                                            <i class="bi bi-star-fill star-option" data-value="2" style="cursor: pointer;"></i>
-                                            <i class="bi bi-star-fill star-option" data-value="3" style="cursor: pointer;"></i>
-                                            <i class="bi bi-star-fill star-option" data-value="4" style="cursor: pointer;"></i>
-                                            <i class="bi bi-star-fill star-option" data-value="5" style="cursor: pointer;"></i>
-                                        </div>
-                                        <input type="hidden" name="rating" id="reviewRatingInput" value="5">
+                            <div class="vstack gap-3" id="reviewsContainer">
+                                <?php if (empty($reviews)): ?>
+                                    <div class="text-center py-5 text-light opacity-60" id="noReviewsNotice">
+                                        <i class="bi bi-chat-heart fs-1 d-block mb-2 opacity-50"></i>
+                                        <p class="mb-1">Chưa có đánh giá nào cho chuyến đi này.</p>
+                                        <small>Hãy là người đầu tiên chia sẻ cảm nhận trải nghiệm thực tế!</small>
                                     </div>
-
-                                    <div class="mb-3">
-                                        <textarea name="comment" id="reviewCommentInput" rows="3" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-3 p-2 small shadow-none" placeholder="Chia sẻ cảm nhận chi tiết về chuyến đi, người bản địa, cảnh đẹp..." required></textarea>
-                                    </div>
-
-                                    <button type="submit" id="btnSubmitReview" class="btn btn-alpine w-100 py-2 btn-sm rounded-pill fw-bold text-white shadow">
-                                        <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay
-                                    </button>
-                                </form>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <div class="p-3 rounded-3 text-center border border-secondary border-opacity-25" style="background: rgba(15, 25, 36, 0.55);">
-                                <p class="small text-light opacity-75 mb-2">
-                                    Vui lòng đăng nhập tài khoản để gửi đánh giá và nhận xét về tour này.
-                                </p>
-                                <a href="/login" class="btn btn-alpine btn-sm rounded-pill px-4">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Để Đánh Giá
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cột phải: Danh sách các đánh giá từ du khách -->
-            <div class="col-lg-8">
-                <div class="glass-panel p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary border-opacity-25">
-                        <h5 class="fw-bold text-white mb-0">Cảm Nhận Thực Tế</h5>
-                        <span class="badge bg-light bg-opacity-10 text-light border border-secondary border-opacity-25 rounded-pill px-3 py-1 small" id="reviewsCountBadge">
-                            <?= count($reviews ?? []) ?> nhận xét
-                        </span>
-                    </div>
-
-                    <div class="vstack gap-3" id="reviewsContainer">
-                        <?php if (empty($reviews)): ?>
-                            <div class="text-center py-5 text-light opacity-60" id="noReviewsNotice">
-                                <i class="bi bi-chat-heart fs-1 d-block mb-2 opacity-50"></i>
-                                <p class="mb-1">Chưa có đánh giá nào cho chuyến đi này.</p>
-                                <small>Hãy là người đầu tiên chia sẻ cảm nhận trải nghiệm thực tế!</small>
-                            </div>
-                        <?php else: ?>
-                            <?php foreach ($reviews as $rev): ?>
-                                <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55);">
-                                    <div class="d-flex align-items-start justify-content-between mb-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
-                                                <?= mb_strtoupper(mb_substr($rev['tourist_name'] ?? 'K', 0, 1)) ?>
-                                            </div>
-                                            <div>
-                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                    <span class="fw-bold text-white small"><?= htmlspecialchars($rev['tourist_name'] ?? 'Du khách', ENT_QUOTES, 'UTF-8') ?></span>
-                                                    <?php if (!empty($rev['is_verified'])): ?>
-                                                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
-                                                            <i class="bi bi-patch-check-fill me-1"></i> Đã tự trải nghiệm
-                                                        </span>
-                                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <?php foreach ($reviews as $rev): ?>
+                                        <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55);">
+                                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                                        <?= mb_strtoupper(mb_substr($rev['tourist_name'] ?? 'K', 0, 1)) ?>
+                                                    </div>
+                                                    <div>
+                                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                            <span class="fw-bold text-white small"><?= htmlspecialchars($rev['tourist_name'] ?? 'Du khách', ENT_QUOTES, 'UTF-8') ?></span>
+                                                            <?php if (!empty($rev['is_verified'])): ?>
+                                                                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
+                                                                    <i class="bi bi-patch-check-fill me-1"></i> Đã tự trải nghiệm
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                                            <?= date('d/m/Y H:i', strtotime($rev['created_at'])) ?>
+                                                        </small>
+                                                    </div>
                                                 </div>
-                                                <small class="text-light opacity-50" style="font-size: 0.72rem;">
-                                                    <?= date('d/m/Y H:i', strtotime($rev['created_at'])) ?>
-                                                </small>
+                                                <div class="text-warning small">
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="bi <?= $i <= (int)$rev['rating'] ? 'bi-star-fill' : 'bi-star' ?>"></i>
+                                                    <?php endfor; ?>
+                                                </div>
                                             </div>
+                                            <p class="text-light opacity-90 small mb-0 ps-1">
+                                                <?= nl2br(htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8')) ?>
+                                            </p>
                                         </div>
-                                        <div class="text-warning small">
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <i class="bi <?= $i <= (int)$rev['rating'] ? 'bi-star-fill' : 'bi-star' ?>"></i>
-                                            <?php endfor; ?>
-                                        </div>
-                                    </div>
-                                    <p class="text-light opacity-90 small mb-0 ps-1">
-                                        <?= nl2br(htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8')) ?>
-                                    </p>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
         </div>
     </section>
 
@@ -1164,6 +1307,30 @@ $srvStatus = $service['status'] ?? 'approved';
                     btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay';
                 }
             }
+        });
+    }
+
+    // -------------------------------------------------------------
+    // INTERACTIVE MILESTONE BANNER SWITCHER (CHUẨN JAPAN TOURS)
+    // -------------------------------------------------------------
+    const milestoneCards = document.querySelectorAll('.milestone-thumb-card');
+    const detailBanner = document.getElementById('detailHeroBanner');
+    const detailGlow = document.getElementById('detailAmbientGlow');
+
+    if (milestoneCards.length && detailBanner) {
+        milestoneCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                const newImg = this.getAttribute('data-image');
+                if (newImg) {
+                    detailBanner.style.backgroundImage = `url('${newImg}')`;
+                    if (detailGlow) {
+                        detailGlow.style.backgroundImage = `url('${newImg}')`;
+                    }
+                    milestoneCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
         });
     }
 </script>

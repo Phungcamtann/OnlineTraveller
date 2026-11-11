@@ -28,11 +28,11 @@
     <!-- Day Mode (Roamora) & Night Mode (Japan Tours) Custom Theme CSS (Docs UI Overhaul Spec) -->
     <link rel="stylesheet" href="/assets/css/custom-theme.css">
 </head>
-<body>
+<body class="theme-dark-alpine">
 
     <!-- 1. TOP FLOATING NAVBAR (BÁM MÀN HÌNH KHI CUỘN, CÓ NÚT GẠT DAY/NIGHT MODE) -->
     <header class="top-floating-header">
-        <div class="container-xxl">
+        <div class="container-fluid px-3 px-md-4 px-lg-4">
             <div class="row align-items-center justify-content-between g-2">
                 <!-- Cột 1: Logo thương hiệu núi & sóng bản địa -->
                 <div class="col-auto">

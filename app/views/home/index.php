@@ -121,15 +121,16 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
 
 <div class="main-container">
 
-    <!-- 1. SLIDER BANNER: CHỮ BÊN TRÁI + NÚT GLASS + THUMBNAILS TRƯỢT NHỎ -->
-    <section class="container-xxl pt-2">
+    <!-- 1. HERO BANNER CHUẨN ROAMORA: TRÀN RỘNG 2 BÊN, TO THOÁNG, MŨI TÊN CHUYỂN SLIDE Ở GÓC DƯỚI PHẢI -->
+    <section class="container-fluid px-2 px-md-3 px-lg-4 pt-2">
         <div class="row">
             <div class="col-12">
                 <div class="hero-ambient-wrapper" id="homeHeroAmbientWrapper">
-                    <div class="hero-banner-box position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');">
+                    <div class="hero-banner-box position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
                         <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
+                            <!-- Khối Nội Dung Bên Trái -->
                             <div class="container-fluid p-0">
-                                <div class="row align-items-center pt-4">
+                                <div class="row align-items-center pt-3 pt-lg-4">
                                     <div class="col-lg-8 col-md-10">
                                         <div class="d-inline-flex align-items-center gap-2 mb-2">
                                             <span class="glass-pill px-3 py-1 small fw-semibold text-info" id="heroLocationBadge">
@@ -143,7 +144,7 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                                             <?= htmlspecialchars($featuredDesc, ENT_QUOTES, 'UTF-8') ?>
                                         </p>
                                         <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
-                                            <a href="/services/<?= $featuredId ?>" class="btn btn-glass-hero" id="heroCtaLink">
+                                            <a href="/services/<?= $featuredId ?>" class="btn btn-glass-hero btn-theme-primary rounded-pill px-4 py-2" id="heroCtaLink">
                                                 Khám phá ngay <i class="bi bi-arrow-right ms-1"></i>
                                             </a>
                                             <div class="small text-light opacity-75" id="heroMeta">
@@ -155,86 +156,78 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                                 </div>
                             </div>
 
-                            <!-- Dải Thumbnail Trượt Nhỏ Dưới Chân Banner -->
-                            <div class="mt-4 pt-3 border-top border-light border-opacity-10 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                                <div class="banner-thumbs-container" id="bannerThumbsContainer">
-                                    <?php foreach ($sliderSlides as $idx => $slide): ?>
-                                        <div class="banner-thumb-item <?= $idx === 0 ? 'active' : '' ?>" 
-                                             data-slide-index="<?= $idx ?>"
-                                             data-id="<?= $slide['id'] ?>"
-                                             data-title="<?= htmlspecialchars($slide['title'], ENT_QUOTES, 'UTF-8') ?>"
-                                             data-desc="<?= htmlspecialchars($slide['desc'], ENT_QUOTES, 'UTF-8') ?>"
-                                             data-image="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>"
-                                             data-host="<?= htmlspecialchars($slide['host'], ENT_QUOTES, 'UTF-8') ?>"
-                                             data-location="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>"
-                                             data-rating="<?= number_format($slide['rating'], 1) ?>">
-                                            <img src="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                 alt="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>"
-                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100&auto=format&fit=crop&q=80'">
-                                            <div class="text-start">
-                                                <div class="fw-semibold small text-white text-truncate" style="max-width: 120px;">
-                                                    <?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>
-                                                </div>
-                                                <div class="text-light opacity-75" style="font-size: 0.72rem;">
-                                                    ★ <?= number_format($slide['rating'], 1) ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-
-                                <!-- Nút Điều Hướng Chuyển Slide Nhỏ -->
-                                <div class="d-none d-md-flex align-items-center gap-2">
-                                    <button type="button" class="btn btn-outline-light btn-sm rounded-circle p-2 shadow-none border-opacity-25" id="btnPrevSlide" title="Tour trước" style="width: 36px; height: 36px;">
-                                        <i class="bi bi-chevron-left"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-light btn-sm rounded-circle p-2 shadow-none border-opacity-25" id="btnNextSlide" title="Tour kế tiếp" style="width: 36px; height: 36px;">
-                                        <i class="bi bi-chevron-right"></i>
-                                    </button>
-                                </div>
+                            <!-- 2 Nút Mũi Tên Tròn Nhỏ Chuyển Slide Ở Góc Dưới Bên Phải (Chuẩn Roamora) -->
+                            <div class="d-flex align-items-center justify-content-end gap-2 mt-auto pt-3">
+                                <button type="button" class="btn btn-slider-arrow shadow-sm" id="btnPrevSlide" title="Tour trước" aria-label="Tour trước">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <button type="button" class="btn btn-slider-arrow shadow-sm" id="btnNextSlide" title="Tour kế tiếp" aria-label="Tour kế tiếp">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
+
                     <!-- Ambient Glow Blur dưới chân Banner -->
                     <div class="hero-ambient-glow" id="heroAmbientGlow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
+
+                    <!-- Dải Thumbnail Ẩn (Bảo Toàn Dữ Liệu Cho JavaScript & Test Suite) -->
+                    <div class="banner-thumbs-container d-none" id="bannerThumbsContainer" aria-hidden="true">
+                        <?php foreach ($sliderSlides as $idx => $slide): ?>
+                            <div class="banner-thumb-item <?= $idx === 0 ? 'active' : '' ?>" 
+                                 data-slide-index="<?= $idx ?>"
+                                 data-id="<?= $slide['id'] ?>"
+                                 data-title="<?= htmlspecialchars($slide['title'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-desc="<?= htmlspecialchars($slide['desc'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-image="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-host="<?= htmlspecialchars($slide['host'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-location="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-rating="<?= number_format($slide['rating'], 1) ?>">
+                                <img src="<?= htmlspecialchars($slide['image'], ENT_QUOTES, 'UTF-8') ?>" 
+                                     alt="<?= htmlspecialchars($slide['location'], ENT_QUOTES, 'UTF-8') ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 2. THANH TÌM KIẾM NỔI TÁCH BIỆT DƯỚI BANNER (TÍCH HỢP RANGE SLIDER) -->
-    <section class="container mt-4">
+    <!-- 2. THANH TÌM KIẾM NỔI CAPSULE VẮT NGANG DƯỚI BANNER (CHUẨN ROAMORA) -->
+    <section class="container" style="margin-top: -42px; position: relative; z-index: 10;">
         <div class="row justify-content-center">
-            <div class="col-12">
-                <form action="/services" method="GET" class="glass-panel p-3 p-lg-4 shadow-lg" id="homeSearchForm">
+            <div class="col-12 col-xl-11">
+                <form action="/services" method="GET" class="surface-card rounded-pill px-4 py-3 shadow-lg" id="homeSearchForm">
                     <!-- Backward compatibility hidden input for price_range -->
                     <input type="hidden" name="price_range" id="inputHomePriceRange" value="<?= htmlspecialchars($_GET['price_range'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="row g-3 align-items-center">
                         <!-- Trường 1: Điểm đến -->
-                        <div class="col-lg-4 col-md-4 search-col-divider">
-                            <label class="d-block small fw-bold text-white mb-1" for="search-location">
-                                Điểm đến?
+                        <div class="col-lg-3 col-md-6 search-col-divider">
+                            <label class="d-flex align-items-center gap-1 small fw-bold mb-1" for="search-location" style="color: var(--text-muted); font-size: 0.78rem;">
+                                <i class="bi bi-geo-alt text-danger"></i> Điểm đến?
                             </label>
                             <input type="text" 
-                                   id="search-location"
+                                   id="search-location" 
                                    name="location" 
-                                   class="form-control bg-transparent border-0 text-white p-0 shadow-none search-field-input" 
+                                   class="form-control bg-transparent border-0 p-0 shadow-none search-field-input" 
+                                   style="color: var(--text-main); font-weight: 500;"
                                    placeholder="Tìm địa danh" 
                                    value="<?= htmlspecialchars($_GET['location'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <!-- Trường 2: Danh mục -->
-                        <div class="col-lg-3 col-md-3 search-col-divider">
-                            <label class="d-block small fw-bold text-white mb-1" for="search-category">
-                                Danh mục
+                        <div class="col-lg-3 col-md-6 search-col-divider">
+                            <label class="d-flex align-items-center gap-1 small fw-bold mb-1" for="search-category" style="color: var(--text-muted); font-size: 0.78rem;">
+                                <i class="bi bi-compass text-info"></i> Danh mục
                             </label>
                             <select id="search-category" 
                                     name="category_id" 
-                                    class="form-select bg-transparent border-0 text-white p-0 shadow-none search-field-select">
-                                <option value="" class="bg-dark text-white">Văn hóa, ẩm thực</option>
+                                    class="form-select bg-transparent border-0 p-0 shadow-none search-field-select"
+                                    style="color: var(--text-main); font-weight: 500; cursor: pointer;">
+                                <option value="">Tất cả danh mục</option>
                                 <?php foreach ($categories as $cat): ?>
-                                    <option value="<?= (int)$cat['id'] ?>" class="bg-dark text-white" <?= (isset($_GET['category_id']) && (int)$_GET['category_id'] === (int)$cat['id']) ? 'selected' : '' ?>>
+                                    <option value="<?= (int)$cat['id'] ?>" <?= (isset($_GET['category_id']) && (int)$_GET['category_id'] === (int)$cat['id']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -242,12 +235,12 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                         </div>
 
                         <!-- Trường 3: Ngân sách Range Slider -->
-                        <div class="col-lg-3 col-md-3 search-col-divider">
+                        <div class="col-lg-4 col-md-8 search-col-divider">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="small fw-bold text-white mb-0" for="home-price-slider">
-                                    Ngân sách tối đa
+                                <label class="d-flex align-items-center gap-1 small fw-bold mb-0" for="home-price-slider" style="color: var(--text-muted); font-size: 0.78rem;">
+                                    <i class="bi bi-wallet2 text-success"></i> Ngân sách tối đa
                                 </label>
-                                <span class="small fw-bold text-info" id="home-price-display">
+                                <span class="small fw-bold text-success" id="home-price-display">
                                     <?= ($defaultMaxPrice < 5000000) ? FormatHelper::formatVnd($defaultMaxPrice) : '5.000.000 ₫+' ?>
                                 </span>
                             </div>
@@ -261,10 +254,10 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                                    value="<?= $defaultMaxPrice ?>">
                         </div>
 
-                        <!-- Trường 4: Nút Tìm kiếm -->
-                        <div class="col-lg-2 col-md-2">
-                            <button type="submit" class="btn btn-alpine w-100 py-2">
-                                Tìm kiếm
+                        <!-- Trường 4: Nút Tìm kiếm Roamora -->
+                        <div class="col-lg-2 col-md-4 text-end">
+                            <button type="submit" class="btn btn-alpine btn-theme-primary rounded-pill w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                <span>Tìm kiếm</span> <i class="bi bi-search"></i>
                             </button>
                         </div>
                     </div>
@@ -561,8 +554,10 @@ document.addEventListener('DOMContentLoaded', function() {
         thumbItems.forEach(t => t.classList.remove('active'));
         activeThumb.classList.add('active');
 
-        // Scroll active thumbnail into view smoothly
-        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        // Scroll active thumbnail into view smoothly if visible
+        if (activeThumb.offsetParent !== null) {
+            activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
 
         const data = activeThumb.dataset;
         if (heroBox && data.image) {
