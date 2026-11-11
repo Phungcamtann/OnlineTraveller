@@ -125,6 +125,31 @@ class ServiceController extends BaseController
     }
 
     /**
+     * Dedicated Fullscreen 3D Virtual Tour Page (Three.js Z-Scroll experience).
+     */
+    public function virtualTour(Request $request, string $id): void
+    {
+        $serviceId = (int)$id;
+        $service = $this->serviceModel->getById($serviceId);
+
+        if (!$service) {
+            http_response_code(404);
+            $this->view('errors/404', ['title' => 'Không tìm thấy gói trải nghiệm']);
+            return;
+        }
+
+        $stops = $this->serviceModel->getStops($serviceId);
+        $user = $this->user();
+
+        $this->view('services/virtual_tour', [
+            'title' => 'Trình Chiếu Không Gian 3D — ' . ($service['title'] ?? '') . ' | OnlineTraveller',
+            'service' => $service,
+            'stops' => $stops,
+            'user' => $user,
+        ], null);
+    }
+
+    /**
      * JSON Webservice Endpoint: Return real-time destination weather forecast (GET /api/weather).
      */
     public function weather(Request $request): void

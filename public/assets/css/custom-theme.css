@@ -526,6 +526,32 @@ h1, h2, h3, h4, h5, h6,
     transition: all 0.25s ease;
 }
 
+/* Glass pills trên Hero Banner: Luôn giữ nền kính sẫm tương phản cao trong cả Day Mode & Night Mode */
+.hero-banner-box .glass-pill {
+    background: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.hero-banner-box .glass-pill:hover {
+    background: rgba(15, 23, 42, 0.88) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #FFFFFF !important;
+}
+
+.hero-banner-box .glass-pill.text-white,
+.hero-banner-box .glass-pill .text-white {
+    color: #FFFFFF !important;
+}
+
+.hero-banner-box .glass-pill.text-info,
+.hero-banner-box .glass-pill .text-info {
+    color: #38BDF8 !important;
+}
+
 .glass-pill:hover {
     background: var(--bg-surface);
     border-color: var(--border-strong);
@@ -956,18 +982,27 @@ h1, h2, h3, h4, h5, h6,
     flex-shrink: 0;
 }
 
+#milestonesContainer {
+    padding-top: 14px !important;
+    padding-bottom: 8px !important;
+    margin-top: -8px;
+    align-items: flex-end;
+}
+
 /* Card cột mốc dọc chuyển ảnh Banner (Chuẩn Japan Tours) */
 .vertical-station-card.milestone-thumb-card {
     position: relative;
+    z-index: 2;
+    pointer-events: auto !important;
     aspect-ratio: 3 / 4.2;
     width: 105px;
     height: 140px;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     background-color: var(--bg-surface);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease;
     flex-shrink: 0;
     user-select: none;
     text-decoration: none;
@@ -985,9 +1020,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .vertical-station-card.milestone-thumb-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+    z-index: 20;
 }
 
 .vertical-station-card.milestone-thumb-card:hover img {
@@ -995,9 +1031,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .vertical-station-card.milestone-thumb-card.active {
-    border-color: #FFFFFF !important;
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.65), 0 8px 20px rgba(0, 0, 0, 0.45);
-    transform: translateY(-4px);
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7), 0 10px 24px rgba(0, 0, 0, 0.45);
+    transform: translateY(-8px);
+    z-index: 10;
 }
 
 .milestone-thumb-overlay {

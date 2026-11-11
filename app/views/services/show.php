@@ -208,12 +208,13 @@ $srvStatus = $service['status'] ?? 'approved';
                             <div class="row align-items-end justify-content-between mt-auto pt-4 g-3">
                                 <!-- Bên trái: 4-5 thẻ ảnh dọc nhỏ cột mốc tương tác đổi ảnh nền -->
                                 <div class="col-lg-8 col-md-9">
-                                    <div class="d-flex align-items-center gap-2 gap-md-3 overflow-auto pb-1 row-cols-4" id="milestonesContainer">
+                                    <div class="d-flex align-items-end gap-2 gap-md-3 overflow-auto pt-3 pb-2 px-1 row-cols-4" id="milestonesContainer" style="min-height: 165px; scrollbar-width: thin;">
                                         <!-- Thẻ 0: Ảnh bìa chính -->
                                         <div class="vertical-station-card milestone-thumb-card active" 
                                              data-image="<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>"
                                              data-caption="Toàn cảnh <?= htmlspecialchars($service['location'] ?? 'Trải nghiệm', ENT_QUOTES, 'UTF-8') ?>"
-                                             title="Ảnh chính: <?= htmlspecialchars($service['title'] ?? '') ?>">
+                                             title="Ảnh chính: <?= htmlspecialchars($service['title'] ?? '') ?>"
+                                             onclick="switchDetailBanner('<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>', this)">
                                             <img src="<?= htmlspecialchars($bannerImage, ENT_QUOTES, 'UTF-8') ?>" 
                                                  alt="Ảnh chính"
                                                  onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
@@ -233,7 +234,8 @@ $srvStatus = $service['status'] ?? 'approved';
                                                  data-station-id="<?= (int)($station['id'] ?? ($stIndex + 1)) ?>"
                                                  data-image="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>"
                                                  data-caption="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
-                                                 title="Trạm <?= $stIndex + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '') ?>">
+                                                 title="Trạm <?= $stIndex + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '') ?>"
+                                                 onclick="switchDetailBanner('<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>', this)">
                                                 <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
                                                      alt="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
                                                      onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
@@ -384,14 +386,19 @@ $srvStatus = $service['status'] ?? 'approved';
                         </div>
                     <?php endforeach; ?>
 
-                    <!-- Nút mở Modal Trình Chiếu 3D Three.js Z-Scroll ở cuối trục Timeline -->
-                    <div class="mt-4 pt-2 text-center">
+                    <!-- Nút mở Không Gian 3D: Trang Riêng Toàn Màn Hình & Modal Xem Nhanh -->
+                    <div class="mt-4 pt-2 d-flex flex-column gap-2 text-center">
+                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" 
+                           class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                            <i class="bi bi-badge-3d-fill fs-5"></i>
+                            <span class="fw-bold">🚀 Trải Nghiệm Không Gian 3D (Z-Scroll) — Mở Trang Riêng &rarr;</span>
+                        </a>
                         <button type="button" 
-                                class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2"
+                                class="btn btn-glass-hero rounded-pill w-100 py-2 small shadow-sm d-flex align-items-center justify-content-center gap-2 text-light"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#virtualTour3DModal">
-                            <i class="bi bi-stars"></i>
-                            <span>✨ Trải Nghiệm Không Gian 3D (Z-Scroll) &rarr;</span>
+                            <i class="bi bi-window-fullscreen"></i>
+                            <span>✨ Hoặc xem nhanh trong khung Modal (Z-Scroll)</span>
                         </button>
                     </div>
                 </div>
@@ -950,11 +957,16 @@ $srvStatus = $service['status'] ?? 'approved';
                         Trình Chiếu Không Gian 3D — <?= htmlspecialchars($service['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>
                     </h5>
                 </div>
-                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" class="btn btn-sm btn-outline-info rounded-pill px-3 text-decoration-none">
+                        <i class="bi bi-arrows-fullscreen me-1"></i> Mở Trang Riêng
+                    </a>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             <div class="modal-body p-0 position-relative" style="min-height: 520px; background: #0b1924;">
                 <!-- 3D Viewport Simulation / Canvas Container -->
-                <div class="threejs-tour-viewport position-relative" id="threejs-container" style="height: 520px; overflow: hidden;">
+                <div class="threejs-tour-viewport position-relative" id="threejs-container" style="height: 580px; overflow: hidden;">
                     <div id="virtual-tour-canvas" style="width: 100%; height: 100%; position: absolute; inset: 0;">
                         <canvas id="virtualTourThreeCanvas" style="width: 100%; height: 100%; display: block; position: absolute; inset: 0; z-index: 1;"></canvas>
                         <img id="active-station-img" 
@@ -966,7 +978,7 @@ $srvStatus = $service['status'] ?? 'approved';
                     </div>
 
                     <!-- Station Story Overlay Card (Kính mờ) -->
-                    <div class="tour-station-overlay position-absolute bottom-0 start-0 m-4 p-4 glass-panel shadow-lg" id="station-overlay" style="max-width: 480px; z-index: 10;">
+                    <div class="tour-station-overlay position-absolute bottom-0 start-0 m-3 m-md-4 p-4 shadow-lg" id="station-overlay" style="max-width: 480px; z-index: 20; background: rgba(11, 23, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 16px;">
                         <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 rounded-pill px-3 py-1 mb-2 d-inline-block" id="station-badge">
                             Trạm 1 / <?= count($stations) ?>
                         </span>
@@ -1061,7 +1073,8 @@ $srvStatus = $service['status'] ?? 'approved';
 
     // 2. Điều hướng Camera bay tới tọa độ Z của Trạm được chọn
     function goToStation(idx) {
-        currentStopIndex = (idx + tourStops.length) % tourStops.length;
+        const clamped = Math.max(0, Math.min(tourStops.length - 1, idx));
+        currentStopIndex = clamped;
         targetCameraZ = (-currentStopIndex * SPACING_Z) + CAMERA_OFFSET_Z;
         updateHudGlassCard(currentStopIndex);
     }
@@ -1159,17 +1172,28 @@ $srvStatus = $service['status'] ?? 'approved';
             mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
         });
 
-        // Lắng nghe lăn chuột (Wheel) để cuộn xuyên chiều sâu Z
+        // Lắng nghe lăn chuột (Wheel) để cuộn xuyên chiều sâu Z (có bộ lọc độ nhạy & ngưỡng tích lũy)
+        let wheelAccumulator = 0;
+        let lastWheelTime = 0;
+        const WHEEL_THRESHOLD = 90;
+        const WHEEL_COOLDOWN = 650;
+
         containerEl.addEventListener('wheel', (e) => {
             e.preventDefault();
-            if (wheelCooldown) return;
-            wheelCooldown = true;
-            if (e.deltaY > 0) {
-                goToStation(currentStopIndex + 1);
-            } else {
-                goToStation(currentStopIndex - 1);
+            const now = Date.now();
+            if (now - lastWheelTime < WHEEL_COOLDOWN) return;
+
+            wheelAccumulator += e.deltaY;
+
+            if (Math.abs(wheelAccumulator) >= WHEEL_THRESHOLD) {
+                if (wheelAccumulator > 0) {
+                    goToStation(currentStopIndex + 1);
+                } else {
+                    goToStation(currentStopIndex - 1);
+                }
+                wheelAccumulator = 0;
+                lastWheelTime = now;
             }
-            setTimeout(() => { wheelCooldown = false; }, 480);
         }, { passive: false });
 
         // Hỗ trợ vuốt cảm ứng (Touch Swipe) trên Mobile/Tablet
@@ -1188,7 +1212,7 @@ $srvStatus = $service['status'] ?? 'approved';
             animId = requestAnimationFrame(animate);
 
             // Nội suy vị trí Camera tiến dọc trục Z
-            camera.position.z += (targetCameraZ - camera.position.z) * 0.08;
+            camera.position.z += (targetCameraZ - camera.position.z) * 0.055;
             camera.position.x += (mouseX * 0.35 - camera.position.x) * 0.06;
             camera.position.y += (-mouseY * 0.25 - camera.position.y) * 0.06;
 
@@ -1275,6 +1299,7 @@ $srvStatus = $service['status'] ?? 'approved';
 })();
 </script>
 
+<script>
     // =========================================================================
     // TV4-05: AJAX Discussion & 1-Level Host Reply Handler
     // =========================================================================
@@ -1593,28 +1618,45 @@ $srvStatus = $service['status'] ?? 'approved';
     // -------------------------------------------------------------
     // INTERACTIVE MILESTONE BANNER SWITCHER (CHUẨN JAPAN TOURS)
     // -------------------------------------------------------------
-    const milestoneCards = document.querySelectorAll('.milestone-thumb-card');
-    const detailBanner = document.getElementById('detailHeroBanner');
-    const detailGlow = document.getElementById('detailAmbientGlow');
+    window.switchDetailBanner = function(newImg, cardEl) {
+        const detailBanner = document.getElementById('detailHeroBanner');
+        const detailGlow = document.getElementById('detailAmbientGlow');
+        const milestoneCards = document.querySelectorAll('.milestone-thumb-card');
 
-    if (milestoneCards.length && detailBanner) {
+        if (newImg && detailBanner) {
+            detailBanner.classList.remove('detail-depth-fly');
+            void detailBanner.offsetWidth; // Force reflow để trigger lại keyframe
+            detailBanner.classList.add('detail-depth-fly');
+
+            detailBanner.style.backgroundImage = `url('${newImg}')`;
+            if (detailGlow) {
+                detailGlow.style.backgroundImage = `url('${newImg}')`;
+            }
+
+            if (milestoneCards.length && cardEl) {
+                milestoneCards.forEach(c => c.classList.remove('active'));
+                cardEl.classList.add('active');
+            }
+        }
+    };
+
+    function initMilestoneThumbnails() {
+        const milestoneCards = document.querySelectorAll('.milestone-thumb-card');
         milestoneCards.forEach(card => {
+            card.style.cursor = 'pointer';
             card.addEventListener('click', function(e) {
                 e.preventDefault();
                 const newImg = this.getAttribute('data-image');
-                if (newImg && detailBanner) {
-                    detailBanner.classList.remove('detail-depth-fly');
-                    void detailBanner.offsetWidth; // Force reflow để trigger lại keyframe
-                    detailBanner.classList.add('detail-depth-fly');
-
-                    detailBanner.style.backgroundImage = `url('${newImg}')`;
-                    if (detailGlow) {
-                        detailGlow.style.backgroundImage = `url('${newImg}')`;
-                    }
-                    milestoneCards.forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
+                if (newImg) {
+                    window.switchDetailBanner(newImg, this);
                 }
             });
         });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMilestoneThumbnails);
+    } else {
+        initMilestoneThumbnails();
     }
 </script>

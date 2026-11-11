@@ -27,6 +27,8 @@ return function (Router $router): void {
     $router->get('/', [HomeController::class, 'index']);
     $router->get('/services', [ServiceController::class, 'index']);
     $router->get('/services/{id}', [ServiceController::class, 'show']);
+    $router->get('/services/{id}/virtual-tour', [ServiceController::class, 'virtualTour']);
+    $router->get('/services/{id}/3d', [ServiceController::class, 'virtualTour']);
 
     // 2. AUTHENTICATION & PROFILE (TV1)
     $router->get('/login', [AuthController::class, 'loginForm']);
