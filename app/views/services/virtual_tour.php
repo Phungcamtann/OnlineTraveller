@@ -7,6 +7,20 @@
 $service = $service ?? [];
 $stops = $stops ?? [];
 $user = $user ?? null;
+
+// Đối với các tour chưa có trạm thì hiển thị lại banner chính kèm mô tả gói tour
+if (empty($stops)) {
+    $stops = [
+        [
+            'id' => 1,
+            'service_id' => (int)($service['id'] ?? 1),
+            'caption' => $service['title'] ?? 'Toàn cảnh trải nghiệm',
+            'story_text' => !empty($service['description']) ? strip_tags($service['description']) : 'Hòa mình vào không gian trải nghiệm văn hóa và cảnh quan đặc sắc cùng người dân bản địa.',
+            'image_url' => !empty($service['banner_image']) ? $service['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
+            'video_url' => '',
+        ]
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi" data-bs-theme="dark">
@@ -26,7 +40,7 @@ $user = $user ?? null;
 
     <style>
         :root {
-            --vt-card-bg: rgba(15, 23, 42, 0.82);
+            --vt-card-bg: rgba(15, 23, 42, 0.85);
             --vt-card-border: rgba(255, 255, 255, 0.22);
             --vt-pill-bg: #cbd5e1;
             --vt-axis-color: rgba(56, 189, 248, 0.65);
@@ -122,7 +136,7 @@ $user = $user ?? null;
             pointer-events: none;
         }
 
-        /* Vùng viewport cắt dọc cho Card trượt từ dưới lên */
+        /* Vùng viewport cắt dọc cho Card trượt theo tiến độ */
         .vt-story-track-viewport {
             position: relative;
             flex: 1;
@@ -174,7 +188,7 @@ $user = $user ?? null;
             width: 100%;
             padding: 34px 26px 26px;
             border-radius: 24px;
-            background: var(--vt-card-bg, rgba(15, 23, 42, 0.82));
+            background: var(--vt-card-bg, rgba(15, 23, 42, 0.85));
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--vt-card-border, rgba(255, 255, 255, 0.22));
@@ -182,7 +196,7 @@ $user = $user ?? null;
             color: var(--vt-text-main, #f8fafc);
             pointer-events: auto;
             will-change: transform, opacity;
-            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+            transition: transform 0.1s linear, opacity 0.1s linear;
         }
 
         /* Viên thuốc "Trạm X" nằm đè lên mép trên chính giữa của Card */
@@ -201,13 +215,6 @@ $user = $user ?? null;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
             white-space: nowrap;
             text-transform: uppercase;
-        }
-
-        /* Card phụ trồi từ dưới lên khi cuộn dở giữa 2 trạm (Frame 2 & 3) */
-        .vt-glass-preview-card {
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(160%);
         }
 
         /* Con trỏ nhấp nháy cho hiệu ứng Typing chữ */
@@ -398,7 +405,7 @@ $user = $user ?? null;
 
     <!-- CỘT TRÁI: TRỤC DỌC NÉT ĐỨT + GLASS STORY CARD + HIỆU ỨNG TYPING -->
     <div class="vt-left-story-column">
-        <!-- Vùng viewport cho 2 Card trượt theo tiến độ cuộn liên tục -->
+        <!-- Vùng viewport cho Card trượt theo tiến độ cuộn liên tục -->
         <div class="vt-story-track-viewport" id="storyTrackViewport">
             <!-- Trục dọc nét đứt xuyên tâm -->
             <div class="vt-dashed-axis-line" id="dashedAxisLine"></div>
@@ -408,9 +415,9 @@ $user = $user ?? null;
             <div class="vt-glass-story-card tour-hud-card" id="station-overlay">
                 <div class="vt-station-top-pill" id="station-badge">Trạm 1</div>
                 <h3 class="fw-bold text-white font-editorial mb-2 mt-1" id="station-caption">
-                    <?= htmlspecialchars($stops[0]['caption'] ?? 'Điểm Dừng Chân') ?>
+                    <?= htmlspecialchars($stops[0]['caption'] ?? ($service['title'] ?? 'Toàn cảnh trải nghiệm')) ?>
                 </h3>
-                <div class="text-light opacity-80 mb-3" id="station-story" style="line-height: 1.65; font-size: 0.95rem; min-height: 72px;">
+                <div class="text-light opacity-90 mb-3" id="station-story" style="line-height: 1.65; font-size: 0.95rem; min-height: 72px;">
                     <span class="vt-typed-content"><?= htmlspecialchars($stops[0]['story_text'] ?? '') ?></span><span class="vt-typing-cursor"></span>
                 </div>
                 <!-- Chứa nội dung văn bản thô phục vụ kiểm thử tự động -->
@@ -421,15 +428,6 @@ $user = $user ?? null;
                             <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
                         </a>
                     <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Card phụ trôi từ dưới lên khi cuộn dở dang giữa 2 trạm (Frame 2 -> 3) -->
-            <div class="vt-glass-story-card vt-glass-preview-card position-absolute" id="station-next-card">
-                <div class="vt-station-top-pill" id="next-station-badge">Trạm 2</div>
-                <h3 class="fw-bold text-white font-editorial mb-2 mt-1" id="next-station-caption">Trạm 2</h3>
-                <div class="text-light opacity-75 mb-3" id="next-station-story" style="line-height: 1.6; font-size: 0.95rem;">
-                    ...
                 </div>
             </div>
         </div>
@@ -460,6 +458,7 @@ $user = $user ?? null;
     <script>
     (function() {
         const tourStops = <?= json_encode($stops, JSON_UNESCAPED_UNICODE) ?>;
+        const currentService = <?= json_encode($service, JSON_UNESCAPED_UNICODE) ?>;
         if (!tourStops || !tourStops.length) return;
 
         // Trích xuất tham số ?station=X nếu có
@@ -477,10 +476,6 @@ $user = $user ?? null;
         const storyEl = document.getElementById('station-story');
         const rawStoryEl = document.getElementById('station-story-raw');
         const videoWrapper = document.getElementById('hudVideoWrapper');
-        const nextCard = document.getElementById('station-next-card');
-        const nextBadgeEl = document.getElementById('next-station-badge');
-        const nextCaptionEl = document.getElementById('next-station-caption');
-        const nextStoryEl = document.getElementById('next-station-story');
         const btnPrev = document.getElementById('btnPrevStation');
         const btnNext = document.getElementById('btnNextStation');
         const topCounter = document.getElementById('topStationCounter');
@@ -489,7 +484,7 @@ $user = $user ?? null;
         // Biến trạng thái Cuộn Liên Tục
         let targetProgress = initialStop;
         let currentProgress = initialStop;
-        let lastSettledIndex = -1;
+        let lastTypedIndex = -1;
         let snapTimer = null;
         let typeTimer = null;
 
@@ -588,8 +583,18 @@ $user = $user ?? null;
             if (captionEl) captionEl.innerText = st.caption || `Trạm ${idx + 1}`;
             if (topCounter) topCounter.innerText = `Trạm ${idx + 1} / ${tourStops.length}`;
 
+            // Chuẩn bị nội dung văn bản đầy đủ cần gõ (không bao giờ để trống)
+            let textToType = '';
+            if (st.story_text && typeof st.story_text === 'string' && st.story_text.trim().length > 0) {
+                textToType = st.story_text.trim();
+            } else if (currentService && currentService.description && typeof currentService.description === 'string' && currentService.description.trim().length > 0) {
+                textToType = currentService.description.replace(/<[^>]*>?/gm, '').trim();
+            } else {
+                textToType = `Khám phá và tận hưởng trọn vẹn nét đẹp độc đáo tại ${st.caption || 'điểm dừng chân này'} cùng người dân bản địa.`;
+            }
+
             // Chạy hiệu ứng Typing
-            runTypewriter(st.story_text || 'Khám phá vẻ đẹp bản địa nguyên sơ và văn hóa đặc sắc.');
+            runTypewriter(textToType);
 
             if (videoWrapper) {
                 if (st.video_url) {
@@ -690,57 +695,63 @@ $user = $user ?? null;
             // =========================================================================
             // CƠ CHẾ CUỘN LIÊN TỤC TỪNG NẤC (SCROLL PROGRESS)
             // =========================================================================
-            window.addEventListener('wheel', (e) => {
-                e.preventDefault();
-
-                // Mỗi nấc lăn chuột chỉ nhích khoảng 8% - 10% quãng đường
-                const stepDelta = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY) * 0.0011, 0.12);
-                targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + stepDelta));
-
-                // Magnetic Snap: Khi người dùng dừng lăn chuột sau 380ms, tự động hút về trạm gần nhất
-                clearTimeout(snapTimer);
-                snapTimer = setTimeout(() => {
-                    targetProgress = Math.round(targetProgress);
-                }, 380);
-            }, { passive: false });
-
-            // Phím mũi tên
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            if (tourStops.length > 1) {
+                window.addEventListener('wheel', (e) => {
                     e.preventDefault();
-                    targetProgress = Math.min(tourStops.length - 1, Math.round(targetProgress) + 1);
-                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    targetProgress = Math.max(0, Math.round(targetProgress) - 1);
-                }
-            });
 
-            // Cảm ứng vuốt trên Mobile
-            let touchStartY = 0;
-            window.addEventListener('touchstart', (e) => {
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
+                    // Mỗi nấc lăn chuột chỉ nhích khoảng 8% - 10% quãng đường
+                    const stepDelta = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY) * 0.0011, 0.12);
+                    targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + stepDelta));
 
-            window.addEventListener('touchmove', (e) => {
-                const dy = touchStartY - e.touches[0].clientY;
-                touchStartY = e.touches[0].clientY;
-                const touchStep = (dy / window.innerHeight) * 1.6;
-                targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + touchStep));
-            }, { passive: true });
+                    // Magnetic Snap: Khi người dùng dừng lăn chuột sau 380ms, tự động hút về trạm gần nhất
+                    clearTimeout(snapTimer);
+                    snapTimer = setTimeout(() => {
+                        targetProgress = Math.round(targetProgress);
+                    }, 380);
+                }, { passive: false });
 
-            window.addEventListener('touchend', () => {
-                clearTimeout(snapTimer);
-                snapTimer = setTimeout(() => {
-                    targetProgress = Math.round(targetProgress);
-                }, 280);
-            }, { passive: true });
+                // Phím mũi tên
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        targetProgress = Math.min(tourStops.length - 1, Math.round(targetProgress) + 1);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        targetProgress = Math.max(0, Math.round(targetProgress) - 1);
+                    }
+                });
+
+                // Cảm ứng vuốt trên Mobile
+                let touchStartY = 0;
+                window.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                window.addEventListener('touchmove', (e) => {
+                    const dy = touchStartY - e.touches[0].clientY;
+                    touchStartY = e.touches[0].clientY;
+                    const touchStep = (dy / window.innerHeight) * 1.6;
+                    targetProgress = Math.max(0, Math.min(tourStops.length - 1, targetProgress + touchStep));
+                }, { passive: true });
+
+                window.addEventListener('touchend', () => {
+                    clearTimeout(snapTimer);
+                    snapTimer = setTimeout(() => {
+                        targetProgress = Math.round(targetProgress);
+                    }, 280);
+                }, { passive: true });
+            }
 
             // Vòng lặp Render 60fps
             function animate() {
                 animId = requestAnimationFrame(animate);
 
                 // Nội suy tiến độ cuộn liên tục
-                currentProgress += (targetProgress - currentProgress) * 0.085;
+                if (tourStops.length > 1) {
+                    currentProgress += (targetProgress - currentProgress) * 0.085;
+                } else {
+                    currentProgress = 0;
+                }
 
                 // Chuột Parallax mượt mà
                 mouseX += (targetMouseX - mouseX) * 0.05;
@@ -817,42 +828,30 @@ $user = $user ?? null;
                     }
                 });
 
-                // Đồng bộ vị trí Card Trái trên trục nét đứt khi cuộn dở giữa 2 trạm
-                const baseIndex = Math.floor(currentProgress);
-                const frac = currentProgress - baseIndex;
-                const nextIndex = Math.min(tourStops.length - 1, baseIndex + 1);
+                // Cập nhật vị trí và độ mờ của Card Trái trên trục nét đứt
+                const activeIndex = Math.max(0, Math.min(tourStops.length - 1, Math.round(currentProgress)));
+                const offsetFromActive = activeIndex - currentProgress; // Ranges from -0.5 to +0.5
 
-                if (overlayCard && nextCard) {
-                    if (frac > 0.02 && baseIndex < tourStops.length - 1) {
-                        // Đang trượt giữa trạm baseIndex và nextIndex
-                        const stNext = tourStops[nextIndex];
-                        if (stNext) {
-                            if (nextBadgeEl) nextBadgeEl.innerText = `Trạm ${nextIndex + 1}`;
-                            if (nextCaptionEl) nextCaptionEl.innerText = stNext.caption || `Trạm ${nextIndex + 1}`;
-                            if (nextStoryEl) nextStoryEl.innerText = (stNext.story_text || '').substring(0, 120) + '...';
-                        }
-
-                        // Card chính trượt dần lên
-                        overlayCard.style.transform = `translateY(-${frac * 115}%)`;
-                        overlayCard.style.opacity = `${Math.max(0, 1 - frac * 1.5)}`;
-
-                        // Card tiếp theo trồi từ dưới đáy lên
-                        nextCard.style.opacity = `${Math.min(1, frac * 1.5)}`;
-                        nextCard.style.transform = `translateY(${(1 - frac) * 115}%)`;
-                    } else {
-                        // Dừng gần trạm
-                        overlayCard.style.transform = 'translateY(0)';
-                        overlayCard.style.opacity = '1';
-                        nextCard.style.opacity = '0';
-                        nextCard.style.transform = 'translateY(160%)';
-                    }
+                if (overlayCard) {
+                    // Khi cuộn giữa 2 trạm, card lướt nhẹ theo chiều dọc trục nét đứt
+                    const shiftY = offsetFromActive * -65; // px
+                    const cardAlpha = Math.max(0.18, 1 - Math.abs(offsetFromActive) * 1.55);
+                    overlayCard.style.transform = `translateY(${shiftY}px)`;
+                    overlayCard.style.opacity = `${cardAlpha}`;
                 }
 
-                // Phát hiện khi Camera dừng hẳn tại trạm để chạy gõ chữ
-                const settledIndex = Math.round(currentProgress);
-                if (Math.abs(currentProgress - settledIndex) < 0.06 && settledIndex !== lastSettledIndex) {
-                    lastSettledIndex = settledIndex;
-                    onStationSettled(settledIndex);
+                // Phát hiện khi Camera dừng gần trạm để kích hoạt gõ chữ
+                const targetIdx = Math.max(0, Math.min(tourStops.length - 1, Math.round(currentProgress)));
+
+                // Nếu người dùng cuộn đi xa khỏi trạm cũ thì reset để sẵn sàng gõ lại khi quay về
+                if (lastTypedIndex !== -1 && Math.abs(currentProgress - lastTypedIndex) > 0.35) {
+                    lastTypedIndex = -1;
+                }
+
+                // Khi camera đã tiến sát vào trạm (< 0.05) và chưa gõ chữ cho trạm này
+                if (Math.abs(currentProgress - targetIdx) < 0.05 && targetIdx !== lastTypedIndex) {
+                    lastTypedIndex = targetIdx;
+                    onStationSettled(targetIdx);
                 }
 
                 renderer.render(scene, camera);

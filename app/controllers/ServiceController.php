@@ -139,6 +139,21 @@ class ServiceController extends BaseController
         }
 
         $stops = $this->serviceModel->getStops($serviceId);
+
+        // Đối với các tour chưa có trạm thì hiển thị lại banner chính kèm mô tả gói tour
+        if (empty($stops)) {
+            $stops = [
+                [
+                    'id' => 1,
+                    'service_id' => $serviceId,
+                    'caption' => $service['title'] ?? 'Toàn cảnh trải nghiệm',
+                    'story_text' => !empty($service['description']) ? strip_tags($service['description']) : 'Hòa mình vào không gian trải nghiệm văn hóa và cảnh quan đặc sắc cùng người dân bản địa.',
+                    'image_url' => !empty($service['banner_image']) ? $service['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
+                    'video_url' => '',
+                ]
+            ];
+        }
+
         $user = $this->user();
 
         $this->view('services/virtual_tour', [

@@ -12,40 +12,23 @@ $service = $service ?? [];
 $stops = $stops ?? [];
 $weather = $weather ?? [];
 
-// Fallback sample stations if tour has no stops yet
-$stations = !empty($stops) ? $stops : [
-    [
-        'id' => 1,
-        'image_url' => '/assets/images/tours/dalat-san-may.jpg',
-        'caption' => 'Đón bình minh bến thuyền',
-        'story_text' => 'Trạm 1: Đón bình minh bến thuyền cùng bình minh nồng nàn bên người dân bản địa.',
-        'video_url' => '',
-    ],
-    [
-        'id' => 2,
-        'image_url' => '/assets/images/tours/dalat-rung-thong.jpg',
-        'caption' => 'Rừng thông & Cà phê bản địa',
-        'story_text' => 'Trạm 2: Rừng thông & Cà phê bản địa giữa không gian núi rừng bạt ngàn mát lạnh.',
-        'video_url' => '',
-    ],
-    [
-        'id' => 3,
-        'image_url' => '/assets/images/tours/dalat-am-thuc.jpg',
-        'caption' => 'Ẩm thực chiều bên hồ',
-        'story_text' => 'Trạm 3: Ẩm thực chiều bên hồ thưởng thức các món ăn ngon lành của quê hương.',
-        'video_url' => '',
-    ],
-    [
-        'id' => 4,
-        'image_url' => '/assets/images/tours/dalat-ho-tuyen-lam.jpg',
-        'caption' => 'Hoàng hôn Hồ Tuyền Lâm',
-        'story_text' => 'Trạm 4: Chiêm ngưỡng vẻ đẹp thơ mộng khi hoàng hôn buông xuống mặt hồ êm ả.',
-        'video_url' => '',
-    ],
-];
-
 // Fallback Banner Image
 $bannerImage = !empty($service['banner_image']) ? $service['banner_image'] : '/assets/images/tours/dalat-san-may.jpg';
+
+// Danh sách trạm hợp lệ của riêng tour này
+$stations = $stops;
+
+// Fallback trạm an toàn cho Modal 3D và Script WebGL (dùng dữ liệu của chính tour này, không mượn dữ liệu tour khác)
+$modalStops = !empty($stops) ? $stops : [
+    [
+        'id' => 1,
+        'service_id' => (int)($service['id'] ?? 1),
+        'caption' => $service['title'] ?? 'Toàn cảnh trải nghiệm',
+        'story_text' => !empty($service['description']) ? strip_tags($service['description']) : 'Hòa mình vào không gian trải nghiệm văn hóa và cảnh quan đặc sắc cùng người dân bản địa.',
+        'image_url' => $bannerImage,
+        'video_url' => '',
+    ]
+];
 
 // Google Maps Query
 $mapQuery = urlencode(($service['location'] ?? 'Đà Lạt') . ', Việt Nam');
@@ -193,9 +176,15 @@ $srvStatus = $service['status'] ?? 'approved';
                                     <!-- Cột phải: Khoảng thoáng đãng khoe trọn cảnh quan chuẩn Japan Tours -->
                                     <div class="col-lg-5 col-md-4 text-end d-none d-md-block">
                                         <div class="d-inline-flex gap-2">
-                                            <span class="glass-pill px-3 py-1 small text-white opacity-75">
-                                                <i class="bi bi-camera me-1"></i> <?= count($stations) ?> cột mốc
-                                            </span>
+                                            <?php if (!empty($stops)): ?>
+                                                <span class="glass-pill px-3 py-1 small text-white opacity-75">
+                                                    <i class="bi bi-camera me-1"></i> <?= count($stops) ?> cột mốc
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="glass-pill px-3 py-1 small text-white opacity-75">
+                                                    <i class="bi bi-compass me-1"></i> Trải nghiệm trọn gói
+                                                </span>
+                                            <?php endif; ?>
                                             <span class="glass-pill px-3 py-1 small text-white opacity-75">
                                                 <i class="bi bi-shield-check text-success me-1"></i> Bản địa xác minh
                                             </span>
@@ -228,27 +217,29 @@ $srvStatus = $service['status'] ?? 'approved';
                                             </div>
                                         </div>
 
-                                        <!-- Thẻ 1..N: Các trạm trải nghiệm -->
-                                        <?php foreach (array_slice($stations, 0, 4) as $stIndex => $station): ?>
-                                            <div class="vertical-station-card milestone-thumb-card" 
-                                                 data-station-id="<?= (int)($station['id'] ?? ($stIndex + 1)) ?>"
-                                                 data-image="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>"
-                                                 data-caption="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
-                                                 title="Trạm <?= $stIndex + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '') ?>"
-                                                 onclick="switchDetailBanner('<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>', this)">
-                                                <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                     alt="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
-                                                     onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
-                                                <div class="milestone-thumb-overlay">
-                                                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill mb-1" style="font-size: 0.6rem; width: fit-content;">
-                                                        Trạm <?= $stIndex + 1 ?>
-                                                    </span>
-                                                    <div class="milestone-thumb-title">
-                                                        <?= htmlspecialchars($station['caption'] ?? ('Điểm dừng ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>
+                                        <!-- Thẻ 1..N: Các trạm trải nghiệm thực tế của tour -->
+                                        <?php if (!empty($stops)): ?>
+                                            <?php foreach ($stops as $stIndex => $station): ?>
+                                                <div class="vertical-station-card milestone-thumb-card" 
+                                                     data-station-id="<?= (int)($station['id'] ?? ($stIndex + 1)) ?>"
+                                                     data-image="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>"
+                                                     data-caption="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
+                                                     title="Trạm <?= $stIndex + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '') ?>"
+                                                     onclick="switchDetailBanner('<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>', this)">
+                                                    <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                         alt="<?= htmlspecialchars($station['caption'] ?? ('Trạm ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>"
+                                                         onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80'">
+                                                    <div class="milestone-thumb-overlay">
+                                                        <span class="badge bg-white bg-opacity-25 text-white rounded-pill mb-1" style="font-size: 0.6rem; width: fit-content;">
+                                                            Trạm <?= $stIndex + 1 ?>
+                                                        </span>
+                                                        <div class="milestone-thumb-title">
+                                                            <?= htmlspecialchars($station['caption'] ?? ('Điểm dừng ' . ($stIndex + 1)), ENT_QUOTES, 'UTF-8') ?>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
@@ -316,87 +307,119 @@ $srvStatus = $service['status'] ?? 'approved';
                 </div>
             </div>
 
-            <!-- Cột phải (col-lg-7): TRỤC DỌC SO LE (ZIGZAG) CHUẨN JAPAN TOURS -->
+            <!-- Cột phải (col-lg-7): TRỤC DỌC SO LE (ZIGZAG) CHUẨN JAPAN TOURS HOẶC LỊCH TRÌNH LINH HOẠT -->
             <div class="col-lg-7">
-                <div class="japan-timeline station-timeline position-relative">
-                    <?php foreach ($stations as $index => $station): ?>
-                        <?php 
-                            $isEven = ($index % 2 === 0);
-                            $stId = (int)($station['id'] ?? ($index + 1));
-                            $stationTitle = 'Trạm ' . ($index + 1) . ': ' . ($station['caption'] ?? '');
-                        ?>
-                        <div class="japan-timeline-step station-timeline-item js-open-station-3d position-relative mb-5" 
-                             id="station-<?= $stId ?>" 
-                             data-station-index="<?= (int)$index ?>" 
-                             role="button" 
-                             title="Xem trạm <?= $index + 1 ?> trong không gian 3D">
-                            <span class="japan-timeline-dot station-timeline-dot"></span>
+                <?php if (!empty($stops)): ?>
+                    <div class="japan-timeline station-timeline position-relative">
+                        <?php foreach ($stops as $index => $station): ?>
+                            <?php 
+                                $isEven = ($index % 2 === 0);
+                                $stId = (int)($station['id'] ?? ($index + 1));
+                                $stationTitle = 'Trạm ' . ($index + 1) . ': ' . ($station['caption'] ?? '');
+                            ?>
+                            <div class="japan-timeline-step station-timeline-item js-open-station-3d position-relative mb-5" 
+                                 id="station-<?= $stId ?>" 
+                                 data-station-index="<?= (int)$index ?>" 
+                                 role="button" 
+                                 title="Xem trạm <?= $index + 1 ?> trong không gian 3D">
+                                <span class="japan-timeline-dot station-timeline-dot"></span>
 
-                            <?php if ($isEven): ?>
-                                <!-- Nhánh bên TRÁI trục giữa -->
-                                <div class="japan-timeline-col text-end pe-3">
-                                    <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
-                                        Trạm <?= $index + 1 ?>
-                                    </span>
-                                    <h6 class="fw-bold mb-1" style="color: var(--text-main);">
-                                        <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
-                                    </h6>
-                                    <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
-                                        <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                    </p>
-                                    <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
-                                        <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                             class="w-100 h-100 object-fit-cover hover-lift" 
-                                             alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                             onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
+                                <?php if ($isEven): ?>
+                                    <!-- Nhánh bên TRÁI trục giữa -->
+                                    <div class="japan-timeline-col text-end pe-3">
+                                        <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
+                                            Trạm <?= $index + 1 ?>
+                                        </span>
+                                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">
+                                            <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
+                                        </h6>
+                                        <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
+                                            <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                        </p>
+                                        <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
+                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                 class="w-100 h-100 object-fit-cover hover-lift" 
+                                                 alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
+                                        </div>
+                                        <div class="mt-1">
+                                            <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
+                                                <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div class="mt-1">
-                                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
-                                            <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
-                                        </a>
+                                    <div class="japan-timeline-col d-none d-md-block"></div>
+                                <?php else: ?>
+                                    <!-- Nhánh bên PHẢI trục giữa -->
+                                    <div class="japan-timeline-col d-none d-md-block"></div>
+                                    <div class="japan-timeline-col text-start ps-3">
+                                        <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
+                                            Trạm <?= $index + 1 ?>
+                                        </span>
+                                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">
+                                            <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
+                                        </h6>
+                                        <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
+                                            <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                        </p>
+                                        <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
+                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                                                 class="w-100 h-100 object-fit-cover hover-lift" 
+                                                 alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
+                                        </div>
+                                        <div class="mt-1">
+                                            <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
+                                                <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="japan-timeline-col d-none d-md-block"></div>
-                            <?php else: ?>
-                                <!-- Nhánh bên PHẢI trục giữa -->
-                                <div class="japan-timeline-col d-none d-md-block"></div>
-                                <div class="japan-timeline-col text-start ps-3">
-                                    <span class="badge bg-info bg-opacity-15 text-info rounded-pill px-2 py-0 mb-1" style="font-size: 0.7rem;">
-                                        Trạm <?= $index + 1 ?>
-                                    </span>
-                                    <h6 class="fw-bold mb-1" style="color: var(--text-main);">
-                                        <?= htmlspecialchars($stationTitle, ENT_QUOTES, 'UTF-8') ?>
-                                    </h6>
-                                    <p class="small mb-2 line-clamp-2" style="color: var(--text-muted);">
-                                        <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                    </p>
-                                    <div class="rounded-3 overflow-hidden shadow-sm d-inline-block" style="height: 130px; width: 100%; max-width: 210px;">
-                                        <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                             class="w-100 h-100 object-fit-cover hover-lift" 
-                                             alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                             onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
-                                    </div>
-                                    <div class="mt-1">
-                                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
-                                            <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
-                                        </a>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <!-- Nút mở Không Gian 3D: Duy nhất 1 nút trang riêng, giao diện sang trọng không ghi chú kỹ thuật -->
+                        <div class="mt-4 pt-2 text-center">
+                            <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" 
+                               class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                                <i class="bi bi-badge-3d-fill fs-5"></i>
+                                <span class="fw-bold">Trải Nghiệm Không Gian 3D &rarr;</span>
+                                <span class="visually-hidden">Trải Nghiệm Không Gian 3D (Z-Scroll)</span>
+                            </a>
+                            <div class="d-none" data-bs-target="#virtualTour3DModal"></div>
                         </div>
-                    <?php endforeach; ?>
-
-<!-- Nút mở Không Gian 3D: Duy nhất 1 nút trang riêng, giao diện sang trọng không ghi chú kỹ thuật -->
-                    <div class="mt-4 pt-2 text-center">
-                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" 
-                           class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2 text-decoration-none">
-                            <i class="bi bi-badge-3d-fill fs-5"></i>
-                            <span class="fw-bold">Trải Nghiệm Không Gian 3D &rarr;</span>
-                            <span class="visually-hidden">Trải Nghiệm Không Gian 3D (Z-Scroll)</span>
-                        </a>
-                        <div class="d-none" data-bs-target="#virtualTour3DModal"></div>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="station-timeline position-relative">
+                        <div class="p-4 p-md-5 rounded-4 border-subtle surface-card text-center my-2 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info mb-3" style="width: 60px; height: 60px; font-size: 1.6rem;">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2" style="color: var(--text-main);">Hành Trình Linh Hoạt &amp; Trọn Gói</h5>
+                            <p class="text-muted small mx-auto mb-3" style="max-width: 440px; line-height: 1.65;">
+                                Gói trải nghiệm này được thiết kế linh hoạt không chia theo trạm cố định. Host bản địa sẽ đồng hành và cùng bạn khám phá trọn vẹn các điểm đặc sắc theo nhịp điệu thoải mái nhất.
+                            </p>
+                            <div class="d-inline-flex align-items-center flex-wrap justify-content-center gap-2 py-2 px-3 rounded-pill bg-body-tertiary border border-subtle small text-muted">
+                                <span><i class="bi bi-clock-history text-info me-1"></i><?= htmlspecialchars($service['duration'] ?? '1 ngày') ?></span>
+                                <span class="mx-1 d-none d-sm-inline">&bull;</span>
+                                <span><i class="bi bi-people text-info me-1"></i>Tối đa <?= (int)($service['max_guests'] ?? 6) ?> khách</span>
+                                <span class="mx-1 d-none d-sm-inline">&bull;</span>
+                                <span><i class="bi bi-shield-check text-success me-1"></i>Host đồng hành trọn gói</span>
+                            </div>
+                        </div>
+
+                        <!-- Nút mở Không Gian 3D cho Tour toàn cảnh -->
+                        <div class="mt-4 pt-2 text-center">
+                            <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" 
+                               class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                                <i class="bi bi-badge-3d-fill fs-5"></i>
+                                <span class="fw-bold">Khám Phá Toàn Cảnh 3D &rarr;</span>
+                                <span class="visually-hidden">Trải Nghiệm Không Gian 3D (Z-Scroll)</span>
+                            </a>
+                            <div class="d-none" data-bs-target="#virtualTour3DModal"></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -965,8 +988,8 @@ $srvStatus = $service['status'] ?? 'approved';
                     <div id="virtual-tour-canvas" style="width: 100%; height: 100%; position: absolute; inset: 0;">
                         <canvas id="virtualTourThreeCanvas" style="width: 100%; height: 100%; display: block; position: absolute; inset: 0; z-index: 1;"></canvas>
                         <img id="active-station-img" 
-                             src="<?= htmlspecialchars($stations[0]['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                             alt="<?= htmlspecialchars($stations[0]['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                             src="<?= htmlspecialchars($modalStops[0]['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
+                             alt="<?= htmlspecialchars($modalStops[0]['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                              class="d-none"
                              style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: opacity 0.4s ease;"
                              onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80'">
@@ -975,16 +998,16 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Station Story Overlay Card (Kính mờ) -->
                     <div class="tour-station-overlay position-absolute bottom-0 start-0 m-3 m-md-4 p-4 shadow-lg" id="station-overlay" style="max-width: 480px; z-index: 20; background: rgba(11, 23, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 16px;">
                         <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 rounded-pill px-3 py-1 mb-2 d-inline-block" id="station-badge">
-                            Trạm 1 / <?= count($stations) ?>
+                            Trạm 1 / <?= count($modalStops) ?>
                         </span>
                         <h5 class="fw-bold text-white font-editorial mb-2" id="station-caption">
-                            <?= htmlspecialchars($stations[0]['caption'] ?? '') ?>
+                            <?= htmlspecialchars($modalStops[0]['caption'] ?? '') ?>
                         </h5>
                         <p class="small text-light opacity-75 mb-3" id="station-story">
-                            <?= htmlspecialchars($stations[0]['story_text'] ?? '') ?>
+                            <?= htmlspecialchars($modalStops[0]['story_text'] ?? '') ?>
                         </p>
-                        <?php if (!empty($stations[0]['video_url'])): ?>
-                            <a href="<?= htmlspecialchars($stations[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="station-video-btn">
+                        <?php if (!empty($modalStops[0]['video_url'])): ?>
+                            <a href="<?= htmlspecialchars($modalStops[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="station-video-btn">
                                 <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
                             </a>
                         <?php endif; ?>
@@ -1011,7 +1034,7 @@ $srvStatus = $service['status'] ?? 'approved';
 <!-- Interactive Stops 3D Multi-Layer Z-Scroll WebGL Script -->
 <script>
 (function() {
-    const tourStops = <?= json_encode($stations, JSON_UNESCAPED_UNICODE) ?>;
+    const tourStops = <?= json_encode($modalStops, JSON_UNESCAPED_UNICODE) ?>;
     if (!tourStops || !tourStops.length) return;
 
     let currentStopIndex = 0;
