@@ -318,44 +318,16 @@ $srvStatus = $service['status'] ?? 'approved';
             <div class="col-lg-7">
                 <div class="japan-timeline station-timeline position-relative">
                     <?php foreach ($stations as $index => $station): ?>
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-                        <div class="station-timeline-item position-relative mb-4">
-                            <span class="station-timeline-dot"></span>
-                            <div class="glass-panel p-3">
-                                <div class="row g-3 align-items-center">
-                                    <div class="col-sm-4">
-                                        <div class="rounded-3 overflow-hidden shadow-sm" style="height: 95px;">
-                                            <img src="<?= htmlspecialchars($station['image_url'], ENT_QUOTES, 'UTF-8') ?>" 
-                                                 class="w-100 h-100 object-fit-cover" 
-                                                 alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                 onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <h6 class="fw-bold text-white mb-1">
-                                            Trạm <?= $index + 1 ?>: <?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                        </h6>
-                                        <p class="small text-light opacity-75 mb-0 line-clamp-2">
-                                            <?= htmlspecialchars($station['story_text'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-=======
->>>>>>> Stashed changes
                         <?php 
                             $isEven = ($index % 2 === 0);
                             $stId = (int)($station['id'] ?? ($index + 1));
                             $stationTitle = 'Trạm ' . ($index + 1) . ': ' . ($station['caption'] ?? '');
                         ?>
-<<<<<<< Updated upstream
-                        <div class="japan-timeline-step station-timeline-item position-relative mb-5" id="station-<?= $stId ?>">
-=======
                         <div class="japan-timeline-step station-timeline-item js-open-station-3d position-relative mb-5" 
                              id="station-<?= $stId ?>" 
                              data-station-index="<?= (int)$index ?>" 
                              role="button" 
                              title="Xem trạm <?= $index + 1 ?> trong không gian 3D">
->>>>>>> Stashed changes
                             <span class="japan-timeline-dot station-timeline-dot"></span>
 
                             <?php if ($isEven): ?>
@@ -375,11 +347,6 @@ $srvStatus = $service['status'] ?? 'approved';
                                              class="w-100 h-100 object-fit-cover hover-lift" 
                                              alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                              onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
-<<<<<<< Updated upstream
-                                    </div>
-                                </div>
-=======
->>>>>>> Stashed changes
                                     </div>
                                     <div class="mt-1">
                                         <span class="badge rounded-pill bg-dark bg-opacity-50 text-white border border-light border-opacity-25 small mt-1 d-inline-block">
@@ -387,10 +354,6 @@ $srvStatus = $service['status'] ?? 'approved';
                                         </span>
                                     </div>
                                 </div>
-<<<<<<< Updated upstream
-                            </div>
-=======
->>>>>>> Stashed changes
                                 <div class="japan-timeline-col d-none d-md-block"></div>
                             <?php else: ?>
                                 <!-- Nhánh bên PHẢI trục giữa -->
@@ -411,10 +374,6 @@ $srvStatus = $service['status'] ?? 'approved';
                                              alt="<?= htmlspecialchars($station['caption'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                              onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
                                     </div>
-<<<<<<< Updated upstream
-                                </div>
-                            <?php endif; ?>
-=======
                                     <div class="mt-1">
                                         <span class="badge rounded-pill bg-dark bg-opacity-50 text-white border border-light border-opacity-25 small mt-1 d-inline-block">
                                             <i class="bi bi-box-arrow-up-right me-1"></i>Xem trạm này trong 3D
@@ -422,8 +381,6 @@ $srvStatus = $service['status'] ?? 'approved';
                                     </div>
                                 </div>
                             <?php endif; ?>
->>>>>>> Stashed changes
->>>>>>> Stashed changes
                         </div>
                     <?php endforeach; ?>
 
@@ -1507,11 +1464,6 @@ $srvStatus = $service['status'] ?? 'approved';
             }
         });
     });
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
 
     // -------------------------------------------------------------
     // PHASE 2: STAR RATING INTERACTION & AJAX REVIEW SUBMIT
@@ -1650,15 +1602,11 @@ $srvStatus = $service['status'] ?? 'approved';
             card.addEventListener('click', function(e) {
                 e.preventDefault();
                 const newImg = this.getAttribute('data-image');
-<<<<<<< Updated upstream
-                if (newImg) {
-=======
                 if (newImg && detailBanner) {
                     detailBanner.classList.remove('detail-depth-fly');
                     void detailBanner.offsetWidth; // Force reflow để trigger lại keyframe
                     detailBanner.classList.add('detail-depth-fly');
 
->>>>>>> Stashed changes
                     detailBanner.style.backgroundImage = `url('${newImg}')`;
                     if (detailGlow) {
                         detailGlow.style.backgroundImage = `url('${newImg}')`;
@@ -1669,8 +1617,4 @@ $srvStatus = $service['status'] ?? 'approved';
             });
         });
     }
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 </script>

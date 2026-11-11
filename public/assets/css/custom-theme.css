@@ -87,21 +87,11 @@ body main {
     flex: 1 0 auto;
 }
 
-<<<<<<< Updated upstream
-/* Typography Uniformity */
-=======
-<<<<<<< Updated upstream
-/* Đồng nhất toàn bộ font chữ sang Roboto duy nhất theo yêu cầu người dùng */
-=======
 .main-container {
     padding-top: clamp(74px, 8.5vh, 88px);
 }
 
 /* Typography Uniformity */
-h1, h2, h3, h4, h5, h6,
->>>>>>> Stashed changes
-.font-editorial,
->>>>>>> Stashed changes
 h1, h2, h3, h4, h5, h6,
 .font-editorial,
 .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
@@ -585,12 +575,6 @@ h1, h2, h3, h4, h5, h6,
     color: var(--text-main);
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-/* 10. TIỆN ÍCH TRANG CHỦ & SEARCH BAR */
-=======
->>>>>>> Stashed changes
 /* ==========================================================================
    9. ADAPTIVE AMBIENT GLOW & BANNER UTILITIES
    ========================================================================== */
@@ -607,10 +591,7 @@ h1, h2, h3, h4, h5, h6,
     overflow: hidden;
     min-height: 75vh;
     min-height: clamp(560px, 75vh, 850px);
-<<<<<<< Updated upstream
-=======
     background-color: #1a2530;
->>>>>>> Stashed changes
     background-size: cover;
     background-position: center bottom;
     transition: background-image 0.5s ease-in-out;
@@ -690,10 +671,6 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Đường phân cách mảnh giữa các ô tìm kiếm capsule Roamora */
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 .search-col-divider {
     position: relative;
 }
