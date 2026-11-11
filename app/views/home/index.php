@@ -125,8 +125,27 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
     <section class="container-fluid px-2 px-md-3 px-lg-4 pt-2">
         <div class="row">
             <div class="col-12">
+<<<<<<< Updated upstream
                 <div class="hero-ambient-wrapper" id="homeHeroAmbientWrapper">
                     <div class="hero-banner-box position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
+=======
+<<<<<<< Updated upstream
+                <div class="hero-ambient-wrapper">
+                    <div class="hero-banner-box position-relative" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                            <div class="container">
+                                <div class="row align-items-center pt-5 pb-4 px-lg-4">
+                                    <div class="col-lg-7 col-md-9 pt-4">
+                                        <h1 class="font-editorial display-4 fw-bold text-white mb-3 lh-sm">
+=======
+                <div class="hero-ambient-wrapper hero-3d-stage-wrapper position-relative" id="homeHeroAmbientWrapper">
+                    <!-- Banner phụ bên trái (Tầng Z thấp hơn, click để chuyển sang tour trước) -->
+                    <div id="heroPrevPeek" class="hero-3d-peek-card is-prev" role="button" aria-label="Tour trước" style="background-image: url('<?= htmlspecialchars($sliderSlides[(count($sliderSlides) - 1) % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-left"></i></div>
+                    </div>
+
+                    <div class="hero-banner-box hero-3d-main-card position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
+>>>>>>> Stashed changes
                         <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
                             <!-- Khối Nội Dung Bên Trái -->
                             <div class="container-fluid p-0">
@@ -138,6 +157,10 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                                             </span>
                                         </div>
                                         <h1 class="font-editorial display-4 fw-bold text-white mb-3 lh-sm" id="heroTitle">
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
                                             <?= htmlspecialchars($featuredTitle, ENT_QUOTES, 'UTF-8') ?>
                                         </h1>
                                         <p class="text-light opacity-75 mb-4 fs-6" id="heroDesc" style="max-width: 600px;">
@@ -167,7 +190,19 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                             </div>
                         </div>
                     </div>
+<<<<<<< Updated upstream
 
+=======
+<<<<<<< Updated upstream
+=======
+
+                    <!-- Banner phụ bên phải (Tầng Z thấp hơn, click để chuyển sang tour kế tiếp) -->
+                    <div id="heroNextPeek" class="hero-3d-peek-card is-next" role="button" aria-label="Tour tiếp theo" style="background-image: url('<?= htmlspecialchars($sliderSlides[1 % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-right"></i></div>
+                    </div>
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
                     <!-- Ambient Glow Blur dưới chân Banner -->
                     <div class="hero-ambient-glow" id="heroAmbientGlow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
 
@@ -498,6 +533,11 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
     </section>
 
 </div>
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 
 <!-- CLIENT JAVASCRIPT CHO SLIDER BANNER & RANGE SLIDER -->
 <script>
@@ -528,9 +568,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+<<<<<<< Updated upstream
     // 2. SLIDER BANNER TƯƠNG TÁC VỚI THUMBNAIL
     const heroBox = document.getElementById('heroBannerBox');
     const heroGlow = document.getElementById('heroAmbientGlow');
+=======
+    // 2. SLIDER BANNER TƯƠNG TÁC VỚI THUMBNAIL VÀ 3D PEEK CAROUSEL
+    const heroBox = document.getElementById('heroBannerBox');
+    const heroGlow = document.getElementById('heroAmbientGlow');
+    const heroPrevPeek = document.getElementById('heroPrevPeek');
+    const heroNextPeek = document.getElementById('heroNextPeek');
+>>>>>>> Stashed changes
     const heroTitle = document.getElementById('heroTitle');
     const heroDesc = document.getElementById('heroDesc');
     const heroLocation = document.getElementById('heroLocationBadge');
@@ -544,12 +592,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalSlides = thumbItems.length;
     let autoSlideTimer = null;
 
+<<<<<<< Updated upstream
     function applySlide(index) {
         if (!totalSlides) return;
         currentSlideIdx = (index + totalSlides) % totalSlides;
         const activeThumb = thumbItems[currentSlideIdx];
         if (!activeThumb) return;
 
+=======
+    function applySlide(index, direction = 'next') {
+        if (!totalSlides) return;
+        currentSlideIdx = (index + totalSlides) % totalSlides;
+        const prevIdx = (currentSlideIdx - 1 + totalSlides) % totalSlides;
+        const nextIdx = (currentSlideIdx + 1) % totalSlides;
+
+        const activeThumb = thumbItems[currentSlideIdx];
+        const prevThumb = thumbItems[prevIdx];
+        const nextThumb = thumbItems[nextIdx];
+        if (!activeThumb) return;
+
+        // Cập nhật ảnh cho 2 Banner phụ ở tầng Z thấp hơn
+        if (heroPrevPeek && prevThumb && prevThumb.dataset.image) {
+            heroPrevPeek.style.backgroundImage = `url('${prevThumb.dataset.image}')`;
+        }
+        if (heroNextPeek && nextThumb && nextThumb.dataset.image) {
+            heroNextPeek.style.backgroundImage = `url('${nextThumb.dataset.image}')`;
+        }
+
+        // Kích hoạt hiệu ứng 3D nhảy từ hướng được chọn lên tầng Z = 0 và zoom ra giữa
+        if (heroBox) {
+            heroBox.classList.remove('jump-from-right', 'jump-from-left');
+            void heroBox.offsetWidth; // Force reflow để chạy lại keyframe
+            heroBox.classList.add(direction === 'prev' ? 'jump-from-left' : 'jump-from-right');
+        }
+
+>>>>>>> Stashed changes
         // Update active class on thumbnails
         thumbItems.forEach(t => t.classList.remove('active'));
         activeThumb.classList.add('active');
@@ -583,23 +660,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+<<<<<<< Updated upstream
     thumbItems.forEach((thumb, idx) => {
         thumb.addEventListener('click', function() {
             applySlide(idx);
+=======
+    // Cho phép click trực tiếp vào 2 Banner phụ 2 bên để chuyển slide
+    if (heroPrevPeek) {
+        heroPrevPeek.addEventListener('click', () => {
+            applySlide(currentSlideIdx - 1, 'prev');
+            resetAutoSlide();
+        });
+    }
+    if (heroNextPeek) {
+        heroNextPeek.addEventListener('click', () => {
+            applySlide(currentSlideIdx + 1, 'next');
+            resetAutoSlide();
+        });
+    }
+
+    thumbItems.forEach((thumb, idx) => {
+        thumb.addEventListener('click', function() {
+            const dir = idx < currentSlideIdx ? 'prev' : 'next';
+            applySlide(idx, dir);
+>>>>>>> Stashed changes
             resetAutoSlide();
         });
     });
 
     if (btnPrev) {
         btnPrev.addEventListener('click', function() {
+<<<<<<< Updated upstream
             applySlide(currentSlideIdx - 1);
+=======
+            applySlide(currentSlideIdx - 1, 'prev');
+>>>>>>> Stashed changes
             resetAutoSlide();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener('click', function() {
+<<<<<<< Updated upstream
             applySlide(currentSlideIdx + 1);
+=======
+            applySlide(currentSlideIdx + 1, 'next');
+>>>>>>> Stashed changes
             resetAutoSlide();
         });
     }
@@ -607,7 +713,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function startAutoSlide() {
         if (totalSlides > 1) {
             autoSlideTimer = setInterval(() => {
+<<<<<<< Updated upstream
                 applySlide(currentSlideIdx + 1);
+=======
+                applySlide(currentSlideIdx + 1, 'next');
+>>>>>>> Stashed changes
             }, 6000);
         }
     }
@@ -632,3 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
     startAutoSlide();
 });
 </script>
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes

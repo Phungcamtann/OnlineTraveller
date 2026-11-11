@@ -87,7 +87,21 @@ body main {
     flex: 1 0 auto;
 }
 
+<<<<<<< Updated upstream
 /* Typography Uniformity */
+=======
+<<<<<<< Updated upstream
+/* Đồng nhất toàn bộ font chữ sang Roboto duy nhất theo yêu cầu người dùng */
+=======
+.main-container {
+    padding-top: clamp(74px, 8.5vh, 88px);
+}
+
+/* Typography Uniformity */
+h1, h2, h3, h4, h5, h6,
+>>>>>>> Stashed changes
+.font-editorial,
+>>>>>>> Stashed changes
 h1, h2, h3, h4, h5, h6,
 .font-editorial,
 .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
@@ -571,6 +585,12 @@ h1, h2, h3, h4, h5, h6,
     color: var(--text-main);
 }
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+/* 10. TIỆN ÍCH TRANG CHỦ & SEARCH BAR */
+=======
+>>>>>>> Stashed changes
 /* ==========================================================================
    9. ADAPTIVE AMBIENT GLOW & BANNER UTILITIES
    ========================================================================== */
@@ -587,6 +607,10 @@ h1, h2, h3, h4, h5, h6,
     overflow: hidden;
     min-height: 75vh;
     min-height: clamp(560px, 75vh, 850px);
+<<<<<<< Updated upstream
+=======
+    background-color: #1a2530;
+>>>>>>> Stashed changes
     background-size: cover;
     background-position: center bottom;
     transition: background-image 0.5s ease-in-out;
@@ -666,6 +690,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Đường phân cách mảnh giữa các ô tìm kiếm capsule Roamora */
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 .search-col-divider {
     position: relative;
 }
@@ -1217,3 +1245,165 @@ select option {
 [data-theme="light"] .mobile-nav-toggler {
     color: #18181B !important;
 }
+
+/* ==========================================================================
+   14. BANNER TRANG CHỦ 3D 3-KHUNG HÌNH (3D PEEK CAROUSEL)
+   ========================================================================== */
+.hero-3d-stage-wrapper {
+    position: relative;
+    padding: 0 4.5%; /* Chừa không gian 2 mép cho 2 banner phụ ở tầng Z thấp */
+    overflow: visible;
+}
+
+@media (max-width: 1199.98px) {
+    .hero-3d-stage-wrapper {
+        padding: 0 !important;
+    }
+    .hero-3d-peek-card {
+        display: none !important;
+    }
+}
+
+.hero-3d-main-card {
+    position: relative;
+    z-index: 10 !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+    transition: background-image 0.4s ease, box-shadow 0.5s ease;
+    will-change: transform, opacity;
+}
+
+/* Animation nhảy từ tầng sâu bên phải lên vị trí trung tâm */
+.hero-3d-main-card.jump-from-right {
+    animation: hero3dJumpFromRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Animation nhảy từ tầng sâu bên trái lên vị trí trung tâm */
+.hero-3d-main-card.jump-from-left {
+    animation: hero3dJumpFromLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes hero3dJumpFromRight {
+    0% {
+        transform: translateX(18px) scale(0.97);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes hero3dJumpFromLeft {
+    0% {
+        transform: translateX(-18px) scale(0.97);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* 2 Banner phụ ở tầng Z thấp hơn hai bên (Luôn nằm sau banner chính, không đè nội dung) */
+.hero-3d-peek-card {
+    position: absolute;
+    top: 32px;
+    bottom: 32px;
+    width: 18%;
+    min-width: 120px;
+    max-width: 240px;
+    border-radius: 22px;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a2530;
+    z-index: 2 !important;
+    cursor: pointer;
+    filter: brightness(0.6) saturate(0.9);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+.hero-3d-peek-card.is-prev {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.8rem;
+    transform: scale(0.92) perspective(600px) rotateY(7deg);
+    transform-origin: left center;
+}
+
+.hero-3d-peek-card.is-prev:hover {
+    filter: brightness(0.88) saturate(1);
+    transform: scale(0.95) perspective(600px) rotateY(3deg) translateX(-5px);
+}
+
+.hero-3d-peek-card.is-next {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.8rem;
+    transform: scale(0.92) perspective(600px) rotateY(-7deg);
+    transform-origin: right center;
+}
+
+.hero-3d-peek-card.is-next:hover {
+    filter: brightness(0.88) saturate(1);
+    transform: scale(0.95) perspective(600px) rotateY(-3deg) translateX(5px);
+}
+
+.peek-card-GlassBadge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.85;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.hero-3d-peek-card:hover .peek-card-GlassBadge {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   15. BANNER CHI TIẾT 3D DEPTH ZOOM & TIMELINE INTERACTION
+   ========================================================================== */
+#detailHeroBanner {
+    transition: transform 0.25s ease-out, background-image 0.35s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+#detailHeroBanner.detail-depth-fly {
+    animation: detailBannerDepthZoom 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes detailBannerDepthZoom {
+    0% {
+        transform: scale(1.08) translateZ(-40px);
+        filter: blur(6px) brightness(0.8);
+    }
+    100% {
+        transform: scale(1) translateZ(0);
+        filter: blur(0) brightness(1);
+    }
+}
+
+/* Cho phép click vào các trạm trên trục Timeline để mở thẳng 3D tại trạm đó */
+.japan-timeline-step,
+.station-timeline-item {
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.japan-timeline-step:hover,
+.station-timeline-item:hover {
+    transform: translateY(-3px);
+}
+
