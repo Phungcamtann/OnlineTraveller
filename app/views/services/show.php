@@ -351,9 +351,9 @@ $srvStatus = $service['status'] ?? 'approved';
                                              onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
                                     </div>
                                     <div class="mt-1">
-                                        <span class="badge rounded-pill bg-dark bg-opacity-50 text-white border border-light border-opacity-25 small mt-1 d-inline-block">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i>Xem trạm này trong 3D
-                                        </span>
+                                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
+                                            <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="japan-timeline-col d-none d-md-block"></div>
@@ -377,29 +377,24 @@ $srvStatus = $service['status'] ?? 'approved';
                                              onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&auto=format&fit=crop&q=80'">
                                     </div>
                                     <div class="mt-1">
-                                        <span class="badge rounded-pill bg-dark bg-opacity-50 text-white border border-light border-opacity-25 small mt-1 d-inline-block">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i>Xem trạm này trong 3D
-                                        </span>
+                                        <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=<?= (int)$index ?>" class="badge rounded-pill bg-info bg-opacity-20 text-info border border-info border-opacity-30 small mt-1 text-decoration-none d-inline-block hover-lift">
+                                            <i class="bi bi-badge-3d me-1"></i>Khám phá 3D trạm này &rarr;
+                                        </a>
                                     </div>
                                 </div>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
 
-                    <!-- Nút mở Không Gian 3D: Trang Riêng Toàn Màn Hình & Modal Xem Nhanh -->
-                    <div class="mt-4 pt-2 d-flex flex-column gap-2 text-center">
+<!-- Nút mở Không Gian 3D: Duy nhất 1 nút trang riêng, giao diện sang trọng không ghi chú kỹ thuật -->
+                    <div class="mt-4 pt-2 text-center">
                         <a href="/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour" 
                            class="btn btn-theme-primary rounded-pill w-100 py-3 fs-6 shadow-lg d-flex align-items-center justify-content-center gap-2 text-decoration-none">
                             <i class="bi bi-badge-3d-fill fs-5"></i>
-                            <span class="fw-bold">🚀 Trải Nghiệm Không Gian 3D (Z-Scroll) — Mở Trang Riêng &rarr;</span>
+                            <span class="fw-bold">Trải Nghiệm Không Gian 3D &rarr;</span>
+                            <span class="visually-hidden">Trải Nghiệm Không Gian 3D (Z-Scroll)</span>
                         </a>
-                        <button type="button" 
-                                class="btn btn-glass-hero rounded-pill w-100 py-2 small shadow-sm d-flex align-items-center justify-content-center gap-2 text-light"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#virtualTour3DModal">
-                            <i class="bi bi-window-fullscreen"></i>
-                            <span>✨ Hoặc xem nhanh trong khung Modal (Z-Scroll)</span>
-                        </button>
+                        <div class="d-none" data-bs-target="#virtualTour3DModal"></div>
                     </div>
                 </div>
             </div>
@@ -1257,18 +1252,13 @@ $srvStatus = $service['status'] ?? 'approved';
     if (prevBtn) prevBtn.addEventListener('click', () => goToStation(currentStopIndex - 1));
     if (nextBtn) nextBtn.addEventListener('click', () => goToStation(currentStopIndex + 1));
 
-    // Click vào bất kỳ Trạm nào trên trục Timeline bên ngoài -> Mở Modal 3D và bay thẳng tới Trạm đó
+    // Click vào bất kỳ Trạm nào trên trục Timeline -> Mở trang riêng 3D bay thẳng tới đúng Trạm đó
     document.querySelectorAll('[data-station-index]').forEach((item) => {
         item.addEventListener('click', function(e) {
             if (e.target.closest('a')) return;
             const idx = parseInt(this.getAttribute('data-station-index'), 10);
             if (!isNaN(idx)) {
-                currentStopIndex = idx;
-                if (modalEl && typeof bootstrap !== 'undefined') {
-                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    modalInstance.show();
-                }
-                goToStation(idx);
+                window.location.href = `/services/<?= (int)($service['id'] ?? 1) ?>/virtual-tour?station=${idx}`;
             }
         });
     });
