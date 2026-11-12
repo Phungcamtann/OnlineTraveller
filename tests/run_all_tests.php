@@ -149,6 +149,12 @@ $testSuites = [
         'file'     => 'test_admin_service_moderation.php',
         'name'     => 'Quản trị và Phê duyệt Trải nghiệm mới (Tour Moderation & Approval)',
     ],
+    [
+        'category' => 'SPRINT 3 TÍCH HỢP',
+        'code'     => 'SPRINT-3',
+        'file'     => 'test_sprint3_integration.php',
+        'name'     => 'Tích hợp Tổng thể: Lazy Expiration (INT-01) & Custom Errors/Toasts (INT-02)',
+    ],
 ];
 
 echo "\n" . str_repeat('=', 84) . "\n";

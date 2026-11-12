@@ -258,6 +258,9 @@
     <!-- Global Reusable Notification Pop-up Modal -->
     <?php include dirname(__DIR__) . '/partials/notification-modal.php'; ?>
 
+    <!-- Global Floating Alert Toasts (AJAX Interactions) -->
+    <?php include dirname(__DIR__) . '/partials/alert-toasts.php'; ?>
+
     <!-- Client Script: Day Mode / Night Mode Toggle & Fixed Header Scroll -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {

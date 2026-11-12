@@ -1379,8 +1379,15 @@ $srvStatus = $service['status'] ?? 'approved';
                     const data = await res.json();
 
                     if (!res.ok || data.error) {
-                        alert(data.error || 'Có lỗi xảy ra khi gửi câu hỏi.');
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(data.error || 'Có lỗi xảy ra khi gửi câu hỏi.', 'error');
+                        } else {
+                            alert(data.error || 'Có lỗi xảy ra khi gửi câu hỏi.');
+                        }
                     } else if (data.success && data.discussion) {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Câu hỏi của bạn đã được gửi tới Host bản địa thành công!', 'success');
+                        }
                         const emptyNotice = document.getElementById('no-discussions-notice');
                         if (emptyNotice) emptyNotice.remove();
 
@@ -1432,7 +1439,11 @@ $srvStatus = $service['status'] ?? 'approved';
                         if (textarea) textarea.value = '';
                     }
                 } catch (err) {
-                    alert('Lỗi kết nối máy chủ. Vui lòng thử lại!');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Lỗi kết nối máy chủ. Vui lòng thử lại sau!', 'error');
+                    } else {
+                        alert('Lỗi kết nối máy chủ. Vui lòng thử lại!');
+                    }
                 } finally {
                     if (btn) {
                         btn.disabled = false;
@@ -1467,8 +1478,15 @@ $srvStatus = $service['status'] ?? 'approved';
                 const data = await res.json();
 
                 if (!res.ok || data.error) {
-                    alert(data.error || 'Có lỗi xảy ra khi gửi phản hồi.');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(data.error || 'Có lỗi xảy ra khi gửi phản hồi.', 'error');
+                    } else {
+                        alert(data.error || 'Có lỗi xảy ra khi gửi phản hồi.');
+                    }
                 } else if (data.success && data.discussion) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Phản hồi của bạn đã được đăng thành công!', 'success');
+                    }
                     const repliesContainer = document.getElementById('replies-for-' + parentId);
                     if (repliesContainer) {
                         const rep = data.discussion;
@@ -1535,7 +1553,11 @@ $srvStatus = $service['status'] ?? 'approved';
             const commentVal = commentInput ? commentInput.value.trim() : '';
 
             if (!commentVal) {
-                alert('Vui lòng nhập cảm nhận về chuyến đi.');
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Vui lòng nhập cảm nhận về chuyến đi trước khi gửi.', 'warning');
+                } else {
+                    alert('Vui lòng nhập cảm nhận về chuyến đi.');
+                }
                 return;
             }
 
@@ -1559,12 +1581,19 @@ $srvStatus = $service['status'] ?? 'approved';
                 const data = await res.json();
 
                 if (!res.ok || data.error) {
-                    alert(data.error || 'Có lỗi xảy ra khi gửi đánh giá.');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(data.error || 'Có lỗi xảy ra khi gửi đánh giá.', 'error');
+                    } else {
+                        alert(data.error || 'Có lỗi xảy ra khi gửi đánh giá.');
+                    }
                     if (btn) {
                         btn.disabled = false;
                         btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay';
                     }
                 } else if (data.success && data.review) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Cảm ơn bạn! Đánh giá trải nghiệm của bạn đã được ghi nhận.', 'success');
+                    }
                     const rev = data.review;
                     const verifiedHtml = rev.is_verified ? `
                         <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
@@ -1619,7 +1648,11 @@ $srvStatus = $service['status'] ?? 'approved';
                     `;
                 }
             } catch (err) {
-                alert('Lỗi kết nối máy chủ khi gửi đánh giá.');
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Lỗi kết nối máy chủ khi gửi đánh giá.', 'error');
+                } else {
+                    alert('Lỗi kết nối máy chủ khi gửi đánh giá.');
+                }
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay';

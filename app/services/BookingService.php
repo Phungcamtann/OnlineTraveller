@@ -35,6 +35,18 @@ class BookingService
     }
 
     /**
+     * Kích hoạt Lazy Expiration: Tự động quét và giải phóng các đơn đặt chỗ quá hạn 15 phút
+     * chưa thanh toán (status = 'awaiting_payment' và payment_expires_at < NOW())
+     * mà không cần SSH/Cron CLI chạy nền trên shared/free hosting.
+     *
+     * @return int Số lượng đơn đã được tự động hủy và hoàn trả ghế về lịch khởi hành
+     */
+    public function releaseExpiredReservations(): int
+    {
+        return $this->bookingModel->releaseExpiredReservations();
+    }
+
+    /**
      * Tourist submits a new booking request for a departure schedule.
      * System quotes price with promotions and creates reservation in 'pending' status.
      *
@@ -61,6 +73,9 @@ class BookingService
             $paymentPlan = 'deposit_50';
         }
 
+        // 0. Kích hoạt Lazy Expiration: Quét và giải phóng các đơn quá hạn 15 phút để nhả ghế
+        $this->releaseExpiredReservations();
+
         // 1. Tính toán báo giá và kiểm tra điều kiện lịch khởi hành
         $quote = $this->pricingService->quoteSchedule($scheduleId, $participantsCount, $paymentPlan, $promoCode);
 
@@ -81,6 +96,7 @@ class BookingService
 
     /**
      * Get booking details by ID with optional authorization check.
+     * Tự động kích hoạt Lazy Expiration nếu đơn đang xem đã vượt quá mốc 15 phút thanh toán.
      *
      * @param int $bookingId ID đơn đặt
      * @param int|null $userId ID người dùng yêu cầu xem (nếu cần kiểm tra quyền)
@@ -93,6 +109,12 @@ class BookingService
         $booking = $this->bookingModel->getById($bookingId);
         if (!$booking) {
             throw new RuntimeException('Không tìm thấy đơn đặt chỗ yêu cầu.');
+        }
+
+        // Kích hoạt Lazy Expiration tức thì nếu đơn đang chờ thanh toán đã quá 15 phút
+        if ($booking['status'] === 'awaiting_payment' && !empty($booking['payment_expires_at']) && strtotime($booking['payment_expires_at']) < time()) {
+            $this->releaseExpiredReservations();
+            $booking = $this->bookingModel->getById($bookingId) ?? $booking;
         }
 
         if ($userId !== null && $userRole !== 'admin') {
@@ -109,12 +131,19 @@ class BookingService
 
     /**
      * Get booking details by booking code.
+     * Tự động kích hoạt Lazy Expiration nếu đơn hàng đã quá hạn 15 phút.
      */
     public function getBookingByCode(string $code, ?int $userId = null, ?string $userRole = null): array
     {
         $booking = $this->bookingModel->getByCode($code);
         if (!$booking) {
             throw new RuntimeException("Không tìm thấy đơn hàng mang mã [{$code}].");
+        }
+
+        // Kích hoạt Lazy Expiration tức thì nếu đơn đang chờ thanh toán đã quá 15 phút
+        if ($booking['status'] === 'awaiting_payment' && !empty($booking['payment_expires_at']) && strtotime($booking['payment_expires_at']) < time()) {
+            $this->releaseExpiredReservations();
+            $booking = $this->bookingModel->getByCode($code) ?? $booking;
         }
 
         if ($userId !== null && $userRole !== 'admin') {
@@ -131,17 +160,21 @@ class BookingService
 
     /**
      * Get all bookings submitted by a specific tourist.
+     * Kích hoạt Lazy Expiration tự động trước khi tải danh sách chuyến đi.
      */
     public function getTouristBookings(int $touristId, ?string $status = null): array
     {
+        $this->releaseExpiredReservations();
         return $this->bookingModel->getByTourist($touristId, $status);
     }
 
     /**
      * Get all bookings received by a specific host across all tours.
+     * Kích hoạt Lazy Expiration tự động trước khi tải danh sách đơn của Host.
      */
     public function getHostBookings(int $hostId, ?string $status = null): array
     {
+        $this->releaseExpiredReservations();
         return $this->bookingModel->getByHost($hostId, $status);
     }
 
@@ -154,6 +187,9 @@ class BookingService
      */
     public function approveBooking(int $hostId, int $bookingId): array
     {
+        // Kích hoạt Lazy Expiration để giải phóng các đơn hết hạn trước khi duyệt đơn mới
+        $this->releaseExpiredReservations();
+
         $booking = $this->bookingModel->getById($bookingId);
         if (!$booking) {
             throw new RuntimeException('Không tìm thấy đơn đặt chỗ.');
