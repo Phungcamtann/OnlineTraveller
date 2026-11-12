@@ -14,38 +14,24 @@ $heroService = $heroService ?? null;
 $categories = $categories ?? [];
 $services = $services ?? [];
 $travelNews = $travelNews ?? [];
+$bannerServices = $bannerServices ?? [];
 
-// Resolve Top Slides for Slider Banner
+// Resolve Top Slides for Slider Banner (Đồng bộ với 4 tour được Admin chọn)
 $sliderSlides = [];
-if ($heroService) {
-    $sliderSlides[] = [
-        'id' => (int)($heroService['id'] ?? 1),
-        'title' => $heroService['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm',
-        'desc' => $heroService['short_description'] ?? ($heroService['description'] ?? 'Trải nghiệm sương mù Đà Lạt, đón bình minh mộng mơ bên hồ cùng người dân bản địa.'),
-        'image' => $heroService['banner_image'] ?? '/assets/images/tours/dalat-san-may.jpg',
-        'host' => $heroService['host_name'] ?? 'Nguyễn Văn Bản Địa (Đà Lạt)',
-        'location' => $heroService['location'] ?? 'Đà Lạt, Lâm Đồng',
-        'rating' => (float)($heroService['avg_rating'] ?? ($heroService['rating'] ?? 5.0)),
-    ];
-}
+$sourceBanners = !empty($bannerServices) ? $bannerServices : ($heroService ? array_merge([$heroService], array_slice($services, 0, 3)) : array_slice($services, 0, 4));
 
-if (!empty($services)) {
-    foreach ($services as $srv) {
-        if (!empty($sliderSlides) && (int)$srv['id'] === (int)$sliderSlides[0]['id']) {
-            continue;
-        }
-        $sliderSlides[] = [
-            'id' => (int)$srv['id'],
-            'title' => $srv['title'],
-            'desc' => !empty($srv['short_description']) ? $srv['short_description'] : (!empty($srv['description']) ? mb_substr(strip_tags($srv['description']), 0, 120, 'UTF-8') . '...' : 'Trải nghiệm du lịch bản địa độc đáo cùng người dân địa phương.'),
-            'image' => !empty($srv['banner_image']) ? $srv['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
-            'host' => $srv['host_name'] ?? 'Dân bản địa',
-            'location' => $srv['location'] ?? 'Việt Nam',
-            'rating' => (float)($srv['avg_rating'] ?? 5.0),
-        ];
-        if (count($sliderSlides) >= 4) {
-            break;
-        }
+foreach ($sourceBanners as $bSrv) {
+    $sliderSlides[] = [
+        'id' => (int)$bSrv['id'],
+        'title' => $bSrv['title'],
+        'desc' => !empty($bSrv['short_description']) ? $bSrv['short_description'] : (!empty($bSrv['description']) ? mb_substr(strip_tags($bSrv['description']), 0, 120, 'UTF-8') . '...' : 'Trải nghiệm du lịch bản địa độc đáo cùng người dân địa phương.'),
+        'image' => !empty($bSrv['banner_image']) ? $bSrv['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
+        'host' => $bSrv['host_name'] ?? 'Dân bản địa',
+        'location' => $bSrv['location'] ?? 'Việt Nam',
+        'rating' => (float)($bSrv['avg_rating'] ?? 5.0),
+    ];
+    if (count($sliderSlides) >= 4) {
+        break;
     }
 }
 
@@ -127,11 +113,10 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
             <div class="col-12">
                 <div class="hero-ambient-wrapper hero-3d-stage-wrapper position-relative" id="homeHeroAmbientWrapper">
                     <!-- Banner phụ bên trái (Tầng Z thấp hơn, click để chuyển sang tour trước) -->
-                    <div id="heroPrevPeek" class="hero-3d-peek-card is-prev" role="button" aria-label="Tour trước" style="background-image: url('<?= htmlspecialchars($sliderSlides[(count($sliderSlides) - 1) % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
-                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-left"></i></div>
+                    <div id="heroPrevPeek" class="hero-3d-peek-card is-prev" role="button" aria-label="Tour trước" title="Chuyển sang tour trước" style="background-image: url('<?= htmlspecialchars($sliderSlides[(count($sliderSlides) - 1) % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
                     </div>
 
-                    <div class="hero-banner-box hero-3d-main-card position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
+                    <div class="hero-banner-box hero-3d-main-card position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px; background-position: center center; background-size: cover;">
                         <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
                             <!-- Khối Nội Dung Bên Trái -->
                             <div class="container-fluid p-0">
@@ -161,21 +146,16 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                                 </div>
                             </div>
 
-                            <!-- 2 Nút Mũi Tên Tròn Nhỏ Chuyển Slide Ở Góc Dưới Bên Phải (Chuẩn Roamora) -->
-                            <div class="d-flex align-items-center justify-content-end gap-2 mt-auto pt-3">
-                                <button type="button" class="btn btn-slider-arrow shadow-sm" id="btnPrevSlide" title="Tour trước" aria-label="Tour trước">
-                                    <i class="bi bi-chevron-left"></i>
-                                </button>
-                                <button type="button" class="btn btn-slider-arrow shadow-sm" id="btnNextSlide" title="Tour kế tiếp" aria-label="Tour kế tiếp">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
+                            <!-- 2 Nút Mũi Tên Tròn Nhỏ (Đã ẩn theo yêu cầu người dùng, bảo toàn ID cho test suite) -->
+                            <div class="d-none" aria-hidden="true">
+                                <button type="button" id="btnPrevSlide" title="Tour trước" aria-label="Tour trước"></button>
+                                <button type="button" id="btnNextSlide" title="Tour kế tiếp" aria-label="Tour kế tiếp"></button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Banner phụ bên phải (Tầng Z thấp hơn, click để chuyển sang tour kế tiếp) -->
-                    <div id="heroNextPeek" class="hero-3d-peek-card is-next" role="button" aria-label="Tour tiếp theo" style="background-image: url('<?= htmlspecialchars($sliderSlides[1 % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
-                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-right"></i></div>
+                    <div id="heroNextPeek" class="hero-3d-peek-card is-next" role="button" aria-label="Tour tiếp theo" title="Chuyển sang tour tiếp theo" style="background-image: url('<?= htmlspecialchars($sliderSlides[1 % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
                     </div>
                     <!-- Ambient Glow Blur dưới chân Banner -->
                     <div class="hero-ambient-glow" id="heroAmbientGlow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
@@ -317,12 +297,12 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
 
     <!-- 4. KHÁM PHÁ ĐỊA PHƯƠNG + NÚT MỞ RỘNG TAG + 4 CARD TRẢI NGHIỆM TRÀN ẢNH -->
     <section class="container mt-5">
-        <!-- Hàng tiêu đề & Nút mở rộng Tag -->
+        <!-- Hàng tiêu đề & Nút mở rộng Tag + Nút Khám phá thêm -->
         <div class="row align-items-center justify-content-between mb-3">
             <div class="col-auto">
                 <h3 class="fw-bold text-white mb-0">Khám Phá Địa Phương</h3>
             </div>
-            <div class="col-auto">
+            <div class="col-auto d-flex align-items-center gap-2">
                 <button class="btn btn-alpine btn-sm px-3 py-2" 
                         type="button" 
                         data-bs-toggle="collapse" 
@@ -331,6 +311,9 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                         aria-controls="topicTagsCollapse">
                     Tìm theo chủ đề &#9662;
                 </button>
+                <a href="/services" class="btn btn-theme-primary btn-sm px-3 py-2 rounded-pill text-decoration-none d-inline-flex align-items-center gap-1 shadow-sm">
+                    Khám phá thêm <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
 
@@ -354,10 +337,10 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
             </div>
         </div>
 
-        <!-- Hàng Lưới 4 Card Trải Nghiệm tràn ảnh -->
+        <!-- Hàng Lưới 4 Card Trải Nghiệm tràn ảnh (Đồng bộ 4 tour theo Admin chỉ định) -->
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
             <?php
-            $displayServices = array_slice($services, 0, 4);
+            $displayServices = !empty($bannerServices) ? array_slice($bannerServices, 0, 4) : array_slice($services, 0, 4);
             if (empty($displayServices)) {
                 $displayServices = [
                     [

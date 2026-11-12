@@ -404,6 +404,70 @@ class AdminController extends BaseController
             return;
         }
     }
+
+    /**
+     * Admin Banner Management: Choose 4 approved tours to feature on homepage banner and exploration.
+     */
+    public function banner(Request $request): void
+    {
+        $admin = $this->user();
+        if (!$admin || ($admin['role'] ?? '') !== 'admin') {
+            $this->flash('danger', 'Bạn không có quyền truy cập khu vực quản trị.');
+            $this->redirect('/login');
+            return;
+        }
+
+        $db = Database::getInstance();
+        $services = $db->fetchAll("
+            SELECT s.*, c.name AS category_name, u.name AS host_name
+            FROM tbl_services s
+            JOIN tbl_categories c ON s.category_id = c.id
+            JOIN tbl_users u ON s.host_id = u.id
+            WHERE s.status = 'approved'
+            ORDER BY s.is_banner DESC, s.id ASC
+        ");
+
+        $currentBannerTours = array_values(array_filter($services, fn($s) => !empty($s['is_banner'])));
+
+        $this->view('admin/services/banner', [
+            'title' => 'Quản Lý Banner Trang Chủ — OnlineTraveller Admin',
+            'services' => $services,
+            'currentBannerTours' => $currentBannerTours,
+            'user' => $admin,
+        ]);
+    }
+
+    /**
+     * Save 4 selected tours for homepage banner.
+     */
+    public function updateBanner(Request $request): void
+    {
+        $admin = $this->user();
+        if (!$admin || ($admin['role'] ?? '') !== 'admin') {
+            $this->flash('danger', 'Bạn không có quyền thực hiện thao tác này.');
+            $this->redirect('/login');
+            return;
+        }
+
+        $selectedIds = $request->input('banner_tour_ids', []);
+        if (!is_array($selectedIds)) {
+            $selectedIds = [];
+        }
+
+        if (count($selectedIds) > 4) {
+            $this->flash('warning', 'Hệ thống chỉ cho phép chọn tối đa 4 tour cho Banner. 4 tour đầu tiên đã được lưu.');
+            $selectedIds = array_slice($selectedIds, 0, 4);
+        } elseif (count($selectedIds) === 0) {
+            $this->flash('warning', 'Bạn chưa tick chọn tour nào. Vui lòng tick chọn từ 1 đến 4 tour.');
+            $this->redirect('/admin/banner');
+            return;
+        }
+
+        $this->serviceModel->updateBannerServices($selectedIds);
+
+        $this->flash('success', 'Đã cập nhật thành công 4 tour lên Banner và vùng Khám phá Trang chủ!');
+        $this->redirect('/admin/banner');
+    }
 }
 
 if (!class_exists('AdminController', false)) {

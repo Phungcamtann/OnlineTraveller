@@ -137,6 +137,10 @@ runTest("Host hủy lịch trình do thời tiết bất khả kháng", function
 
 // Dọn dẹp dữ liệu test
 if ($testTourId) {
+    $pdo->exec("DELETE FROM tbl_refunds WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE service_id = {$testTourId})");
+    $pdo->exec("DELETE FROM tbl_receipts WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE service_id = {$testTourId})");
+    $pdo->exec("DELETE FROM tbl_payments WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE service_id = {$testTourId})");
+    $pdo->exec("DELETE FROM tbl_bookings WHERE service_id = {$testTourId}");
     $pdo->exec("DELETE FROM tbl_service_schedules WHERE service_id = {$testTourId}");
     $pdo->exec("DELETE FROM tbl_service_accommodations WHERE service_id = {$testTourId}");
     $pdo->exec("DELETE FROM tbl_services WHERE id = {$testTourId}");

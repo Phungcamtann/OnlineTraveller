@@ -15,6 +15,9 @@
             <p class="text-muted small mb-0">Phiên bản thiết kế tinh chỉnh v2.2 • Quản lý danh mục, duyệt tour và người dùng</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="/admin/banner" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold text-dark shadow-sm">
+                <i class="bi bi-images me-1"></i> Quản Lý Banner
+            </a>
             <a href="/admin/services" class="btn btn-outline-dark btn-sm rounded-pill px-3">
                 <i class="bi bi-compass-fill me-1"></i> Trải Nghiệm (Tours)
             </a>

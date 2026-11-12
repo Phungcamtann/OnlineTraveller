@@ -59,6 +59,8 @@ return function (Router $router): void {
     $router->get('/admin', [AdminController::class, 'dashboard'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->get('/admin/services', [AdminController::class, 'services'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/services/{id}/moderate', [AdminController::class, 'moderateService'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/admin/banner', [AdminController::class, 'banner'], [AuthMiddleware::class, AdminMiddleware::class]);
+    $router->post('/admin/banner', [AdminController::class, 'updateBanner'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/users', [AdminController::class, 'users'], [AuthMiddleware::class, AdminMiddleware::class]);
     $router->post('/admin/users/{id}/status', [AdminController::class, 'setUserStatus'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
     $router->get('/admin/categories', [CategoryController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);

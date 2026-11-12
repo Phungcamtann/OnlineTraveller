@@ -43,14 +43,63 @@ $plan = (string)$booking['payment_plan'];
         size: A4 portrait;
         margin: 12mm 10mm 12mm 10mm;
     }
-    html, body {
+
+    /* Ép buộc toàn diện: Dù đang ở Dark Mode hay Light Mode thì bản in LUÔN LUÔN là NỀN TRẮNG TINH & CHỮ ĐEN */
+    :root,
+    [data-theme="dark"],
+    [data-theme="light"],
+    html,
+    body {
+        --bg-body: #ffffff !important;
+        --bg-surface: #ffffff !important;
+        --bg-surface-subtle: #f8fafc !important;
+        --bg-card: #ffffff !important;
+        --text-main: #0f172a !important;
+        --text-muted: #334155 !important;
+        --border-subtle: #cbd5e1 !important;
+        --border-strong: #94a3b8 !important;
         background: #ffffff !important;
-        color: #111827 !important;
-        font-size: 11pt !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 10.5pt !important;
         line-height: 1.4 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+
+    [data-theme="dark"] body,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .bg-white,
+    [data-theme="dark"] .bg-light,
+    [data-theme="dark"] [class*="bg-"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* Mọi tiêu đề và chữ luôn đen đậm khi in */
+    h1, h2, h3, h4, h5, h6,
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3,
+    [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+    [data-theme="dark"] .text-dark,
+    [data-theme="dark"] .text-white,
+    [data-theme="dark"] strong,
+    .text-dark {
+        color: #0f172a !important;
+    }
+
+    /* Chữ phụ đề / text-muted luôn là xám đậm dễ đọc trên giấy */
+    .text-muted,
+    .text-secondary,
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    small {
+        color: #334155 !important;
+    }
+
     .container {
         max-width: 100% !important;
         width: 100% !important;
@@ -60,7 +109,7 @@ $plan = (string)$booking['payment_plan'];
 
     /* 3. Card & Box Styling for Print */
     .card {
-        border: 1px solid #d1d5db !important;
+        border: 1px solid #cbd5e1 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         page-break-inside: avoid;
@@ -69,16 +118,40 @@ $plan = (string)$booking['payment_plan'];
         box-shadow: none !important;
     }
     .border-0 {
-        border: 1px solid #e5e7eb !important;
+        border: 1px solid #e2e8f0 !important;
     }
-    .bg-light {
-        background-color: #f9fafb !important;
+    .bg-light,
+    [data-theme="dark"] .bg-light {
+        background-color: #f8fafc !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    /* Badge & Alert khi in: nền sáng viền xám đen rõ nét */
+    .badge {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #94a3b8 !important;
+    }
+
+    .alert {
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
     }
 
     /* 4. Column display in Print (maintain side-by-side layout) */
     .row {
         display: flex !important;
         flex-wrap: nowrap !important;
+    }
+    .col-lg-7 {
+        width: 58% !important;
+        flex: 0 0 58% !important;
+    }
+    .col-lg-5 {
+        width: 42% !important;
+        flex: 0 0 42% !important;
     }
     .col-lg-8 {
         width: 64% !important;
@@ -92,9 +165,10 @@ $plan = (string)$booking['payment_plan'];
     /* 5. Print watermark & voucher header */
     .print-receipt-header {
         display: block !important;
-        border-bottom: 2px solid #10b981 !important;
+        border-bottom: 2px solid #0f766e !important;
         padding-bottom: 12px !important;
         margin-bottom: 20px !important;
+        background: #ffffff !important;
     }
 }
 
@@ -412,8 +486,33 @@ $plan = (string)$booking['payment_plan'];
                             <i class="bi bi-geo-alt-fill text-danger me-1"></i> <?= htmlspecialchars($booking['service_location'], ENT_QUOTES, 'UTF-8') ?> • 
                             <i class="bi bi-clock me-1"></i> <?= (int)$booking['duration_days'] ?> ngày
                         </p>
-                        <span class="badge bg-light text-dark border">
-                            Chế độ giá: <?= htmlspecialchars($booking['price_mode']) ?>
+                        <?php
+                        $rawPriceMode = (string)($booking['price_mode'] ?? 'fixed_choice');
+                        $friendlyMode = match($rawPriceMode) {
+                            'prepaid_full', 'prepaid' => [
+                                'label' => 'Trả trước 100% (Trọn gói)',
+                                'badge' => 'bg-success-subtle text-success border-success-subtle',
+                                'icon'  => 'bi-credit-card-2-front-fill'
+                            ],
+                            'host_range' => [
+                                'label' => 'Khoảng giá linh hoạt (Cọc 50%)',
+                                'badge' => 'bg-warning-subtle text-dark border-warning-subtle',
+                                'icon'  => 'bi-tags-fill'
+                            ],
+                            'free' => [
+                                'label' => 'Trải nghiệm miễn phí (0đ)',
+                                'badge' => 'bg-info-subtle text-info border-info-subtle',
+                                'icon'  => 'bi-gift-fill'
+                            ],
+                            default => [
+                                'label' => 'Giá cố định (Cọc 50%)',
+                                'badge' => 'bg-primary-subtle text-primary border-primary-subtle',
+                                'icon'  => 'bi-tag-fill'
+                            ],
+                        };
+                        ?>
+                        <span class="badge <?= $friendlyMode['badge'] ?> border px-2 py-1 small">
+                            <i class="bi <?= $friendlyMode['icon'] ?> me-1"></i>Chế độ thanh toán: <?= $friendlyMode['label'] ?>
                         </span>
                     </div>
                 </div>
@@ -556,28 +655,57 @@ $plan = (string)$booking['payment_plan'];
                     </div>
 
                     <div class="p-3 bg-light rounded-3 border">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold text-success">
-                                <i class="bi bi-credit-card me-1"></i> Tiền cọc online:
-                            </span>
-                            <div class="text-end">
-                                <span class="fs-5 fw-bold text-success d-block">
-                                    <?= FormatHelper::formatVnd($deposit) ?>
+                        <?php if ($rawPriceMode === 'prepaid_full' || $rawPriceMode === 'prepaid' || (float)$remaining <= 0): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-success">
+                                    <i class="bi bi-credit-card-2-front me-1"></i> Trả trước 100% online:
                                 </span>
-                                <?php if ($status === 'confirmed'): ?>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Đã thanh toán MoMo</span>
-                                <?php else: ?>
-                                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Chưa thanh toán</span>
-                                <?php endif; ?>
+                                <div class="text-end">
+                                    <span class="fs-5 fw-bold text-success d-block">
+                                        <?= FormatHelper::formatVnd($deposit) ?>
+                                    </span>
+                                    <?php if ($status === 'confirmed'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Đã thanh toán đủ</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Chờ thanh toán</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
+                            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2">
+                                <span>Thanh toán khi gặp Host:</span>
+                                <strong class="text-success">0 đ (Đã trả trước 100%)</strong>
+                            </div>
+                        <?php elseif ($rawPriceMode === 'free'): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-info">
+                                    <i class="bi bi-gift me-1"></i> Chi phí trải nghiệm:
+                                </span>
+                                <span class="fs-5 fw-bold text-info">Miễn phí (0đ)</span>
+                            </div>
+                        <?php else: ?>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-success">
+                                    <i class="bi bi-credit-card me-1"></i> Tiền cọc online (50%):
+                                </span>
+                                <div class="text-end">
+                                    <span class="fs-5 fw-bold text-success d-block">
+                                        <?= FormatHelper::formatVnd($deposit) ?>
+                                    </span>
+                                    <?php if ($status === 'confirmed'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Đã cọc qua MoMo</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill py-0 px-2" style="font-size: 0.72rem;">Chưa đặt cọc</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
 
-                        <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2">
-                            <span>Còn lại gửi Host khi gặp:</span>
-                            <strong class="text-dark">
-                                <?= FormatHelper::formatVnd($remaining) ?>
-                            </strong>
-                        </div>
+                            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2">
+                                <span>Còn lại gửi Host khi gặp (50%):</span>
+                                <strong class="text-dark">
+                                    <?= FormatHelper::formatVnd($remaining) ?>
+                                </strong>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 

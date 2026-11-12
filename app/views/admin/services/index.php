@@ -36,6 +36,9 @@ $search = $search ?? null;
             <p class="text-muted small mb-0">Xét duyệt nội dung tour của Host bản địa, kiểm soát chất lượng điểm đến trước khi mở bán</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="/admin/banner" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold text-dark shadow-sm">
+                <i class="bi bi-images me-1"></i> Quản Lý Banner
+            </a>
             <a href="/admin" class="btn btn-outline-dark btn-sm rounded-pill px-3">
                 <i class="bi bi-speedometer2 me-1"></i> Bảng Điều Khiển
             </a>

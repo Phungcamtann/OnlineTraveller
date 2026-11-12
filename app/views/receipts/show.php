@@ -227,8 +227,29 @@ $unitPrice = (float)$receipt['unit_price'];
 
 <style>
 @media print {
+    :root,
+    [data-theme="dark"],
+    [data-theme="light"],
+    html,
     body {
+        --bg-body: #ffffff !important;
+        --bg-surface: #ffffff !important;
+        --text-main: #000000 !important;
+        --text-muted: #333333 !important;
         background: #fff !important;
+        background-color: #fff !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    [data-theme="dark"] body,
+    [data-theme="dark"] .print-document,
+    [data-theme="dark"] table,
+    [data-theme="dark"] tr,
+    [data-theme="dark"] td,
+    [data-theme="dark"] th {
+        background: #fff !important;
+        background-color: #fff !important;
         color: #000 !important;
     }
     .d-print-none {
@@ -238,6 +259,8 @@ $unitPrice = (float)$receipt['unit_price'];
         box-shadow: none !important;
         border: 1px solid #ccc !important;
         padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
     }
 }
 </style>

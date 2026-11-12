@@ -371,7 +371,12 @@ if (!empty($createdPostIds)) {
     $placeholders = implode(',', array_fill(0, count($createdPostIds), '?'));
     $db->execute("DELETE FROM tbl_posts WHERE id IN ({$placeholders})", $createdPostIds);
 }
-$db->execute("DELETE FROM tbl_service_schedules WHERE id = ?", [$scheduleId]);
+if (!empty($scheduleId)) {
+    $db->execute("DELETE FROM tbl_reviews WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id = ?)", [$scheduleId]);
+    $db->execute("DELETE FROM tbl_payments WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id = ?)", [$scheduleId]);
+    $db->execute("DELETE FROM tbl_bookings WHERE schedule_id = ?", [$scheduleId]);
+    $db->execute("DELETE FROM tbl_service_schedules WHERE id = ?", [$scheduleId]);
+}
 
 echo "  [INFO] Đã dọn dẹp sạch sẽ toàn bộ bản ghi kiểm thử TV4-06.\n";
 

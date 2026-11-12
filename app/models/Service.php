@@ -27,7 +27,7 @@ class Service extends BaseModel
             SELECT 
                 s.id, s.host_id, s.category_id, s.title, s.slug, s.description,
                 s.price_mode, s.base_price, s.min_price, s.max_price,
-                s.location, s.latitude, s.longitude, s.duration_days, s.banner_image, s.status,
+                s.location, s.latitude, s.longitude, s.duration_days, s.banner_image, s.is_banner, s.status,
                 c.name AS category_name, c.icon AS category_icon,
                 u.name AS host_name, u.living_area AS host_living_area, u.avatar AS host_avatar,
                 COALESCE(AVG(r.rating), 5.0) AS avg_rating,
@@ -74,8 +74,74 @@ class Service extends BaseModel
      */
     public function getHeroFeatured(): ?array
     {
-        $items = $this->getAllApproved(null, null, 1);
-        return empty($items) ? null : $items[0];
+        $banners = $this->getBannerServices(1);
+        return empty($banners) ? null : $banners[0];
+    }
+
+    /**
+     * Get experiences selected by admin to display on the homepage Hero Banner and Exploration cards.
+     */
+    public function getBannerServices(int $limit = 4): array
+    {
+        $sql = "
+            SELECT 
+                s.id, s.host_id, s.category_id, s.title, s.slug, s.description,
+                s.price_mode, s.base_price, s.min_price, s.max_price,
+                s.location, s.latitude, s.longitude, s.duration_days, s.banner_image, s.is_banner, s.status,
+                c.name AS category_name, c.icon AS category_icon,
+                u.name AS host_name, u.living_area AS host_living_area, u.avatar AS host_avatar,
+                COALESCE(AVG(r.rating), 5.0) AS avg_rating,
+                COUNT(r.id) AS reviews_count,
+                acc.homestay_name
+            FROM tbl_services s
+            JOIN tbl_categories c ON s.category_id = c.id
+            JOIN tbl_users u ON s.host_id = u.id
+            LEFT JOIN tbl_reviews r ON s.id = r.service_id AND r.is_visible = 1
+            LEFT JOIN tbl_service_accommodations acc ON s.id = acc.service_id
+            WHERE s.status = 'approved' AND s.is_banner = 1
+            GROUP BY s.id
+            ORDER BY s.id ASC
+            LIMIT " . (int)$limit;
+
+        $banners = $this->fetchAll($sql);
+
+        // Fallback: If less than $limit banner services are explicitly ticked, fill with top-rated approved services
+        if (count($banners) < $limit) {
+            $existingIds = array_column($banners, 'id');
+            $fallbacks = $this->getAllApproved(null, null, $limit * 2);
+            foreach ($fallbacks as $fb) {
+                if (!in_array((int)$fb['id'], $existingIds, true)) {
+                    $banners[] = $fb;
+                    $existingIds[] = (int)$fb['id'];
+                }
+                if (count($banners) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return array_slice($banners, 0, $limit);
+    }
+
+    /**
+     * Admin updates which tours are pinned on Homepage Banner.
+     */
+    public function updateBannerServices(array $serviceIds): bool
+    {
+        $pdo = $this->db->getConnection();
+        // Reset all
+        $pdo->exec("UPDATE tbl_services SET is_banner = 0");
+
+        $cleanIds = array_map('intval', array_filter($serviceIds, fn($id) => is_numeric($id) && (int)$id > 0));
+        // Take at most 4
+        $cleanIds = array_slice($cleanIds, 0, 4);
+
+        if (!empty($cleanIds)) {
+            $inList = implode(',', $cleanIds);
+            $pdo->exec("UPDATE tbl_services SET is_banner = 1 WHERE id IN ({$inList}) AND status = 'approved'");
+        }
+
+        return true;
     }
 
     /**

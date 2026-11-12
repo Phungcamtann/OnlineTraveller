@@ -245,9 +245,36 @@ h1, h2, h3, h4, h5, h6,
     border-color: var(--border-subtle) !important;
 }
 
-[data-theme="dark"] .bg-light {
+[data-theme="dark"] .bg-light,
+[data-theme="dark"] .bg-light-subtle,
+[data-theme="dark"] .bg-body-secondary,
+[data-theme="dark"] .bg-body-tertiary {
     background-color: var(--bg-surface-subtle) !important;
     color: var(--text-main) !important;
+    border-color: var(--border-subtle) !important;
+}
+
+/* Thẻ lựa chọn Phương thức định giá (Tạo & Chỉnh sửa Tour) */
+.pricing-mode-card {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.pricing-mode-card:hover {
+    border-color: var(--brand-primary) !important;
+    transform: translateY(-1px);
+}
+.pricing-mode-card:has(input:checked) {
+    border-color: var(--brand-primary) !important;
+    background-color: rgba(56, 126, 162, 0.12) !important;
+    box-shadow: 0 0 0 1px var(--brand-primary);
+}
+.pricing-mode-card .pricing-mode-title {
+    color: var(--text-main) !important;
+}
+.pricing-mode-card .pricing-mode-desc {
+    color: var(--text-muted) !important;
 }
 
 /* Input search capsule trong suốt không viền hộp */
@@ -618,7 +645,9 @@ h1, h2, h3, h4, h5, h6,
     min-height: clamp(560px, 75vh, 850px);
     background-color: #1a2530;
     background-size: cover;
-    background-position: center bottom;
+    background-position: center center;
+    background-repeat: no-repeat;
+    image-rendering: -webkit-optimize-contrast;
     transition: background-image 0.5s ease-in-out;
 }
 
@@ -1549,29 +1578,17 @@ select option {
 }
 
 .peek-card-GlassBadge {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.85;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.hero-3d-peek-card:hover .peek-card-GlassBadge {
-    opacity: 1;
-    transform: scale(1.1);
+    display: none !important;
 }
 
 /* ==========================================================================
    15. BANNER CHI TIẾT 3D DEPTH ZOOM & TIMELINE INTERACTION
    ========================================================================== */
 #detailHeroBanner {
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    image-rendering: -webkit-optimize-contrast;
     transition: transform 0.25s ease-out, background-image 0.35s ease;
     transform-style: preserve-3d;
     will-change: transform;
@@ -1830,6 +1847,104 @@ select option {
     border-color: var(--border-subtle) !important;
     opacity: 0.45 !important;
 }
+
+/* ==========================================================================
+   16. PRINT STYLESHEET TOÀN CỤC (CHUẨN BẢN IN NỀN TRẮNG CHỮ ĐEN)
+   Đảm bảo khi in ra giấy / PDF luôn trắng tinh khiết, chữ đen sắc nét
+   kể cả khi người dùng đang bật Night Mode (data-theme="dark")
+   ========================================================================== */
+@media print {
+    :root,
+    [data-theme="dark"],
+    [data-theme="light"],
+    html,
+    body {
+        --bg-body: #ffffff !important;
+        --bg-surface: #ffffff !important;
+        --bg-surface-subtle: #f8fafc !important;
+        --bg-card: #ffffff !important;
+        --text-main: #0f172a !important;
+        --text-muted: #334155 !important;
+        --border-subtle: #cbd5e1 !important;
+        --border-strong: #94a3b8 !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    [data-theme="dark"] body,
+    [data-theme="dark"] .main-container,
+    [data-theme="dark"] .container,
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .bg-white,
+    [data-theme="dark"] .bg-dark,
+    [data-theme="dark"] div,
+    [data-theme="dark"] section,
+    [data-theme="dark"] article {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    [data-theme="dark"] .bg-light,
+    [data-theme="dark"] .bg-light-subtle,
+    [data-theme="dark"] .bg-secondary-subtle,
+    .bg-light {
+        background-color: #f8fafc !important;
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3,
+    [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+    [data-theme="dark"] .text-white,
+    [data-theme="dark"] .text-light,
+    [data-theme="dark"] .text-dark,
+    .text-dark {
+        color: #0f172a !important;
+    }
+
+    .text-muted,
+    .text-secondary,
+    [data-theme="dark"] .text-muted,
+    [data-theme="dark"] .text-secondary,
+    small {
+        color: #334155 !important;
+    }
+
+    .card {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+
+    .badge {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #94a3b8 !important;
+    }
+
+    .top-floating-header,
+    header,
+    footer,
+    nav,
+    .navbar,
+    .btn,
+    button,
+    .modal,
+    .modal-backdrop,
+    .no-print,
+    .d-print-none {
+        display: none !important;
+    }
+}
+
 
 
 

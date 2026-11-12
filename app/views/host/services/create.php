@@ -114,38 +114,38 @@ $provinces = $provinces ?? FormatHelper::getProvincesList();
                         <label class="form-label small fw-bold text-muted mb-2">Chọn phương thức định giá <span class="text-danger">*</span></label>
                         <div class="row g-2">
                             <div class="col-sm-6">
-                                <label class="border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 bg-light-subtle h-100">
+                                <label class="pricing-mode-card border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 h-100">
                                     <input type="radio" name="price_mode" value="fixed_choice" checked class="form-check-input mt-0 price-mode-radio">
                                     <div>
-                                        <div class="fw-bold text-dark small">Giá Cố Định (Fixed Choice)</div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Một mức giá trọn gói niêm yết duy nhất.</small>
+                                        <div class="fw-bold small pricing-mode-title">Giá Cố Định (Cọc 50%)</div>
+                                        <small class="pricing-mode-desc" style="font-size: 0.75rem;">Mức giá niêm yết duy nhất. Du khách cọc 50% online, 50% trả khi gặp.</small>
                                     </div>
                                 </label>
                             </div>
                             <div class="col-sm-6">
-                                <label class="border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 bg-light-subtle h-100">
+                                <label class="pricing-mode-card border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 h-100">
                                     <input type="radio" name="price_mode" value="host_range" class="form-check-input mt-0 price-mode-radio">
                                     <div>
-                                        <div class="fw-bold text-dark small">Khoảng Giá (Host Range)</div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Mức giá dao động tùy quy mô đoàn.</small>
+                                        <div class="fw-bold small pricing-mode-title">Khoảng Giá Linh Hoạt (Cọc 50%)</div>
+                                        <small class="pricing-mode-desc" style="font-size: 0.75rem;">Mức giá dao động theo đoàn. Du khách cọc 50% theo giá sàn.</small>
                                     </div>
                                 </label>
                             </div>
                             <div class="col-sm-6">
-                                <label class="border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 bg-light-subtle h-100">
+                                <label class="pricing-mode-card border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 h-100">
                                     <input type="radio" name="price_mode" value="free" class="form-check-input mt-0 price-mode-radio">
                                     <div>
-                                        <div class="fw-bold text-dark small">Miễn Phí (Free Tour)</div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Trải nghiệm giao lưu, phi lợi nhuận (0đ).</small>
+                                        <div class="fw-bold small pricing-mode-title">Miễn Phí (Free Tour - 0đ)</div>
+                                        <small class="pricing-mode-desc" style="font-size: 0.75rem;">Trải nghiệm giao lưu, phi lợi nhuận (0đ). Không thu cọc.</small>
                                     </div>
                                 </label>
                             </div>
                             <div class="col-sm-6">
-                                <label class="border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 bg-light-subtle h-100">
+                                <label class="pricing-mode-card border rounded-3 p-3 d-flex align-items-center gap-3 cursor-pointer w-100 h-100">
                                     <input type="radio" name="price_mode" value="prepaid_full" class="form-check-input mt-0 price-mode-radio">
                                     <div>
-                                        <div class="fw-bold text-dark small">Trả Trước 100% (Prepaid)</div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Thanh toán toàn bộ trước khi giữ chỗ.</small>
+                                        <div class="fw-bold small pricing-mode-title">Trả Trước 100% (Trọn Gói)</div>
+                                        <small class="pricing-mode-desc" style="font-size: 0.75rem;">Du khách thanh toán trọn gói 100% trước khi giữ chỗ.</small>
                                     </div>
                                 </label>
                             </div>

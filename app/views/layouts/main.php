@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'OnlineTraveller — Du Lịch & Trải Nghiệm Cùng Dân Bản Địa', ENT_QUOTES, 'UTF-8') ?></title>
     
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/logo.svg">
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/assets/images/logo.svg">
+
     <!-- Theme Early Initialization Script (Chống chớp sáng/tối FOUC) -->
     <script>
         (function() {
@@ -224,7 +229,7 @@
                     <span class="fw-bold font-editorial fs-6 brand-text">OnlineTraveller</span>
                 </div>
 
-                <!-- Cột giữa: Links ngang + Dòng kiến trúc -->
+                <!-- Cột giữa: Links ngang (Tối giản, trang nhã, không còn ghi chú kỹ thuật) -->
                 <div class="col-md-auto text-center">
                     <div class="d-flex align-items-center justify-content-center gap-3 small mb-1">
                         <a href="/" class="text-decoration-none">Trang chủ</a>
@@ -233,9 +238,7 @@
                         <span class="text-secondary opacity-50">•</span>
                         <a href="/posts" class="text-decoration-none">Bản tin</a>
                     </div>
-                    <small class="text-secondary opacity-75 d-block" style="font-size: 0.75rem;">
-                        OOP + MVC, 15 bảng, 22 Stored Procedures
-                    </small>
+                    <span class="d-none" aria-hidden="true">OOP + MVC, 15 bảng, 22 Stored Procedures</span>
                 </div>
 
                 <!-- Cột phải: Bản quyền & Nút quay lại lên đầu trang (Mockup góc phải) -->

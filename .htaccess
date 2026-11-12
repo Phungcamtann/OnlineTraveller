@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Chặn truy cập trực tiếp vào các thư mục chứa mã nguồn nhạy cảm
+    RewriteRule ^(app|bootstrap|config|core|database|docs|routes|storage|tests)(\/|$) - [F,L]
+    RewriteRule ^(\.git|\.env|composer\.|local\.php) - [F,L]
+
+    # 2. Chuyển tiếp toàn bộ request đến thư mục public/ (Phù hợp Free Hosting / Shared Hosting cố định DocumentRoot)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

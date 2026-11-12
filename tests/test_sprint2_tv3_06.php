@@ -364,11 +364,24 @@ assertTest("Du khách xem được phiếu hoàn tiền của chính mình (#{$r
     str_contains($touristRefundView, 'Phiếu Theo Dõi Hoàn Tiền') && str_contains($touristRefundView, $refundBk1['refund_code']));
 
 // Clean up all test records
-$db->execute("DELETE FROM tbl_refunds WHERE booking_id IN (?, ?, ?)", [$bk1Id, $bkUnpaidId, $bkAfterT24Id]);
-$db->execute("DELETE FROM tbl_receipts WHERE booking_id IN (?, ?, ?)", [$bk1Id, $bkUnpaidId, $bkAfterT24Id]);
-$db->execute("DELETE FROM tbl_payments WHERE booking_id IN (?, ?, ?)", [$bk1Id, $bkUnpaidId, $bkAfterT24Id]);
-$db->execute("DELETE FROM tbl_bookings WHERE id IN (?, ?, ?)", [$bk1Id, $bkUnpaidId, $bkAfterT24Id]);
-$db->execute("DELETE FROM tbl_service_schedules WHERE id IN (?, ?)", [$schedBeforeT24Id, $schedAfterT24Id]);
+$cleanBkIds = array_filter([$bk1Id ?? null, $bkUnpaidId ?? null, $bkAfterT24Id ?? null]);
+if (!empty($cleanBkIds)) {
+    $inClause = implode(',', array_fill(0, count($cleanBkIds), '?'));
+    $db->execute("DELETE FROM tbl_refunds WHERE booking_id IN ($inClause)", array_values($cleanBkIds));
+    $db->execute("DELETE FROM tbl_receipts WHERE booking_id IN ($inClause)", array_values($cleanBkIds));
+    $db->execute("DELETE FROM tbl_payments WHERE booking_id IN ($inClause)", array_values($cleanBkIds));
+    $db->execute("DELETE FROM tbl_bookings WHERE id IN ($inClause)", array_values($cleanBkIds));
+}
+// Clean any leftover bookings on the test schedules
+$schedIds = array_filter([$schedBeforeT24Id ?? null, $schedAfterT24Id ?? null]);
+if (!empty($schedIds)) {
+    $inSched = implode(',', array_fill(0, count($schedIds), '?'));
+    $db->execute("DELETE FROM tbl_refunds WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id IN ($inSched))", array_values($schedIds));
+    $db->execute("DELETE FROM tbl_receipts WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id IN ($inSched))", array_values($schedIds));
+    $db->execute("DELETE FROM tbl_payments WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id IN ($inSched))", array_values($schedIds));
+    $db->execute("DELETE FROM tbl_bookings WHERE schedule_id IN ($inSched)", array_values($schedIds));
+    $db->execute("DELETE FROM tbl_service_schedules WHERE id IN ($inSched)", array_values($schedIds));
+}
 
 echo "  [INFO] Đã dọn dẹp sạch sẽ toàn bộ bản ghi kiểm thử TV3-06.\n";
 

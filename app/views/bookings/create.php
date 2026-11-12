@@ -257,7 +257,7 @@
                 <div class="sticky-top" style="top: 5.5rem;">
                     <div class="card border-0 rounded-4 shadow-sm p-4 bg-white mb-4">
                         <span class="text-muted small fw-semibold text-uppercase d-block mb-1">
-                            BẢNG TỔNG HỢP CHI PHÍ (TV3)
+                            BẢNG TỔNG HỢP CHI PHÍ
                         </span>
                         <h5 class="fw-bold font-editorial text-dark mb-3">Tóm Tắt Đơn Đặt Chỗ</h5>
 

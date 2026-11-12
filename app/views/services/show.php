@@ -714,8 +714,18 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Bảng chi tiết các mục dịch vụ & cam kết thanh toán -->
                     <div class="pricing-summary-box p-3 rounded-3 mb-3 small">
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
-                            <span class="pricing-label"><i class="bi bi-tag text-info me-1"></i> Chế độ giá:</span>
-                            <strong class="pricing-value text-uppercase"><?= htmlspecialchars($service['price_mode'] ?? 'per_person') ?></strong>
+                            <span class="pricing-label"><i class="bi bi-tag text-info me-1"></i> Chế độ thanh toán:</span>
+                            <strong class="pricing-value">
+                                <?php
+                                $spm = (string)($service['price_mode'] ?? 'fixed_choice');
+                                echo match($spm) {
+                                    'prepaid_full', 'prepaid' => 'Trả trước 100% (Trọn gói)',
+                                    'host_range' => 'Khoảng giá (Cọc 50%)',
+                                    'free' => 'Miễn phí (0đ)',
+                                    default => 'Giá cố định (Cọc 50%)',
+                                };
+                                ?>
+                            </strong>
                         </div>
                         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-subtle">
                             <span class="pricing-label"><i class="bi bi-clock-history text-primary me-1"></i> Thời lượng:</span>

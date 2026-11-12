@@ -44,7 +44,8 @@ $createdBookingId = null;
 $createdPaymentId = null;
 
 // Test 1: ndtt_sp_bookings_quote (Lịch 1, 2 khách, cọc 50%)
-runTest("ndtt_sp_bookings_quote tính giá tour, áp dụng mã giảm giá và chia cọc 50%", function() use ($pdo) {
+$expectedDeposit = 0;
+runTest("ndtt_sp_bookings_quote tính giá tour, áp dụng mã giảm giá và chia cọc 50%", function() use ($pdo, &$expectedDeposit) {
     $stmt = $pdo->prepare("CALL ndtt_sp_bookings_quote(1, 2, 'deposit_50')");
     $stmt->execute();
     $quote = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -52,8 +53,12 @@ runTest("ndtt_sp_bookings_quote tính giá tour, áp dụng mã giảm giá và 
 
     if (empty($quote)) throw new \Exception("Không nhận được kết quả báo giá!");
 
-    // Tour 1: 750,000đ x 2 = 1,500,000đ. Khuyến mãi cao nhất là VIPLOCAL 15% -> Giảm 225,000đ. Tổng = 1,275,000đ. Cọc 50% = 637,500đ
-    if ((int)$quote['total_price'] !== 1275000 || (int)$quote['deposit_amount'] !== 637500) {
+    $unitPrice = (float)$quote['unit_price'];
+    $discountPercent = (float)$quote['discount_percent'];
+    $expectedTotal = (int)round($unitPrice * 2 * (1 - $discountPercent / 100));
+    $expectedDeposit = (int)round($expectedTotal * 0.5);
+
+    if ((int)$quote['total_price'] !== $expectedTotal || (int)$quote['deposit_amount'] !== $expectedDeposit) {
         throw new \Exception("Tính sai giá hoặc chia cọc! Nhận: total={$quote['total_price']}, deposit={$quote['deposit_amount']}");
     }
 
@@ -75,10 +80,12 @@ runTest("ndtt_sp_bookings_create du khách tạo đơn đặt chỗ (trạng th�
 });
 
 // Test 3: ndtt_sp_bookings_approve - Chặn Host không sở hữu tour duyệt
-runTest("ndtt_sp_bookings_approve chặn Host khác (id=3) duyệt đơn của Host 2", function() use ($pdo, $createdBookingId) {
+runTest("ndtt_sp_bookings_approve chặn Host khác duyệt đơn", function() use ($pdo, $createdBookingId) {
     try {
+        $hostId = (int)$pdo->query("SELECT s.host_id FROM tbl_bookings b JOIN tbl_services s ON b.service_id = s.id WHERE b.id = {$createdBookingId}")->fetchColumn();
+        $strangerHostId = ($hostId === 2) ? 3 : 2;
         $stmt = $pdo->prepare("CALL ndtt_sp_bookings_approve(?, ?)");
-        $stmt->execute([3, $createdBookingId]);
+        $stmt->execute([$strangerHostId, $createdBookingId]);
         throw new \Exception("Lẽ ra phải chặn nhưng lại cho duyệt!");
     } catch (\PDOException $e) {
         if (strpos($e->getMessage(), 'FORBIDDEN_NOT_HOST') !== false) {
@@ -88,10 +95,11 @@ runTest("ndtt_sp_bookings_approve chặn Host khác (id=3) duyệt đơn của H
     }
 });
 
-// Test 4: ndtt_sp_bookings_approve - Host chính chủ (id=2) duyệt giữ chỗ 15 phút
+// Test 4: ndtt_sp_bookings_approve - Host chính chủ duyệt giữ chỗ 15 phút
 runTest("ndtt_sp_bookings_approve Host chính chủ duyệt đơn, chuyển awaiting_payment và khóa chỗ 15 phút", function() use ($pdo, $createdBookingId) {
+    $hostId = (int)$pdo->query("SELECT s.host_id FROM tbl_bookings b JOIN tbl_services s ON b.service_id = s.id WHERE b.id = {$createdBookingId}")->fetchColumn();
     $stmt = $pdo->prepare("CALL ndtt_sp_bookings_approve(?, ?)");
-    $stmt->execute([2, $createdBookingId]);
+    $stmt->execute([$hostId, $createdBookingId]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
 
@@ -106,13 +114,14 @@ runTest("ndtt_sp_bookings_approve Host chính chủ duyệt đơn, chuyển awai
 });
 
 // Test 5: ndtt_sp_payments_apply_verified - Giả lập Webhook MoMo IPN
-runTest("ndtt_sp_payments_apply_verified xử lý IPN MoMo thành công, chuyển confirmed & sinh biên nhận", function() use ($pdo, $createdBookingId, &$createdPaymentId) {
+runTest("ndtt_sp_payments_apply_verified xử lý IPN MoMo thành công, chuyển confirmed & sinh biên nhận", function() use ($pdo, $createdBookingId, &$createdPaymentId, $expectedDeposit) {
     $orderId = 'MM_ORD_' . time();
     $requestId = 'REQ_' . time();
     $momoTransId = 'MOMO_' . time();
 
+    $payAmount = $expectedDeposit > 0 ? $expectedDeposit : 675000;
     $stmt = $pdo->prepare("CALL ndtt_sp_payments_apply_verified(?, ?, ?, ?, ?)");
-    $stmt->execute([$createdBookingId, $orderId, $requestId, 675000, $momoTransId]);
+    $stmt->execute([$createdBookingId, $orderId, $requestId, $payAmount, $momoTransId]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
 

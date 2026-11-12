@@ -31,7 +31,8 @@ class HomeController extends BaseController
      */
     public function index(): void
     {
-        $heroService = $this->serviceModel->getHeroFeatured();
+        $bannerServices = $this->serviceModel->getBannerServices(4);
+        $heroService = !empty($bannerServices) ? $bannerServices[0] : $this->serviceModel->getHeroFeatured();
         $categories = $this->serviceModel->getCategories();
         $services = $this->serviceModel->getAllApproved();
 
@@ -41,6 +42,7 @@ class HomeController extends BaseController
         $this->view('home/index', [
             'title' => 'OnlineTraveller — Kết Nối Dân Bản Địa & Khách Du Lịch Từ Xa',
             'heroService' => $heroService,
+            'bannerServices' => $bannerServices,
             'categories' => $categories,
             'services' => $services,
             'travelNews' => $travelNews,

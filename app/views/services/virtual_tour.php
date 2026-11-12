@@ -28,7 +28,9 @@ if (empty($stops)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'Trình Chiếu Không Gian 3D | OnlineTraveller', ENT_QUOTES, 'UTF-8') ?></title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/assets/images/logo.svg">
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/assets/images/logo.svg">
 
     <!-- Theme Early Initialization Script (Chống chớp sáng/tối FOUC) -->
     <script>
@@ -691,8 +693,8 @@ if (empty($stops)) {
             return window.innerWidth >= 992 ? 1.85 : 0;
         }
 
-        // Tạo Texture bo góc mềm cho tấm ảnh 3D (canvas offscreen bo 36px)
-        function createRoundedCardTexture(imgUrl, radius = 36, width = 1024, height = 640) {
+        // Tạo Texture bo góc mềm cho tấm ảnh 3D (canvas offscreen bo góc, vẽ cover chống méo hình)
+        function createRoundedCardTexture(imgUrl, radius = 36, width = 1440, height = 900) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
@@ -701,6 +703,8 @@ if (empty($stops)) {
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
 
                     // Vẽ hình chữ nhật bo góc
                     ctx.beginPath();
@@ -716,8 +720,26 @@ if (empty($stops)) {
                     ctx.closePath();
                     ctx.clip();
 
-                    // Vẽ ảnh phủ trọn khung
-                    ctx.drawImage(img, 0, 0, width, height);
+                    // Cắt và căn giữa chính xác theo tỉ lệ ảnh tự nhiên (object-fit: cover) để ảnh nằm trọn vẹn, không bị méo mó (stretched)
+                    const natW = img.naturalWidth || img.width || width;
+                    const natH = img.naturalHeight || img.height || height;
+                    const imgAspect = natW / natH;
+                    const canvasAspect = width / height;
+                    let drawW, drawH, drawX, drawY;
+                    if (imgAspect > canvasAspect) {
+                        drawH = height;
+                        drawW = height * imgAspect;
+                        drawX = (width - drawW) / 2;
+                        drawY = 0;
+                    } else {
+                        drawW = width;
+                        drawH = width / imgAspect;
+                        drawX = 0;
+                        drawY = (height - drawH) / 2;
+                    }
+
+                    // Vẽ ảnh phủ trọn khung với tỉ lệ gốc hoàn hảo
+                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
                     // Viền sáng mềm mại
                     const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';

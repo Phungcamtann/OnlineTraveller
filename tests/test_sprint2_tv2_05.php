@@ -221,7 +221,10 @@ $mwBlocked = ob_get_clean();
 assertTest("Du khách bị chặn khi cố tình vào /host/bookings (HTTP 403)", http_response_code() === 403);
 
 // 6.4 Clean up test records
-$db->execute("DELETE FROM tbl_bookings WHERE id IN (?, ?, ?)", [$bookingId, $bookingCashId, $bookingOverId]);
+$db->execute("DELETE FROM tbl_payments WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id = ?)", [$scheduleId]);
+$db->execute("DELETE FROM tbl_receipts WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id = ?)", [$scheduleId]);
+$db->execute("DELETE FROM tbl_refunds WHERE booking_id IN (SELECT id FROM tbl_bookings WHERE schedule_id = ?)", [$scheduleId]);
+$db->execute("DELETE FROM tbl_bookings WHERE schedule_id = ?", [$scheduleId]);
 $db->execute("DELETE FROM tbl_service_schedules WHERE id = ?", [$scheduleId]);
 echo "  [INFO] Đã dọn dẹp sạch sẽ toàn bộ dữ liệu kiểm thử TV2-05.\n";
 

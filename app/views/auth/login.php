@@ -58,15 +58,6 @@
                     Chưa có tài khoản? <a href="/register" class="text-info fw-semibold text-decoration-none">Đăng ký ngay</a>
                 </div>
 
-                <!-- Fast Demo Login Credentials -->
-                <div class="mt-4 p-3 rounded-3 small surface-card border-subtle">
-                    <strong class="d-block mb-2" style="color: var(--text-main);"><i class="bi bi-info-circle text-info me-1"></i> Tài khoản mẫu thử nghiệm (Pass: <code>password123</code>):</strong>
-                    <ul class="mb-0 ps-3" style="color: var(--text-muted);">
-                        <li class="mb-1">Admin: <code class="user-select-all">admin@onlinetraveller.vn</code></li>
-                        <li class="mb-1">Host Đà Lạt: <code class="user-select-all">host.dalat@onlinetraveller.vn</code></li>
-                        <li>Tourist: <code class="user-select-all">tourist@gmail.com</code></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
