@@ -4,7 +4,8 @@
 -- Hash Bcrypt: $2y$10$hQLACbMKREt.ABdU7fbj3.YAJXYKlYi1WRMzT0ZdK8l6eoRx63kMe
 -- ==============================================================================
 
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET collation_connection = 'utf8mb4_unicode_ci';
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 1. Tài khoản mẫu (Bao gồm Host Demo độc quyền)

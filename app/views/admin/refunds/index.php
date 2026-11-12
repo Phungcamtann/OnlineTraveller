@@ -18,22 +18,23 @@ $approvedCount = (int)($stats['approved_count'] ?? 0);
 $totalAmount = (float)($stats['total_amount'] ?? 0);
 ?>
 
-<div class="container-fluid py-4">
+<div class="container py-4">
     <!-- PAGE TITLE -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb small mb-1">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none text-muted">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/admin" class="text-decoration-none text-muted">Quản trị Admin</a></li>
                     <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Quản Lý Hoàn Tiền</li>
                 </ol>
             </nav>
-            <h3 class="fw-bold font-editorial text-dark mb-0">Hồ Sơ Hủy Tour & Hoàn Tiền (MoMo Sandbox)</h3>
-            <small class="text-muted">Theo dõi và phê duyệt các nghĩa vụ hoàn tiền theo quy định T24 và ngoại lệ.</small>
+            <h3 class="fw-bold font-editorial text-dark mb-0">Hồ Sơ Hủy Tour & Hoàn Tiền</h3>
+            <small class="text-muted">Theo dõi và phê duyệt các nghĩa vụ hoàn tiền theo quy định và chính sách hủy tour.</small>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <a href="/admin/dashboard" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
-                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            <a href="/admin" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Bảng Điều Khiển
             </a>
             <a href="/admin/users" class="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm">
                 <i class="bi bi-people me-1"></i> Người Dùng

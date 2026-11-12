@@ -18,7 +18,7 @@ $categories = $categories ?? [];
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <span class="badge bg-primary px-3 py-1 rounded-pill mb-1">
-                <i class="bi bi-folder-fill me-1"></i> Quản Trị Hệ Thống (TV1)
+                <i class="bi bi-folder-fill me-1"></i> Quản Trị Hệ Thống
             </span>
             <h2 class="font-editorial fw-bold text-dark mb-0">Quản Lý Danh Mục Trải Nghiệm</h2>
             <p class="text-muted small mb-0">Phân loại các tour văn hóa bản địa (Ẩm thực, Khám phá di sản, Trekking, Biển đảo...)</p>
@@ -36,7 +36,6 @@ $categories = $categories ?? [];
             <h5 class="fw-bold text-dark font-editorial mb-0">
                 Danh Sách Danh Mục Hiện Có (<?= count($categories) ?>)
             </h5>
-            <small class="text-muted">Cập nhật qua thủ tục <code>dhs_sp_categories_save</code></small>
         </div>
 
         <?php if (empty($categories)): ?>
@@ -53,7 +52,7 @@ $categories = $categories ?? [];
                     <thead class="table-light">
                         <tr>
                             <th style="width: 70px;">Icon</th>
-                            <th>Tên danh mục & Đường dẫn (Slug)</th>
+                            <th>Tên danh mục</th>
                             <th>Mô tả tóm tắt</th>
                             <th class="text-center" style="width: 120px;">Số Tour</th>
                             <th style="width: 130px;">Trạng thái</th>
@@ -70,7 +69,7 @@ $categories = $categories ?? [];
                                 </td>
                                 <td>
                                     <div class="fw-bold text-dark fs-6"><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></div>
-                                    <small class="text-muted font-monospace">/services?category_id=<?= (int)$cat['id'] ?> (<?= htmlspecialchars($cat['slug']) ?>)</small>
+                                    <span class="badge bg-light text-secondary border rounded-pill" style="font-size: 0.72rem;"><?= htmlspecialchars($cat['slug']) ?></span>
                                 </td>
                                 <td class="small text-muted" style="max-width: 320px;">
                                     <?= htmlspecialchars($cat['description'] ?? 'Không có mô tả', ENT_QUOTES, 'UTF-8') ?>

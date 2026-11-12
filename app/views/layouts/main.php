@@ -168,36 +168,72 @@
         <div class="offcanvas-header border-bottom">
             <div class="d-flex align-items-center gap-2">
                 <img src="/assets/images/logo.svg" alt="OnlineTraveller" width="30" height="30" class="rounded-circle">
-                <h5 class="offcanvas-title font-editorial fw-bold brand-text" id="mobileNavLabel">OnlineTraveller</h5>
+                <h5 class="offcanvas-title font-editorial fw-bold brand-text mb-0" id="mobileNavLabel">OnlineTraveller</h5>
             </div>
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
-            <nav class="d-flex flex-column gap-2 mb-4">
-                <a href="/" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
-                    <i class="bi bi-house me-2 text-info"></i> Trang chủ
-                </a>
-                <a href="/services" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
-                    <i class="bi bi-compass me-2 text-primary"></i> Khám Phá
-                </a>
-                <a href="/posts" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
-                    <i class="bi bi-newspaper me-2 text-success"></i> Bản tin & Cẩm nang
-                </a>
-                <?php if ($userRole === 'host'): ?>
-                    <a href="/host" class="btn glass-pill text-start px-3 py-2 text-info text-decoration-none fw-semibold">
-                        <i class="bi bi-kanban me-2"></i> Quản lý Host
+        <div class="offcanvas-body d-flex flex-column justify-content-between">
+            <div>
+                <?php if (!empty($currentUser)): ?>
+                    <div class="p-3 mb-3 rounded-3 surface-card">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle" style="width: 32px; height: 32px;">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <div>
+                                <div class="fw-bold small user-name-label" style="color: var(--text-main);"><?= htmlspecialchars($currentUser['name'] ?? 'Tài khoản', ENT_QUOTES, 'UTF-8') ?></div>
+                                <span class="badge bg-primary-subtle text-primary text-uppercase" style="font-size: 0.68rem;"><?= htmlspecialchars($userRole ?: 'tourist') ?></span>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column gap-1 pt-2 border-top border-subtle small">
+                            <a href="/profile" class="text-decoration-none py-1 d-flex align-items-center gap-2" style="color: var(--text-main);">
+                                <i class="bi bi-person text-info"></i> Hồ sơ của tôi
+                            </a>
+                            <a href="/bookings" class="text-decoration-none py-1 d-flex align-items-center gap-2" style="color: var(--text-main);">
+                                <i class="bi bi-calendar-check text-success"></i> Chuyến đi của tôi
+                            </a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <nav class="d-flex flex-column gap-2 mb-4">
+                    <a href="/" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
+                        <i class="bi bi-house me-2 text-info"></i> Trang chủ
                     </a>
-                <?php elseif ($userRole === 'admin'): ?>
-                    <a href="/admin" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
-                        <i class="bi bi-shield-lock me-2"></i> Quản trị Admin
+                    <a href="/services" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
+                        <i class="bi bi-compass me-2 text-primary"></i> Khám Phá
                     </a>
-                    <a href="/admin/services" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
-                        <i class="bi bi-shield-check me-2"></i> Duyệt Tour Mới
+                    <a href="/posts" class="btn glass-pill text-start px-3 py-2 text-decoration-none">
+                        <i class="bi bi-newspaper me-2 text-success"></i> Bản tin & Cẩm nang
+                    </a>
+                    <?php if ($userRole === 'host'): ?>
+                        <a href="/host" class="btn glass-pill text-start px-3 py-2 text-info text-decoration-none fw-semibold">
+                            <i class="bi bi-kanban me-2"></i> Bàn làm việc Host
+                        </a>
+                    <?php elseif ($userRole === 'admin'): ?>
+                        <a href="/admin" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
+                            <i class="bi bi-speedometer2 me-2"></i> Trung tâm Admin
+                        </a>
+                        <a href="/admin/services" class="btn glass-pill text-start px-3 py-2 text-warning text-decoration-none fw-semibold">
+                            <i class="bi bi-shield-check me-2"></i> Duyệt Tour Mới
+                        </a>
+                    <?php endif; ?>
+                </nav>
+            </div>
+
+            <div class="pt-3 border-top border-subtle">
+                <?php if (!empty($currentUser)): ?>
+                    <a href="/logout" class="btn btn-outline-danger w-100 rounded-pill py-2 mb-2 d-flex align-items-center justify-content-center gap-2 small">
+                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                    </a>
+                <?php else: ?>
+                    <a href="/login" class="btn btn-theme-primary w-100 rounded-pill py-2 mb-2 d-flex align-items-center justify-content-center gap-2 small">
+                        <i class="bi bi-box-arrow-in-right"></i> Đăng nhập / Đăng ký
                     </a>
                 <?php endif; ?>
-            </nav>
-            <div class="pt-3 border-top small text-secondary">
-                OnlineTraveller v3.0 • Day & Night Mode
+                <div class="text-center small text-secondary" style="font-size: 0.72rem;">
+                    OnlineTraveller • Du Lịch Bản Địa
+                </div>
             </div>
         </div>
     </div>
@@ -238,7 +274,6 @@
                         <span class="text-secondary opacity-50">•</span>
                         <a href="/posts" class="text-decoration-none">Bản tin</a>
                     </div>
-                    <span class="d-none" aria-hidden="true">OOP + MVC, 15 bảng, 22 Stored Procedures</span>
                 </div>
 
                 <!-- Cột phải: Bản quyền & Nút quay lại lên đầu trang (Mockup góc phải) -->

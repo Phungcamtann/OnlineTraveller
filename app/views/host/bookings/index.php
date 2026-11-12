@@ -30,7 +30,7 @@ $filters = $filters ?? ['status' => null, 'service_id' => null, 'search' => null
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
                 <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold">
-                    <i class="bi bi-inbox-fill me-1"></i> Quản Lý Đơn Đặt (TV2-05)
+                    <i class="bi bi-inbox-fill me-1"></i> Quản Lý Đơn Đặt Tour
                 </span>
                 <span class="badge bg-dark text-white rounded-pill px-2 py-1 small">
                     <?= htmlspecialchars($user['living_area'] ?? 'Địa phương', ENT_QUOTES, 'UTF-8') ?>
@@ -158,7 +158,6 @@ $filters = $filters ?? ['status' => null, 'service_id' => null, 'search' => null
             <h5 class="fw-bold text-dark font-editorial mb-0">
                 Danh Sách Yêu Cầu Đặt Chỗ (<?= number_format(count($bookings)) ?>)
             </h5>
-            <small class="text-muted">Phê duyệt kích hoạt thủ tục <code>ndtt_sp_bookings_approve</code></small>
         </div>
 
         <?php if (empty($bookings)): ?>

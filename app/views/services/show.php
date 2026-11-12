@@ -160,15 +160,15 @@ $srvStatus = $service['status'] ?? 'approved';
                                                 <i class="bi bi-clock me-1"></i><?= (int)($service['duration_days'] ?? 1) ?> ngày
                                             </span>
                                         </div>
-                                        <h1 class="font-editorial display-3 fw-bold text-white mb-2 lh-sm">
+                                        <h1 class="font-editorial detail-banner-title fw-bold text-white mb-2 lh-sm">
                                             <?= htmlspecialchars($service['title'] ?? 'Bình Minh Bên Hồ Tuyền Lâm', ENT_QUOTES, 'UTF-8') ?>
                                         </h1>
-                                        <div class="small text-light opacity-90 fs-6 mb-3">
+                                        <div class="small text-light opacity-90 fs-6 mb-3 detail-host-line">
                                             Host: <strong><?= htmlspecialchars($service['host_name'] ?? 'Nguyễn Văn Bản Địa', ENT_QUOTES, 'UTF-8') ?></strong> 
                                             (<?= htmlspecialchars($service['host_living_area'] ?? ($service['location'] ?? 'Đà Lạt')) ?>) &bull; 
                                             <span class="text-warning fw-bold">&#9733; <?= number_format((float)($service['avg_rating'] ?? 5.0), 1) ?></span>
                                         </div>
-                                        <p class="text-light opacity-75 small mb-0" style="max-width: 560px; line-height: 1.6;">
+                                        <p class="text-light opacity-75 small mb-0 d-none d-md-block" style="max-width: 560px; line-height: 1.6;">
                                             <?= htmlspecialchars(mb_substr(strip_tags($service['short_description'] ?? ($service['description'] ?? 'Hòa mình vào không gian bình minh trong lành cùng người dân bản địa.')), 0, 160, 'UTF-8') . '...') ?>
                                         </p>
                                     </div>
@@ -581,7 +581,7 @@ $srvStatus = $service['status'] ?? 'approved';
             <!-- Cột trái: Kênh Hỏi Đánh Giá Trực Tiếp Từ Xa -->
             <div class="col-lg-7">
                 <div class="glass-panel p-4 h-100">
-                    <h5 class="fw-bold text-white mb-3">Kênh Hỏi Đánh Giá Trực Tiếp Từ Xa</h5>
+                    <h5 class="fw-bold mb-3" style="color: var(--text-main);">Kênh Hỏi Đánh Giá Trực Tiếp Từ Xa</h5>
                     
                     <!-- Form gửi câu hỏi (TV4-05 AJAX) -->
                     <form id="discussion-main-form" action="/discussions" method="POST" class="mb-4">
@@ -590,16 +590,16 @@ $srvStatus = $service['status'] ?? 'approved';
                         <div class="mb-3">
                             <textarea name="message" 
                                       id="discussion-message-input"
-                                      class="form-control bg-dark bg-opacity-50 text-white border border-secondary border-opacity-50 rounded-3 p-3 shadow-none search-field-input" 
+                                      class="form-control rounded-3 p-3 shadow-none search-field-input" 
                                       rows="3" 
                                       placeholder="Nhập nội dung câu hỏi cho Dân bản địa?..." 
                                       required></textarea>
                         </div>
                         <div class="d-flex align-items-center justify-content-between">
-                            <small class="text-light opacity-50" id="discussion-char-hint">
+                            <small id="discussion-char-hint" style="color: var(--text-muted);">
                                 <i class="bi bi-chat-quote me-1"></i>Hỏi đáp trực tiếp cùng Dân bản địa
                             </small>
-                            <button type="submit" class="btn btn-alpine btn-sm px-4 py-2" id="discussion-submit-btn">
+                            <button type="submit" class="btn btn-theme-primary btn-sm px-4 py-2" id="discussion-submit-btn">
                                 <i class="bi bi-send me-1"></i> Gửi Câu Hỏi
                             </button>
                         </div>
@@ -608,7 +608,7 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Danh sách bình luận & phản hồi 1 cấp thời gian thực (TV4-05) -->
                     <div id="discussions-thread-container" class="d-flex flex-column gap-3">
                         <?php if (empty($discussions)): ?>
-                            <div id="no-discussions-notice" class="text-center py-4 text-light opacity-50 small">
+                            <div id="no-discussions-notice" class="text-center py-4 small" style="color: var(--text-muted);">
                                 <i class="bi bi-chat-dots fs-3 d-block mb-2 opacity-50"></i>
                                 Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi cho Host bản địa!
                             </div>
@@ -698,7 +698,7 @@ $srvStatus = $service['status'] ?? 'approved';
                         <small class="text-secondary" style="font-size: 0.75rem;">Xác nhận tức thì</small>
                     </div>
 
-                    <h5 class="fw-bold text-white mb-2">Đặt Chỗ Trải Nghiệm</h5>
+                    <h5 class="fw-bold mb-2" style="color: var(--text-main);">Đặt Chỗ Trải Nghiệm</h5>
                     <div class="d-flex align-items-baseline gap-2 mb-1">
                         <span class="fs-2 fw-bold text-info lh-1">
                             <?= number_format((float)($service['base_price'] ?? 450000), 0, ',', '.') ?>đ
@@ -767,7 +767,7 @@ $srvStatus = $service['status'] ?? 'approved';
                         </select>
                     </div>
 
-                    <a href="/bookings/create?service_id=<?= (int)($service['id'] ?? 1) ?>" class="btn btn-alpine w-100 py-3 fw-bold text-white fs-6 shadow">
+                    <a href="/bookings/create?service_id=<?= (int)($service['id'] ?? 1) ?>" class="btn btn-theme-primary w-100 py-3 fw-bold fs-6 shadow">
                         <i class="bi bi-calendar-plus me-1"></i> Đặt Chỗ Trực Tuyến Ngay
                     </a>
                     <small class="text-secondary opacity-75 text-center d-block mt-2" style="font-size: 0.78rem;">
@@ -816,7 +816,7 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Cột trái: Tóm tắt điểm số & Form gửi đánh giá -->
                     <div class="col-lg-4">
                         <div class="glass-panel p-4 mb-4">
-                            <h5 class="fw-bold text-white mb-3">Đánh Giá Tổng Quan</h5>
+                            <h5 class="fw-bold mb-3" style="color: var(--text-main);">Đánh Giá Tổng Quan</h5>
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div class="fs-1 fw-bold text-warning lh-1 font-editorial">
                                     <?= number_format((float)($reviewStats['avg_rating'] ?? 5.0), 1) ?>
@@ -830,14 +830,14 @@ $srvStatus = $service['status'] ?? 'approved';
                                             <i class="bi <?= $i <= $roundedAvg ? 'bi-star-fill' : 'bi-star' ?>"></i>
                                         <?php endfor; ?>
                                     </div>
-                                    <small class="text-light opacity-75">
+                                    <small style="color: var(--text-muted);">
                                         Dựa trên <strong><?= (int)($reviewStats['reviews_count'] ?? count($reviews ?? [])) ?></strong> đánh giá
                                     </small>
                                 </div>
                             </div>
 
                             <!-- Thanh phân bổ sao -->
-                            <div class="vstack gap-2 small text-light opacity-75 border-top border-secondary border-opacity-25 pt-3 mb-4">
+                            <div class="vstack gap-2 small border-top border-subtle pt-3 mb-4" style="color: var(--text-muted);">
                                 <?php
                                 $totalRev = max((int)($reviewStats['reviews_count'] ?? 1), 1);
                                 for ($star = 5; $star >= 1; $star--):
@@ -845,21 +845,21 @@ $srvStatus = $service['status'] ?? 'approved';
                                     $starPercent = round(($starCount / $totalRev) * 100);
                                 ?>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span style="width: 42px; font-size: 0.75rem;"><?= $star ?> sao</span>
-                                        <div class="progress flex-grow-1 bg-dark bg-opacity-50" style="height: 6px;">
+                                        <span style="width: 42px; font-size: 0.75rem; color: var(--text-muted);"><?= $star ?> sao</span>
+                                        <div class="progress flex-grow-1" style="height: 6px; background-color: var(--border-subtle);">
                                             <div class="progress-bar bg-warning" style="width: <?= $starPercent ?>%;"></div>
                                         </div>
-                                        <span class="text-end" style="width: 25px; font-size: 0.72rem;"><?= $starCount ?></span>
+                                        <span class="text-end" style="width: 25px; font-size: 0.72rem; color: var(--text-muted);"><?= $starCount ?></span>
                                     </div>
                                 <?php endfor; ?>
                             </div>
 
                             <!-- Form gửi đánh giá -->
-                            <div class="border-top border-secondary border-opacity-25 pt-3">
-                                <h6 class="fw-bold text-white mb-2">Gửi Cảm Nhận Của Bạn</h6>
+                            <div class="border-top border-subtle pt-3">
+                                <h6 class="fw-bold mb-2" style="color: var(--text-main);">Gửi Cảm Nhận Của Bạn</h6>
                                 <?php if (!empty($user)): ?>
                                     <?php if (!empty($hasReviewed)): ?>
-                                        <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 text-white small">
+                                        <div class="p-3 rounded-3 bg-success bg-opacity-20 border border-success border-opacity-50 small" style="color: var(--text-main);">
                                             <i class="bi bi-check-circle-fill text-success me-1"></i>
                                             Bạn đã gửi đánh giá cho chuyến đi này rồi. Cảm ơn bạn đã đóng góp cho cộng đồng!
                                         </div>
@@ -875,7 +875,7 @@ $srvStatus = $service['status'] ?? 'approved';
                                             <?php endif; ?>
 
                                             <div class="mb-2">
-                                                <label class="small text-light opacity-75 d-block mb-1">Số sao đánh giá:</label>
+                                                <label class="small d-block mb-1" style="color: var(--text-muted);">Số sao đánh giá:</label>
                                                 <div class="rating-stars-select d-flex gap-2 text-warning fs-5" id="ratingStars">
                                                     <i class="bi bi-star-fill star-option" data-value="1" style="cursor: pointer;"></i>
                                                     <i class="bi bi-star-fill star-option" data-value="2" style="cursor: pointer;"></i>
@@ -887,20 +887,20 @@ $srvStatus = $service['status'] ?? 'approved';
                                             </div>
 
                                             <div class="mb-3">
-                                                <textarea name="comment" id="reviewCommentInput" rows="3" class="form-control bg-dark bg-opacity-50 text-white border-secondary border-opacity-50 rounded-3 p-2 small shadow-none" placeholder="Chia sẻ cảm nhận chi tiết về chuyến đi, người bản địa, cảnh đẹp..." required></textarea>
+                                                <textarea name="comment" id="reviewCommentInput" rows="3" class="form-control rounded-3 p-2 small shadow-none" placeholder="Chia sẻ cảm nhận chi tiết về chuyến đi, người bản địa, cảnh đẹp..." required></textarea>
                                             </div>
 
-                                            <button type="submit" id="btnSubmitReview" class="btn btn-alpine w-100 py-2 btn-sm rounded-pill fw-bold text-white shadow">
+                                            <button type="submit" id="btnSubmitReview" class="btn btn-theme-primary w-100 py-2 btn-sm rounded-pill fw-bold shadow">
                                                 <i class="bi bi-send-fill me-1"></i> Gửi Đánh Giá Ngay
                                             </button>
                                         </form>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <div class="p-3 rounded-3 text-center border border-secondary border-opacity-25" style="background: rgba(15, 25, 36, 0.55);">
-                                        <p class="small text-light opacity-75 mb-2">
+                                    <div class="p-3 rounded-3 text-center surface-card">
+                                        <p class="small mb-2" style="color: var(--text-muted);">
                                             Vui lòng đăng nhập tài khoản để gửi đánh giá và nhận xét về tour này.
                                         </p>
-                                        <a href="/login" class="btn btn-alpine btn-sm rounded-pill px-4">
+                                        <a href="/login" class="btn btn-theme-primary btn-sm rounded-pill px-4">
                                             <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Để Đánh Giá
                                         </a>
                                     </div>
@@ -912,23 +912,23 @@ $srvStatus = $service['status'] ?? 'approved';
                     <!-- Cột phải: Danh sách các đánh giá từ du khách -->
                     <div class="col-lg-8">
                         <div class="glass-panel p-4">
-                            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary border-opacity-25">
-                                <h5 class="fw-bold text-white mb-0">Cảm Nhận Thực Tế</h5>
-                                <span class="badge bg-light bg-opacity-10 text-light border border-secondary border-opacity-25 rounded-pill px-3 py-1 small" id="reviewsCountBadge">
+                            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-subtle">
+                                <h5 class="fw-bold mb-0" style="color: var(--text-main);">Cảm Nhận Thực Tế</h5>
+                                <span class="badge surface-card rounded-pill px-3 py-1 small" id="reviewsCountBadge" style="color: var(--text-muted);">
                                     <?= count($reviews ?? []) ?> nhận xét
                                 </span>
                             </div>
 
                             <div class="vstack gap-3" id="reviewsContainer">
                                 <?php if (empty($reviews)): ?>
-                                    <div class="text-center py-5 text-light opacity-60" id="noReviewsNotice">
+                                    <div class="text-center py-5" style="color: var(--text-muted);" id="noReviewsNotice">
                                         <i class="bi bi-chat-heart fs-1 d-block mb-2 opacity-50"></i>
                                         <p class="mb-1">Chưa có đánh giá nào cho chuyến đi này.</p>
                                         <small>Hãy là người đầu tiên chia sẻ cảm nhận trải nghiệm thực tế!</small>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($reviews as $rev): ?>
-                                        <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55);">
+                                        <div class="p-3 rounded-3 review-card" id="review-<?= (int)$rev['id'] ?>">
                                             <div class="d-flex align-items-start justify-content-between mb-2">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
@@ -936,14 +936,14 @@ $srvStatus = $service['status'] ?? 'approved';
                                                     </div>
                                                     <div>
                                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                            <span class="fw-bold text-white small"><?= htmlspecialchars($rev['tourist_name'] ?? 'Du khách', ENT_QUOTES, 'UTF-8') ?></span>
+                                                            <span class="fw-bold small" style="color: var(--text-main);"><?= htmlspecialchars($rev['tourist_name'] ?? 'Du khách', ENT_QUOTES, 'UTF-8') ?></span>
                                                             <?php if (!empty($rev['is_verified'])): ?>
                                                                 <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-2 py-0" style="font-size: 0.68rem;">
                                                                     <i class="bi bi-patch-check-fill me-1"></i> Đã tự trải nghiệm
                                                                 </span>
                                                             <?php endif; ?>
                                                         </div>
-                                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">
+                                                        <small style="font-size: 0.72rem; color: var(--text-muted); opacity: 0.75;">
                                                             <?= date('d/m/Y H:i', strtotime($rev['created_at'])) ?>
                                                         </small>
                                                     </div>
@@ -954,7 +954,7 @@ $srvStatus = $service['status'] ?? 'approved';
                                                     <?php endfor; ?>
                                                 </div>
                                             </div>
-                                            <p class="text-light opacity-90 small mb-0 ps-1">
+                                            <p class="small mb-0 ps-1" style="color: var(--text-muted); line-height: 1.5;">
                                                 <?= nl2br(htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8')) ?>
                                             </p>
                                         </div>
@@ -1617,7 +1617,7 @@ $srvStatus = $service['status'] ?? 'approved';
                     }
 
                     const reviewCardHtml = `
-                        <div class="p-3 rounded-3 border border-secondary border-opacity-25 review-card" style="background: rgba(15, 25, 36, 0.55); animation: fadeIn 0.4s ease;">
+                        <div class="p-3 rounded-3 review-card" style="animation: fadeIn 0.4s ease;">
                             <div class="d-flex align-items-start justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 text-info rounded-circle fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
@@ -1625,17 +1625,17 @@ $srvStatus = $service['status'] ?? 'approved';
                                     </div>
                                     <div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <span class="fw-bold text-white small">${escapeHtml(rev.tourist_name || 'Du khách')}</span>
+                                            <span class="fw-bold small" style="color: var(--text-main);">${escapeHtml(rev.tourist_name || 'Du khách')}</span>
                                             ${verifiedHtml}
                                         </div>
-                                        <small class="text-light opacity-50" style="font-size: 0.72rem;">Vừa xong</small>
+                                        <small style="font-size: 0.72rem; color: var(--text-muted); opacity: 0.75;">Vừa xong</small>
                                     </div>
                                 </div>
                                 <div class="text-warning small">
                                     ${starsHtml}
                                 </div>
                             </div>
-                            <p class="text-light opacity-90 small mb-0 ps-1">
+                            <p class="small mb-0 ps-1" style="color: var(--text-muted); line-height: 1.5;">
                                 ${escapeHtml(rev.comment)}
                             </p>
                         </div>

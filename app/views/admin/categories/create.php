@@ -15,7 +15,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
                     <div>
                         <span class="badge bg-primary px-3 py-1 rounded-pill mb-1">
-                            <i class="bi bi-folder-plus me-1"></i> Admin Phân Hệ TV1
+                            <i class="bi bi-folder-plus me-1"></i> Quản Trị Danh Mục
                         </span>
                         <h3 class="font-editorial fw-bold text-dark mb-1">Thêm Danh Mục Trải Nghiệm Mới</h3>
                         <p class="text-muted small mb-0">Tạo chủ đề văn hóa/du lịch để người dân bản địa phân loại tour</p>

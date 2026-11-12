@@ -24,7 +24,8 @@ $isPub = $isEdit ? ((int)$post['is_published'] === 1) : true;
             <!-- BREADCRUMB -->
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb small">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none text-muted">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/admin" class="text-decoration-none text-muted">Quản trị Admin</a></li>
                     <li class="breadcrumb-item"><a href="/admin/posts" class="text-decoration-none text-muted">Bài viết cẩm nang</a></li>
                     <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page"><?= $isEdit ? 'Chỉnh sửa bài viết' : 'Viết bài mới' ?></li>
                 </ol>

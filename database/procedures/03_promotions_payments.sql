@@ -12,7 +12,8 @@
 --   6. ndtt_sp_refunds_create_and_approve: Admin duyệt lệnh hoàn tiền MoMo Sandbox
 -- ==============================================================================
 
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET collation_connection = 'utf8mb4_unicode_ci';
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------

@@ -36,7 +36,7 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock text-info"></i></span>
                             <input type="password" name="password" id="inputPassword" class="form-control" placeholder="••••••••" required>
-                            <button type="button" class="btn btn-outline-secondary border-start-0" id="btnTogglePassword" title="Hiện/ẩn mật khẩu" style="border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem;">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password border-start-0" id="btnTogglePassword" title="Hiện/ẩn mật khẩu" style="border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem;">
                                 <i class="bi bi-eye" id="iconEye"></i>
                             </button>
                         </div>

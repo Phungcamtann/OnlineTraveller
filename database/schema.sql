@@ -4,7 +4,9 @@
 -- Engine: MySQL InnoDB, Charset: utf8mb4, Collation: utf8mb4_unicode_ci
 -- ==============================================================================
 
-SET NAMES utf8mb4;
+ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET collation_connection = 'utf8mb4_unicode_ci';
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ------------------------------------------------------------------------------

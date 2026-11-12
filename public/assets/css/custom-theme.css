@@ -373,7 +373,7 @@ h1, h2, h3, h4, h5, h6,
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1050;
+    z-index: 1030 !important;
     padding: 0.9rem 0;
     transition: all 0.3s ease;
     background: transparent;
@@ -1317,6 +1317,21 @@ select option {
     box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.12) !important;
 }
 
+.btn-toggle-password {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-left: none !important;
+}
+
+.btn-toggle-password:hover,
+.btn-toggle-password:focus {
+    color: var(--text-main) !important;
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: none !important;
+}
+
 /* ==========================================================================
    PLACEHOLDER ADAPTIVITY TOÀN HỆ THỐNG (DAY MODE VÀ NIGHT MODE)
    Khắc phục triệt để lỗi placeholder "Tìm địa danh", "Tìm theo tour" bị mất trên nền tối
@@ -1458,9 +1473,15 @@ select option {
 }
 
 .mobile-offcanvas-theme {
-    background-color: var(--bg-body) !important;
+    z-index: 1060 !important;
+    background-color: var(--bg-surface) !important;
     color: var(--text-main) !important;
     border-left: 1px solid var(--border-subtle) !important;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+.offcanvas-backdrop {
+    z-index: 1055 !important;
 }
 
 [data-theme="dark"] .mobile-nav-toggler {
@@ -1469,6 +1490,118 @@ select option {
 
 [data-theme="light"] .mobile-nav-toggler {
     color: #18181B !important;
+}
+
+/* ==========================================================================
+   REVIEW & ROLE SELECTION CARDS (DAY & NIGHT MODE UNIFORMITY)
+   ========================================================================== */
+.review-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--shadow-soft) !important;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.review-card:hover {
+    border-color: var(--border-strong) !important;
+}
+
+.discussion-item-box {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 14px !important;
+}
+
+.discussion-reply-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 10px !important;
+}
+
+/* Role Selection Cards */
+.role-select-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 14px !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+}
+
+.role-select-card:hover {
+    border-color: var(--border-strong) !important;
+}
+
+.role-select-card .role-title {
+    color: var(--text-main) !important;
+}
+
+.role-select-card .role-desc {
+    color: var(--text-muted) !important;
+    font-size: 0.75rem;
+}
+
+[data-theme="light"] .btn-check:checked + .role-select-card {
+    background-color: #F4F4F5 !important;
+    border-color: #18181B !important;
+    box-shadow: 0 0 0 2px #18181B !important;
+}
+
+[data-theme="dark"] .btn-check:checked + .role-select-card {
+    background-color: #27272A !important;
+    border-color: #F4F4F5 !important;
+    box-shadow: 0 0 0 2px #F4F4F5 !important;
+}
+
+/* ==========================================================================
+   TINH CHỈNH HERO BANNER TRANG CHI TIẾT TRÊN DI ĐỘNG (MOBILE DETAIL BANNER)
+   ========================================================================== */
+.detail-banner-title {
+    font-size: clamp(1.4rem, 5.2vw, 3.2rem) !important;
+    line-height: 1.25 !important;
+}
+
+@media (max-width: 767.98px) {
+    #detailHeroBanner {
+        min-height: 480px !important;
+        border-radius: 18px !important;
+    }
+    #detailHeroBanner .hero-banner-overlay {
+        padding: 1.15rem 0.9rem !important;
+        border-radius: 18px !important;
+    }
+    .detail-banner-title {
+        font-size: clamp(1.3rem, 5vw, 1.85rem) !important;
+        margin-bottom: 0.35rem !important;
+        letter-spacing: -0.01em;
+    }
+    .detail-host-line {
+        font-size: 0.78rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+    #milestonesContainer {
+        min-height: 95px !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+        gap: 0.4rem !important;
+    }
+    .vertical-station-card.milestone-thumb-card {
+        width: 68px !important;
+        height: 88px !important;
+        border-radius: 9px !important;
+        flex-shrink: 0 !important;
+    }
+    .milestone-thumb-title {
+        font-size: 0.58rem !important;
+        -webkit-line-clamp: 1 !important;
+    }
+    .milestone-thumb-overlay {
+        padding: 3px 4px !important;
+    }
+    .milestone-thumb-overlay .badge {
+        display: none !important;
+    }
 }
 
 /* ==========================================================================

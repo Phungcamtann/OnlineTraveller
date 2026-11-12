@@ -29,7 +29,7 @@ $currentAdminId = (int)($currentUser['id'] ?? 0);
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <span class="badge bg-primary px-3 py-1 rounded-pill mb-1">
-                <i class="bi bi-people-fill me-1"></i> Quản Trị Hệ Thống (TV1)
+                <i class="bi bi-people-fill me-1"></i> Quản Trị Hệ Thống
             </span>
             <h2 class="font-editorial fw-bold text-dark mb-0">Quản Lý Người Dùng & Phân Quyền</h2>
             <p class="text-muted small mb-0">Tra cứu thông tin, giám sát vai trò và khóa / mở khóa tài khoản người dùng an toàn</p>
@@ -134,7 +134,6 @@ $currentAdminId = (int)($currentUser['id'] ?? 0);
             <h5 class="fw-bold text-dark font-editorial mb-0">
                 Danh Sách Tài Khoản Người Dùng (<?= number_format($totalUsers) ?>)
             </h5>
-            <small class="text-muted">Cập nhật trạng thái qua thủ tục <code>dhs_sp_users_set_status</code></small>
         </div>
 
         <?php if (empty($users)): ?>

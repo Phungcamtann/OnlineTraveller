@@ -12,7 +12,8 @@
 --   6. ptl_sp_schedules_cancel: Host hủy lịch khởi hành (tự hủy booking pending)
 -- ==============================================================================
 
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET collation_connection = 'utf8mb4_unicode_ci';
 DELIMITER $$
 
 -- ------------------------------------------------------------------------------
