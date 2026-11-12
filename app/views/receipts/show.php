@@ -60,6 +60,7 @@ $unitPrice = (float)$receipt['unit_price'];
                 <div class="row align-items-start border-bottom pb-4 mb-4">
                     <div class="col-sm-7 mb-3 mb-sm-0">
                         <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="/assets/images/logo.svg" alt="OnlineTraveller" width="32" height="32" class="rounded-circle shadow-sm">
                             <span class="fs-4 fw-bold text-dark font-editorial">OnlineTraveller</span>
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0 small fw-bold">
                                 MoMo Sandbox

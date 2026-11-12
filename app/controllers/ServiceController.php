@@ -107,8 +107,9 @@ class ServiceController extends BaseController
         $reviewStats = $reviewModel->getServiceRatingStats($serviceId);
 
         $user = $this->user();
-        $hasReviewed = $user ? $reviewModel->hasUserReviewed((int)$user['id'], $serviceId) : false;
-        $isEligibleVerified = $user ? $reviewModel->hasCompletedBooking((int)$user['id'], $serviceId) : false;
+        $userId = !empty($user['id']) ? (int)$user['id'] : (!empty($user['user_id']) ? (int)$user['user_id'] : null);
+        $hasReviewed = $userId ? $reviewModel->hasUserReviewed($userId, $serviceId) : false;
+        $isEligibleVerified = $userId ? $reviewModel->hasCompletedBooking($userId, $serviceId) : false;
 
         $this->view('services/show', [
             'title' => $service['title'] . ' — OnlineTraveller',
@@ -122,6 +123,46 @@ class ServiceController extends BaseController
             'hasReviewed' => $hasReviewed,
             'isEligibleVerified' => $isEligibleVerified,
         ]);
+    }
+
+    /**
+     * Dedicated Fullscreen 3D Virtual Tour Page (Three.js Z-Scroll experience).
+     */
+    public function virtualTour(Request $request, string $id): void
+    {
+        $serviceId = (int)$id;
+        $service = $this->serviceModel->getById($serviceId);
+
+        if (!$service) {
+            http_response_code(404);
+            $this->view('errors/404', ['title' => 'Không tìm thấy gói trải nghiệm']);
+            return;
+        }
+
+        $stops = $this->serviceModel->getStops($serviceId);
+
+        // Đối với các tour chưa có trạm thì hiển thị lại banner chính kèm mô tả gói tour
+        if (empty($stops)) {
+            $stops = [
+                [
+                    'id' => 1,
+                    'service_id' => $serviceId,
+                    'caption' => $service['title'] ?? 'Toàn cảnh trải nghiệm',
+                    'story_text' => !empty($service['description']) ? strip_tags($service['description']) : 'Hòa mình vào không gian trải nghiệm văn hóa và cảnh quan đặc sắc cùng người dân bản địa.',
+                    'image_url' => !empty($service['banner_image']) ? $service['banner_image'] : '/assets/images/tours/dalat-san-may.jpg',
+                    'video_url' => '',
+                ]
+            ];
+        }
+
+        $user = $this->user();
+
+        $this->view('services/virtual_tour', [
+            'title' => 'Trình Chiếu Không Gian 3D — ' . ($service['title'] ?? '') . ' | OnlineTraveller',
+            'service' => $service,
+            'stops' => $stops,
+            'user' => $user,
+        ], null);
     }
 
     /**

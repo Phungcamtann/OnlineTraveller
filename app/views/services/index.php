@@ -14,7 +14,7 @@ $priceRange = $priceRange ?? '';
 ?>
 
 <div class="main-container">
-    <div class="container py-4">
+    <div class="container pt-4 pb-2">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb small">
@@ -24,7 +24,7 @@ $priceRange = $priceRange ?? '';
         </nav>
 
         <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2">
             <div>
                 <h2 class="font-editorial display-6 fw-bold text-white mb-1">Khám Phá Trải Nghiệm Bản Địa</h2>
                 <p class="text-light opacity-75 small mb-0">Du lịch cùng người bản xứ, hòa mình vào không gian văn hóa thực tế và nghỉ dưỡng tại Homestay nhà dân</p>
@@ -33,9 +33,13 @@ $priceRange = $priceRange ?? '';
                 <i class="bi bi-compass text-info me-1"></i> <?= count($services) ?> Gói Trải Nghiệm Có Sẵn
             </span>
         </div>
+    </div>
 
-        <!-- Filter Bar with Range Slider -->
-        <div class="glass-panel p-3 p-lg-4 mb-4 shadow-lg">
+    <!-- KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) -->
+    <div class="page-content-stage">
+        <div class="container">
+            <!-- Filter Bar with Range Slider -->
+            <div class="glass-panel p-3 p-lg-4 mb-4 shadow-lg">
             <form action="/services" method="GET" class="row g-3 align-items-center" id="serviceSearchForm">
                 <input type="hidden" name="price_range" id="inputServicePriceRange" value="<?= htmlspecialchars($priceRange, ENT_QUOTES, 'UTF-8') ?>">
 
@@ -178,6 +182,7 @@ $priceRange = $priceRange ?? '';
             <?php endif; ?>
         </div>
     </div>
+    </div><!-- /.page-content-stage -->
 </div>
 
 <!-- CLIENT JAVASCRIPT CHO RANGE SLIDER TẠI TRANG KHÁM PHÁ -->

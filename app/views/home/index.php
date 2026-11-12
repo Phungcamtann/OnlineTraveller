@@ -125,8 +125,13 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
     <section class="container-fluid px-2 px-md-3 px-lg-4 pt-2">
         <div class="row">
             <div class="col-12">
-                <div class="hero-ambient-wrapper" id="homeHeroAmbientWrapper">
-                    <div class="hero-banner-box position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
+                <div class="hero-ambient-wrapper hero-3d-stage-wrapper position-relative" id="homeHeroAmbientWrapper">
+                    <!-- Banner phụ bên trái (Tầng Z thấp hơn, click để chuyển sang tour trước) -->
+                    <div id="heroPrevPeek" class="hero-3d-peek-card is-prev" role="button" aria-label="Tour trước" style="background-image: url('<?= htmlspecialchars($sliderSlides[(count($sliderSlides) - 1) % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-left"></i></div>
+                    </div>
+
+                    <div class="hero-banner-box hero-3d-main-card position-relative" id="heroBannerBox" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>'); min-height: 75vh; border-radius: 24px;">
                         <div class="hero-banner-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-4 p-lg-5">
                             <!-- Khối Nội Dung Bên Trái -->
                             <div class="container-fluid p-0">
@@ -168,6 +173,10 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
                         </div>
                     </div>
 
+                    <!-- Banner phụ bên phải (Tầng Z thấp hơn, click để chuyển sang tour kế tiếp) -->
+                    <div id="heroNextPeek" class="hero-3d-peek-card is-next" role="button" aria-label="Tour tiếp theo" style="background-image: url('<?= htmlspecialchars($sliderSlides[1 % count($sliderSlides)]['image'], ENT_QUOTES, 'UTF-8') ?>');">
+                        <div class="peek-card-GlassBadge"><i class="bi bi-chevron-right"></i></div>
+                    </div>
                     <!-- Ambient Glow Blur dưới chân Banner -->
                     <div class="hero-ambient-glow" id="heroAmbientGlow" style="background-image: url('<?= htmlspecialchars($featuredImage, ENT_QUOTES, 'UTF-8') ?>');"></div>
 
@@ -193,11 +202,14 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
         </div>
     </section>
 
-    <!-- 2. THANH TÌM KIẾM NỔI CAPSULE VẮT NGANG DƯỚI BANNER (CHUẨN ROAMORA) -->
-    <section class="container" style="margin-top: -42px; position: relative; z-index: 10;">
-        <div class="row justify-content-center">
-            <div class="col-12 col-xl-11">
-                <form action="/services" method="GET" class="surface-card rounded-pill px-4 py-3 shadow-lg" id="homeSearchForm">
+    <!-- KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) -->
+    <div class="home-content-stage">
+
+        <!-- 2. THANH TÌM KIẾM NỔI CAPSULE VẮT NGANG DƯỚI BANNER (CHUẨN ROAMORA) -->
+        <section class="container home-search-container" style="margin-top: -45px; position: relative; z-index: 20;">
+            <div class="row justify-content-center">
+                <div class="col-12 col-xl-11">
+                    <form action="/services" method="GET" class="surface-card rounded-pill px-4 py-3 shadow-lg" id="homeSearchForm" style="position: relative; z-index: 20;">
                     <!-- Backward compatibility hidden input for price_range -->
                     <input type="hidden" name="price_range" id="inputHomePriceRange" value="<?= htmlspecialchars($_GET['price_range'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
@@ -285,7 +297,7 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
             ?>
             <?php foreach ($destinationsWeather as $w): ?>
                 <div class="col">
-                    <a href="/services?location=<?= urlencode($w['query']) ?>" class="glass-panel p-3 h-100 d-block text-decoration-none hover-lift">
+                    <a href="/services?location=<?= urlencode($w['query']) ?>" class="weather-card glass-panel p-3 h-100 d-block text-decoration-none hover-lift">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="fw-semibold text-white" style="font-size: 0.95rem;"><?= htmlspecialchars($w['city'], ENT_QUOTES, 'UTF-8') ?></span>
                             <img src="https://openweathermap.org/img/wn/<?= $w['icon'] ?>.png" 
@@ -426,7 +438,7 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
     </section>
 
     <!-- 5. TIN TỨC DU LỊCH RSS (2 CỘT: TRÁI GIỚI THIỆU, PHẢI 2 CARD BÀI BÁO) -->
-    <section class="container my-5">
+    <section class="container mt-5 mb-0">
         <div class="row">
             <div class="col-12">
                 <div class="glass-panel p-4 p-lg-5">
@@ -497,6 +509,8 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
         </div>
     </section>
 
+    </div><!-- /.home-content-stage -->
+
 </div>
 
 <!-- CLIENT JAVASCRIPT CHO SLIDER BANNER & RANGE SLIDER -->
@@ -528,9 +542,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 2. SLIDER BANNER TƯƠNG TÁC VỚI THUMBNAIL
+    // 2. SLIDER BANNER TƯƠNG TÁC VỚI THUMBNAIL VÀ 3D PEEK CAROUSEL
     const heroBox = document.getElementById('heroBannerBox');
     const heroGlow = document.getElementById('heroAmbientGlow');
+    const heroPrevPeek = document.getElementById('heroPrevPeek');
+    const heroNextPeek = document.getElementById('heroNextPeek');
     const heroTitle = document.getElementById('heroTitle');
     const heroDesc = document.getElementById('heroDesc');
     const heroLocation = document.getElementById('heroLocationBadge');
@@ -544,11 +560,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalSlides = thumbItems.length;
     let autoSlideTimer = null;
 
-    function applySlide(index) {
+    function applySlide(index, direction = 'next') {
         if (!totalSlides) return;
         currentSlideIdx = (index + totalSlides) % totalSlides;
+        const prevIdx = (currentSlideIdx - 1 + totalSlides) % totalSlides;
+        const nextIdx = (currentSlideIdx + 1) % totalSlides;
+
         const activeThumb = thumbItems[currentSlideIdx];
+        const prevThumb = thumbItems[prevIdx];
+        const nextThumb = thumbItems[nextIdx];
         if (!activeThumb) return;
+
+        // Cập nhật ảnh cho 2 Banner phụ ở tầng Z thấp hơn
+        if (heroPrevPeek && prevThumb && prevThumb.dataset.image) {
+            heroPrevPeek.style.backgroundImage = `url('${prevThumb.dataset.image}')`;
+        }
+        if (heroNextPeek && nextThumb && nextThumb.dataset.image) {
+            heroNextPeek.style.backgroundImage = `url('${nextThumb.dataset.image}')`;
+        }
+
+        // Kích hoạt hiệu ứng 3D nhảy từ hướng được chọn lên tầng Z = 0 và zoom ra giữa
+        if (heroBox) {
+            heroBox.classList.remove('jump-from-right', 'jump-from-left');
+            void heroBox.offsetWidth; // Force reflow để chạy lại keyframe
+            heroBox.classList.add(direction === 'prev' ? 'jump-from-left' : 'jump-from-right');
+        }
 
         // Update active class on thumbnails
         thumbItems.forEach(t => t.classList.remove('active'));
@@ -583,23 +619,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Cho phép click trực tiếp vào 2 Banner phụ 2 bên để chuyển slide
+    if (heroPrevPeek) {
+        heroPrevPeek.addEventListener('click', () => {
+            applySlide(currentSlideIdx - 1, 'prev');
+            resetAutoSlide();
+        });
+    }
+    if (heroNextPeek) {
+        heroNextPeek.addEventListener('click', () => {
+            applySlide(currentSlideIdx + 1, 'next');
+            resetAutoSlide();
+        });
+    }
+
     thumbItems.forEach((thumb, idx) => {
         thumb.addEventListener('click', function() {
-            applySlide(idx);
+            const dir = idx < currentSlideIdx ? 'prev' : 'next';
+            applySlide(idx, dir);
             resetAutoSlide();
         });
     });
 
     if (btnPrev) {
         btnPrev.addEventListener('click', function() {
-            applySlide(currentSlideIdx - 1);
+            applySlide(currentSlideIdx - 1, 'prev');
             resetAutoSlide();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener('click', function() {
-            applySlide(currentSlideIdx + 1);
+            applySlide(currentSlideIdx + 1, 'next');
             resetAutoSlide();
         });
     }
@@ -607,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function startAutoSlide() {
         if (totalSlides > 1) {
             autoSlideTimer = setInterval(() => {
-                applySlide(currentSlideIdx + 1);
+                applySlide(currentSlideIdx + 1, 'next');
             }, 6000);
         }
     }

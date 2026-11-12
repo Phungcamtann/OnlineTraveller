@@ -109,10 +109,13 @@ $plan = (string)$booking['payment_plan'];
     <!-- PRINT ONLY HEADER (PHIẾU ĐẶT CHỖ CHUẨN IN A4) -->
     <div class="print-receipt-header">
         <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">ONLINETRAVELLER</h3>
-                <div class="small text-muted">Nền Tảng Du Lịch & Trải Nghiệm Cùng Dân Bản Địa</div>
-                <div class="small text-muted">Hotline CSKH: 1900 6868 | Email: hotro@onlinetraveller.vn</div>
+            <div class="d-flex align-items-center gap-3">
+                <img src="/assets/images/logo.svg" alt="OnlineTraveller" width="44" height="44" class="rounded-circle">
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.5px;">ONLINETRAVELLER</h3>
+                    <div class="small text-muted">Nền Tảng Du Lịch &amp; Trải Nghiệm Cùng Dân Bản Địa</div>
+                    <div class="small text-muted">Hotline CSKH: 1900 6868 | Email: hotro@onlinetraveller.vn</div>
+                </div>
             </div>
             <div class="text-end">
                 <span class="badge bg-dark text-white px-3 py-1 fs-6 font-monospace mb-1 d-inline-block">

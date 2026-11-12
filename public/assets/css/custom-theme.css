@@ -87,6 +87,10 @@ body main {
     flex: 1 0 auto;
 }
 
+.main-container {
+    padding-top: clamp(74px, 8.5vh, 88px);
+}
+
 /* Typography Uniformity */
 h1, h2, h3, h4, h5, h6,
 .font-editorial,
@@ -148,8 +152,7 @@ h1, h2, h3, h4, h5, h6,
 [data-theme="dark"] .breadcrumb-item.active,
 [data-theme="dark"] .breadcrumb-item,
 [data-theme="dark"] .card-title,
-[data-theme="dark"] .card-text,
-[data-theme="dark"] .page-link {
+[data-theme="dark"] .card-text {
     color: var(--text-main) !important;
 }
 
@@ -522,6 +525,32 @@ h1, h2, h3, h4, h5, h6,
     transition: all 0.25s ease;
 }
 
+/* Glass pills trên Hero Banner: Luôn giữ nền kính sẫm tương phản cao trong cả Day Mode & Night Mode */
+.hero-banner-box .glass-pill {
+    background: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.hero-banner-box .glass-pill:hover {
+    background: rgba(15, 23, 42, 0.88) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #FFFFFF !important;
+}
+
+.hero-banner-box .glass-pill.text-white,
+.hero-banner-box .glass-pill .text-white {
+    color: #FFFFFF !important;
+}
+
+.hero-banner-box .glass-pill.text-info,
+.hero-banner-box .glass-pill .text-info {
+    color: #38BDF8 !important;
+}
+
 .glass-pill:hover {
     background: var(--bg-surface);
     border-color: var(--border-strong);
@@ -587,6 +616,7 @@ h1, h2, h3, h4, h5, h6,
     overflow: hidden;
     min-height: 75vh;
     min-height: clamp(560px, 75vh, 850px);
+    background-color: #1a2530;
     background-size: cover;
     background-position: center bottom;
     transition: background-image 0.5s ease-in-out;
@@ -681,10 +711,102 @@ h1, h2, h3, h4, h5, h6,
     }
 }
 
+/* ==========================================================================
+   9B. KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) & THANH TÌM KIẾM GỐI ĐẦU
+   ========================================================================== */
+.home-content-stage {
+    background-color: var(--bg-surface-subtle);
+    border-radius: 36px 36px 0 0;
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 5;
+    margin-top: 1.5rem;
+}
+
+[data-theme="dark"] .home-content-stage {
+    background-color: var(--bg-surface);
+    border-top-color: var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* Thanh tìm kiếm capsule gối đầu neo giữa Banner và Content Stage */
+.home-content-stage .home-search-container {
+    margin-top: calc(-5rem - 45px) !important;
+    position: relative;
+    z-index: 20;
+}
+
+#homeSearchForm {
+    position: relative;
+    z-index: 20;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1) !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="dark"] #homeSearchForm {
+    background-color: var(--bg-surface-subtle) !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+#homeSearchForm:focus-within {
+    border-color: var(--border-strong) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="dark"] #homeSearchForm:focus-within {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6) !important;
+}
+
 /* Đảm bảo form tìm kiếm capsule đẹp mắt trên di động */
 @media (max-width: 991.98px) {
     #homeSearchForm.rounded-pill {
         border-radius: 22px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-content-stage {
+        border-radius: 24px 24px 0 0;
+        padding-top: 3.5rem;
+        padding-bottom: 2.5rem;
+        margin-top: 1rem;
+    }
+    .home-content-stage .home-search-container {
+        margin-top: calc(-3.5rem - 30px) !important;
+    }
+}
+
+/* Khối mặt sàn nội dung đa năng cho Trang Khám Phá & Trang Bản Tin */
+.page-content-stage {
+    background-color: var(--bg-surface-subtle);
+    border-radius: 36px 36px 0 0;
+    padding-top: 3.5rem;
+    padding-bottom: 4rem;
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 5;
+    margin-top: 1.5rem;
+}
+
+[data-theme="dark"] .page-content-stage {
+    background-color: var(--bg-surface);
+    border-top-color: var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 767.98px) {
+    .page-content-stage {
+        border-radius: 24px 24px 0 0;
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem;
+        margin-top: 1rem;
     }
 }
 
@@ -805,22 +927,113 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ==========================================================================
-   11. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD) & THUMBNAILS
+   11. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD), THỜI TIẾT & THUMBNAILS
    ========================================================================== */
+/* 5 Card thời tiết tại trang chủ */
+.weather-card,
+.home-weather-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+}
+
+[data-theme="dark"] .weather-card,
+[data-theme="dark"] .home-weather-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.weather-card:hover,
+.home-weather-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+    border-color: var(--border-strong) !important;
+}
+
+[data-theme="dark"] .weather-card:hover,
+[data-theme="dark"] .home-weather-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Card trải nghiệm tràn ảnh (Poster Card) */
 .experience-poster-card {
     position: relative;
     aspect-ratio: 3 / 4;
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    background-color: var(--bg-surface-subtle);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+    background-color: var(--bg-surface);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .experience-poster-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .experience-poster-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-soft);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
     border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .experience-poster-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Tăng cường độ tương phản cho Glass Panel & Pill trong Content Stage */
+.home-content-stage .glass-panel,
+.page-content-stage .glass-panel {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .home-content-stage .glass-panel,
+[data-theme="dark"] .page-content-stage .glass-panel {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.home-content-stage .glass-pill:not(.experience-poster-card *),
+.page-content-stage .glass-pill:not(.experience-poster-card *) {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main) !important;
+}
+
+.home-content-stage .glass-pill:not(.experience-poster-card *):hover,
+.page-content-stage .glass-pill:not(.experience-poster-card *):hover {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg);
+}
+
+/* Card bài viết trong trang Bản tin */
+.page-content-stage article.card,
+.page-content-stage .post-article-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+}
+
+[data-theme="dark"] .page-content-stage article.card,
+[data-theme="dark"] .page-content-stage .post-article-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+.page-content-stage article.card:hover,
+.page-content-stage .post-article-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--border-strong) !important;
+}
+
+[data-theme="dark"] .page-content-stage article.card:hover,
+[data-theme="dark"] .page-content-stage .post-article-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
 .experience-poster-card img {
@@ -951,18 +1164,27 @@ h1, h2, h3, h4, h5, h6,
     flex-shrink: 0;
 }
 
+#milestonesContainer {
+    padding-top: 14px !important;
+    padding-bottom: 8px !important;
+    margin-top: -8px;
+    align-items: flex-end;
+}
+
 /* Card cột mốc dọc chuyển ảnh Banner (Chuẩn Japan Tours) */
 .vertical-station-card.milestone-thumb-card {
     position: relative;
+    z-index: 2;
+    pointer-events: auto !important;
     aspect-ratio: 3 / 4.2;
     width: 105px;
     height: 140px;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    border: none !important;
     background-color: var(--bg-surface);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.28s ease;
     flex-shrink: 0;
     user-select: none;
     text-decoration: none;
@@ -980,9 +1202,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .vertical-station-card.milestone-thumb-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-8px);
+    border: none !important;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+    z-index: 20;
 }
 
 .vertical-station-card.milestone-thumb-card:hover img {
@@ -990,9 +1213,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .vertical-station-card.milestone-thumb-card.active {
-    border-color: #FFFFFF !important;
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.65), 0 8px 20px rgba(0, 0, 0, 0.45);
-    transform: translateY(-4px);
+    border: none !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.75), 0 10px 24px rgba(0, 0, 0, 0.45);
+    transform: translateY(-8px);
+    z-index: 10;
 }
 
 .milestone-thumb-overlay {
@@ -1217,3 +1441,395 @@ select option {
 [data-theme="light"] .mobile-nav-toggler {
     color: #18181B !important;
 }
+
+/* ==========================================================================
+   14. BANNER TRANG CHỦ 3D 3-KHUNG HÌNH (3D PEEK CAROUSEL)
+   ========================================================================== */
+.hero-3d-stage-wrapper {
+    position: relative;
+    padding: 0 4.5%; /* Chừa không gian 2 mép cho 2 banner phụ ở tầng Z thấp */
+    overflow: visible;
+}
+
+@media (max-width: 1199.98px) {
+    .hero-3d-stage-wrapper {
+        padding: 0 !important;
+    }
+    .hero-3d-peek-card {
+        display: none !important;
+    }
+}
+
+.hero-3d-main-card {
+    position: relative;
+    z-index: 10 !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+    transition: background-image 0.4s ease, box-shadow 0.5s ease;
+    will-change: transform, opacity;
+}
+
+/* Animation nhảy từ tầng sâu bên phải lên vị trí trung tâm */
+.hero-3d-main-card.jump-from-right {
+    animation: hero3dJumpFromRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Animation nhảy từ tầng sâu bên trái lên vị trí trung tâm */
+.hero-3d-main-card.jump-from-left {
+    animation: hero3dJumpFromLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes hero3dJumpFromRight {
+    0% {
+        transform: translateX(18px) scale(0.97);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes hero3dJumpFromLeft {
+    0% {
+        transform: translateX(-18px) scale(0.97);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* 2 Banner phụ ở tầng Z thấp hơn hai bên (Luôn nằm sau banner chính, không đè nội dung) */
+.hero-3d-peek-card {
+    position: absolute;
+    top: 32px;
+    bottom: 32px;
+    width: 18%;
+    min-width: 120px;
+    max-width: 240px;
+    border-radius: 22px;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a2530;
+    z-index: 2 !important;
+    cursor: pointer;
+    filter: brightness(0.6) saturate(0.9);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+.hero-3d-peek-card.is-prev {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.8rem;
+    transform: scale(0.92) perspective(600px) rotateY(7deg);
+    transform-origin: left center;
+}
+
+.hero-3d-peek-card.is-prev:hover {
+    filter: brightness(0.88) saturate(1);
+    transform: scale(0.95) perspective(600px) rotateY(3deg) translateX(-5px);
+}
+
+.hero-3d-peek-card.is-next {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.8rem;
+    transform: scale(0.92) perspective(600px) rotateY(-7deg);
+    transform-origin: right center;
+}
+
+.hero-3d-peek-card.is-next:hover {
+    filter: brightness(0.88) saturate(1);
+    transform: scale(0.95) perspective(600px) rotateY(-3deg) translateX(5px);
+}
+
+.peek-card-GlassBadge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.85;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.hero-3d-peek-card:hover .peek-card-GlassBadge {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   15. BANNER CHI TIẾT 3D DEPTH ZOOM & TIMELINE INTERACTION
+   ========================================================================== */
+#detailHeroBanner {
+    transition: transform 0.25s ease-out, background-image 0.35s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+#detailHeroBanner.detail-depth-fly {
+    animation: detailBannerDepthZoom 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes detailBannerDepthZoom {
+    0% {
+        transform: scale(1.08) translateZ(-40px);
+        filter: blur(6px) brightness(0.8);
+    }
+    100% {
+        transform: scale(1) translateZ(0);
+        filter: blur(0) brightness(1);
+    }
+}
+
+/* Cho phép click vào các trạm trên trục Timeline để mở thẳng 3D tại trạm đó */
+.japan-timeline-step,
+.station-timeline-item {
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.japan-timeline-step:hover,
+.station-timeline-item:hover {
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   16. BÙ ĐẮP OPACITY & ĐỒNG BỘ ĐỘ TƯƠNG PHẢN KHỐI MÀU (LIGHT & DARK MODE)
+   ========================================================================== */
+.bg-opacity-10 { --bs-bg-opacity: 0.10 !important; }
+.bg-opacity-15 { --bs-bg-opacity: 0.15 !important; }
+.bg-opacity-20 { --bs-bg-opacity: 0.20 !important; }
+.bg-opacity-25 { --bs-bg-opacity: 0.25 !important; }
+
+/* Đảm bảo nền màu có độ trong suốt thực tế cho tất cả trình duyệt */
+.bg-info.bg-opacity-15,
+.bg-info.bg-opacity-20,
+.badge.bg-info.bg-opacity-15,
+.badge.bg-info.bg-opacity-20,
+.badge.bg-info.bg-opacity-25 {
+    background-color: rgba(14, 165, 233, 0.15) !important;
+}
+.bg-success.bg-opacity-15,
+.bg-success.bg-opacity-20,
+.badge.bg-success.bg-opacity-15,
+.badge.bg-success.bg-opacity-20,
+.badge.bg-success.bg-opacity-25 {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+}
+.bg-warning.bg-opacity-15,
+.bg-warning.bg-opacity-20,
+.badge.bg-warning.bg-opacity-15,
+.badge.bg-warning.bg-opacity-20,
+.badge.bg-warning.bg-opacity-25 {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+}
+.bg-danger.bg-opacity-15,
+.bg-danger.bg-opacity-20,
+.badge.bg-danger.bg-opacity-15,
+.badge.bg-danger.bg-opacity-20,
+.badge.bg-danger.bg-opacity-25 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+}
+.bg-secondary.bg-opacity-15,
+.bg-secondary.bg-opacity-20,
+.badge.bg-secondary.bg-opacity-15,
+.badge.bg-secondary.bg-opacity-20,
+.badge.bg-secondary.bg-opacity-25 {
+    background-color: rgba(100, 116, 139, 0.15) !important;
+}
+
+/* Tinh chỉnh màu chữ và icon cho chế độ SÁNG (Day Mode) để không bao giờ bị chìm/mất chữ */
+[data-theme="light"] .text-info,
+[data-theme="light"] i.text-info,
+[data-theme="light"] span.text-info {
+    color: #0284c7 !important;
+}
+[data-theme="light"] .text-success,
+[data-theme="light"] i.text-success,
+[data-theme="light"] span.text-success {
+    color: #15803d !important;
+}
+[data-theme="light"] .text-warning,
+[data-theme="light"] i.text-warning,
+[data-theme="light"] span.text-warning {
+    color: #b45309 !important;
+}
+[data-theme="light"] .text-danger,
+[data-theme="light"] i.text-danger,
+[data-theme="light"] span.text-danger {
+    color: #b91c1c !important;
+}
+[data-theme="light"] .text-secondary,
+[data-theme="light"] i.text-secondary,
+[data-theme="light"] span.text-secondary {
+    color: #475569 !important;
+}
+
+/* Tinh chỉnh màu chữ và icon cho chế độ TỐI (Night Mode) */
+[data-theme="dark"] .text-info,
+[data-theme="dark"] i.text-info,
+[data-theme="dark"] span.text-info {
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .text-success,
+[data-theme="dark"] i.text-success,
+[data-theme="dark"] span.text-success {
+    color: #4ade80 !important;
+}
+[data-theme="dark"] .text-warning,
+[data-theme="dark"] i.text-warning,
+[data-theme="dark"] span.text-warning {
+    color: #fbbf24 !important;
+}
+[data-theme="dark"] .text-danger,
+[data-theme="dark"] i.text-danger,
+[data-theme="dark"] span.text-danger {
+    color: #f87171 !important;
+}
+[data-theme="dark"] .text-secondary,
+[data-theme="dark"] i.text-secondary,
+[data-theme="dark"] span.text-secondary {
+    color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   17. KHỐI THANH TOÁN, PROFILE HOST & KHUNG CHAT KẾT NỐI ĐỒNG BỘ 2 CHẾ ĐỘ
+   ========================================================================== */
+.pricing-summary-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-main) !important;
+}
+.pricing-summary-box .pricing-label {
+    color: var(--text-muted) !important;
+}
+.pricing-summary-box .pricing-value {
+    color: var(--text-main) !important;
+}
+
+.host-bio-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-left: 3px solid #0284c7 !important;
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .host-bio-box {
+    border-left: 3px solid #38bdf8 !important;
+}
+
+.schedule-theme-select {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+.schedule-theme-select option {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+
+.discussion-item-box {
+    background-color: var(--bg-surface-subtle) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-main) !important;
+}
+.discussion-reply-box {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-left: 3px solid #0284c7 !important;
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .discussion-reply-box {
+    border-left: 3px solid #38bdf8 !important;
+}
+.discussion-reply-input {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+.discussion-reply-input:focus {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: #0284c7 !important;
+}
+
+/* ==========================================================================
+   PAGINATION CONTROLS (PHÂN TRANG DAY MODE & NIGHT MODE ĐỒNG BỘ)
+   ========================================================================== */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-item .page-link,
+.pagination-pill {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 999px !important;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pagination .page-item:not(.disabled) .page-link:hover,
+.pagination-pill:hover:not(.disabled) {
+    background-color: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.pagination .page-item.disabled .page-link,
+.pagination-pill.disabled,
+.page-link.disabled {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-subtle) !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    box-shadow: none !important;
+}
+
+.pagination-info {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    border: none !important;
+    user-select: none;
+}
+
+[data-theme="dark"] .pagination .page-item .page-link,
+[data-theme="dark"] .pagination-pill {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .pagination .page-item:not(.disabled) .page-link:hover,
+[data-theme="dark"] .pagination-pill:hover:not(.disabled) {
+    background-color: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg) !important;
+}
+
+[data-theme="dark"] .pagination .page-item.disabled .page-link,
+[data-theme="dark"] .pagination-pill.disabled {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-subtle) !important;
+    opacity: 0.45 !important;
+}
+
+
+
