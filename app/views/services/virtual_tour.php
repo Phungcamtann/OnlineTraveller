@@ -23,12 +23,21 @@ if (empty($stops)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="vi" data-bs-theme="dark">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'Trình Chiếu Không Gian 3D | OnlineTraveller', ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Theme Early Initialization Script (Chống chớp sáng/tối FOUC) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('ot_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
 
     <!-- Bootstrap 5 & Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -39,24 +48,89 @@ if (empty($stops)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        :root {
-            --vt-card-bg: rgba(15, 23, 42, 0.85);
-            --vt-card-border: rgba(255, 255, 255, 0.22);
-            --vt-pill-bg: #cbd5e1;
-            --vt-axis-color: rgba(56, 189, 248, 0.65);
-            --vt-text-main: #f8fafc;
+        :root,
+        [data-theme="light"] {
+            --vt-bg: #FAF9F6;
+            --vt-topbar-bg: linear-gradient(to bottom, rgba(250, 249, 246, 0.96) 0%, rgba(250, 249, 246, 0.65) 75%, transparent 100%);
+            --vt-card-bg: rgba(255, 255, 255, 0.92);
+            --vt-card-border: rgba(24, 24, 27, 0.12);
+            --vt-card-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+            --vt-pill-bg: #18181B;
+            --vt-pill-text: #FFFFFF;
+            --vt-axis-color: rgba(2, 132, 199, 0.65);
+            --vt-text-main: #18181B;
+            --vt-text-muted: #475569;
+            --vt-nav-btn-bg: rgba(255, 255, 255, 0.88);
+            --vt-nav-btn-border: rgba(24, 24, 27, 0.14);
+            --vt-nav-btn-text: #18181B;
+            --vt-hint-pill-bg: rgba(0, 0, 0, 0.05);
+            --vt-hint-pill-border: rgba(0, 0, 0, 0.10);
+            --vt-hint-pill-text: #64748B;
+            --vt-rail-bg: rgba(255, 255, 255, 0.88);
+            --vt-rail-border: rgba(24, 24, 27, 0.12);
+            --vt-rail-btn-text: #64748B;
+            --vt-rail-btn-hover: rgba(0, 0, 0, 0.06);
+            --vt-rail-btn-active-bg: #0284c7;
+            --vt-rail-btn-active-text: #FFFFFF;
+            --vt-cursor-color: #0284c7;
+            --vt-undo-bg: rgba(255, 255, 255, 0.92);
+            --vt-undo-border: rgba(24, 24, 27, 0.14);
+            --vt-undo-color: #18181B;
+            --vt-undo-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            --vt-next-btn-bg: linear-gradient(135deg, #0284c7, #0369a1);
+            --vt-next-btn-shadow: 0 10px 28px rgba(2, 132, 199, 0.35);
+            --vt-counter-bg: rgba(24, 24, 27, 0.07);
+            --vt-counter-text: #18181B;
+            --vt-counter-border: rgba(24, 24, 27, 0.12);
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #070e17;
+        [data-theme="dark"] {
+            --vt-bg: #070e17;
+            --vt-topbar-bg: linear-gradient(to bottom, rgba(7, 14, 23, 0.94) 0%, rgba(7, 14, 23, 0.5) 75%, transparent 100%);
+            --vt-card-bg: rgba(15, 23, 42, 0.85);
+            --vt-card-border: rgba(255, 255, 255, 0.22);
+            --vt-card-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+            --vt-pill-bg: #cbd5e1;
+            --vt-pill-text: #0f172a;
+            --vt-axis-color: rgba(56, 189, 248, 0.65);
+            --vt-text-main: #f8fafc;
+            --vt-text-muted: #cbd5e1;
+            --vt-nav-btn-bg: rgba(15, 29, 48, 0.75);
+            --vt-nav-btn-border: rgba(255, 255, 255, 0.22);
+            --vt-nav-btn-text: #ffffff;
+            --vt-hint-pill-bg: rgba(255, 255, 255, 0.08);
+            --vt-hint-pill-border: rgba(255, 255, 255, 0.14);
+            --vt-hint-pill-text: rgba(255, 255, 255, 0.65);
+            --vt-rail-bg: rgba(11, 23, 38, 0.82);
+            --vt-rail-border: rgba(255, 255, 255, 0.16);
+            --vt-rail-btn-text: rgba(255, 255, 255, 0.65);
+            --vt-rail-btn-hover: rgba(255, 255, 255, 0.14);
+            --vt-rail-btn-active-bg: #38bdf8;
+            --vt-rail-btn-active-text: #070e17;
+            --vt-cursor-color: #38bdf8;
+            --vt-undo-bg: rgba(15, 23, 42, 0.82);
+            --vt-undo-border: rgba(255, 255, 255, 0.24);
+            --vt-undo-color: #f8fafc;
+            --vt-undo-shadow: 0 8px 20px rgba(0, 0, 0, 0.30);
+            --vt-next-btn-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(2, 132, 199, 0.98));
+            --vt-next-btn-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
+            --vt-counter-bg: rgba(255, 255, 255, 0.15);
+            --vt-counter-text: #ffffff;
+            --vt-counter-border: rgba(255, 255, 255, 0.20);
+        }
+
+        html, body.virtual-tour-body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            background-color: var(--vt-bg) !important;
             font-family: var(--font-body, system-ui, -apple-system, sans-serif);
-            color: #f1f5f9;
+            color: var(--vt-text-main) !important;
             user-select: none;
+            display: block !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Canvas 3D Viewport chiếm trọn toàn màn hình */
@@ -80,22 +154,23 @@ if (empty($stops)) {
             right: 0;
             z-index: 50;
             padding: 16px 28px;
-            background: linear-gradient(to bottom, rgba(7, 14, 23, 0.94) 0%, rgba(7, 14, 23, 0.5) 75%, transparent 100%);
+            background: var(--vt-topbar-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
             pointer-events: none;
+            transition: background 0.3s ease;
         }
         .tour-top-bar > * {
             pointer-events: auto;
         }
 
         .btn-nav-glass {
-            background: rgba(15, 29, 48, 0.75);
+            background: var(--vt-nav-btn-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            color: #ffffff;
+            border: 1px solid var(--vt-nav-btn-border);
+            color: var(--vt-nav-btn-text);
             font-weight: 600;
             padding: 9px 18px;
             border-radius: 9999px;
@@ -105,19 +180,50 @@ if (empty($stops)) {
             align-items: center;
         }
         .btn-nav-glass:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #ffffff;
+            background: var(--vt-card-bg);
+            border-color: var(--vt-cursor-color);
+            color: var(--vt-cursor-color);
             transform: translateY(-2px);
         }
 
         .hint-pill {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.65);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: var(--vt-hint-pill-text);
+            background: var(--vt-hint-pill-bg);
+            border: 1px solid var(--vt-hint-pill-border);
             border-radius: 9999px;
             padding: 4px 14px;
+            transition: all 0.3s ease;
+        }
+
+        .vt-station-counter {
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 9999px;
+            background: var(--vt-counter-bg);
+            color: var(--vt-counter-text);
+            border: 1px solid var(--vt-counter-border);
+            white-space: nowrap;
+            transition: all 0.25s ease;
+        }
+
+        .vt-location-badge {
+            background: rgba(2, 132, 199, 0.12);
+            color: #0284c7;
+            border: 1px solid rgba(2, 132, 199, 0.25);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        [data-theme="dark"] .vt-location-badge {
+            background: rgba(56, 189, 248, 0.18);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.32);
         }
 
         /* ==========================================================================
@@ -192,11 +298,11 @@ if (empty($stops)) {
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--vt-card-border, rgba(255, 255, 255, 0.22));
-            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+            box-shadow: var(--vt-card-shadow, 0 20px 48px rgba(0, 0, 0, 0.45));
             color: var(--vt-text-main, #f8fafc);
             pointer-events: auto;
             will-change: transform, opacity;
-            transition: transform 0.1s linear, opacity 0.1s linear;
+            transition: transform 0.1s linear, opacity 0.1s linear, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         /* Viên thuốc "Trạm X" nằm đè lên mép trên chính giữa của Card */
@@ -208,13 +314,15 @@ if (empty($stops)) {
             padding: 6px 30px;
             border-radius: 999px;
             background: var(--vt-pill-bg, rgba(203, 213, 225, 0.95));
-            color: #0f172a;
+            color: var(--vt-pill-text, #0f172a);
             font-weight: 800;
             font-size: 0.85rem;
             letter-spacing: 0.04em;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
             white-space: nowrap;
             text-transform: uppercase;
+            border: 1px solid var(--vt-card-border);
+            transition: all 0.3s ease;
         }
 
         /* Con trỏ nhấp nháy cho hiệu ứng Typing chữ */
@@ -222,7 +330,7 @@ if (empty($stops)) {
             display: inline-block;
             width: 2.5px;
             height: 1.1em;
-            background-color: #38bdf8;
+            background-color: var(--vt-cursor-color, #38bdf8);
             margin-left: 4px;
             vertical-align: text-bottom;
             animation: vtCursorBlink 0.75s infinite;
@@ -249,26 +357,27 @@ if (empty($stops)) {
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: var(--vt-card-bg, rgba(15, 23, 42, 0.82));
+            background: var(--vt-undo-bg);
             backdrop-filter: blur(16px);
-            border: 1px solid var(--vt-card-border, rgba(255, 255, 255, 0.24));
-            color: var(--vt-text-main, #f8fafc);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--vt-undo-border);
+            color: var(--vt-undo-color);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--vt-undo-shadow);
         }
         .vt-btn-undo-prev:hover:not(:disabled) {
             transform: translateY(-2px) rotate(-15deg);
-            border-color: #38bdf8;
-            color: #38bdf8;
-            box-shadow: 0 10px 24px rgba(56, 189, 248, 0.4);
+            border-color: var(--vt-cursor-color);
+            color: var(--vt-cursor-color);
+            box-shadow: 0 10px 24px rgba(2, 132, 199, 0.25);
         }
         .vt-btn-undo-prev:disabled {
-            opacity: 0.3;
+            opacity: 0.35;
             cursor: not-allowed;
             transform: none !important;
         }
@@ -278,7 +387,7 @@ if (empty($stops)) {
             height: 48px;
             padding: 0 28px;
             border-radius: 999px;
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(2, 132, 199, 0.98));
+            background: var(--vt-next-btn-bg);
             border: 1px solid rgba(255, 255, 255, 0.35);
             color: #ffffff;
             font-weight: 700;
@@ -288,13 +397,13 @@ if (empty($stops)) {
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            box-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
+            box-shadow: var(--vt-next-btn-shadow);
             transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
         .vt-btn-next-pill:hover:not(:disabled) {
             transform: translateY(-2px);
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            box-shadow: 0 14px 34px rgba(56, 189, 248, 0.6);
+            filter: brightness(1.08);
+            box-shadow: 0 14px 34px rgba(2, 132, 199, 0.5);
         }
         .vt-btn-next-pill:disabled {
             opacity: 0.4;
@@ -308,22 +417,23 @@ if (empty($stops)) {
             bottom: 28px;
             right: clamp(24px, 4vw, 56px);
             z-index: 45;
-            background: rgba(11, 23, 38, 0.82);
+            background: var(--vt-rail-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid var(--vt-rail-border);
             border-radius: 9999px;
             padding: 6px 10px;
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
         }
 
         .tour-rail-btn {
             border: none;
             background: transparent;
-            color: rgba(255, 255, 255, 0.65);
+            color: var(--vt-rail-btn-text);
             font-size: 0.8rem;
             font-weight: 600;
             padding: 6px 14px;
@@ -333,14 +443,33 @@ if (empty($stops)) {
             cursor: pointer;
         }
         .tour-rail-btn:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.14);
+            color: var(--vt-text-main);
+            background: var(--vt-rail-btn-hover);
         }
         .tour-rail-btn.active {
-            color: #070e17;
-            background: #38bdf8;
+            color: var(--vt-rail-btn-active-text);
+            background: var(--vt-rail-btn-active-bg);
             font-weight: 700;
-            box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 14px rgba(2, 132, 199, 0.45);
+        }
+
+        #hudVideoBtn {
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 5px 14px;
+            border: 1px solid var(--vt-cursor-color);
+            color: var(--vt-cursor-color);
+            background: transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        #hudVideoBtn:hover {
+            background: var(--vt-cursor-color);
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
         /* Responsive Breakpoints */
@@ -368,7 +497,7 @@ if (empty($stops)) {
         }
     </style>
 </head>
-<body>
+<body class="virtual-tour-body">
 
     <!-- TOP BAR -->
     <header class="tour-top-bar">
@@ -377,10 +506,10 @@ if (empty($stops)) {
                 <i class="bi bi-arrow-left me-1"></i> Trở về Chi Tiết Tour
             </a>
             <div class="d-none d-md-block">
-                <span class="badge bg-info bg-opacity-25 text-info px-3 py-1 rounded-pill me-2">
+                <span class="vt-location-badge me-2">
                     <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= htmlspecialchars($service['location'] ?? 'Điểm Đến') ?>
                 </span>
-                <span class="fw-bold text-white font-editorial fs-6">
+                <span class="fw-bold font-editorial fs-6" style="color: var(--vt-text-main);">
                     <?= htmlspecialchars($service['title'] ?? 'Trải Nghiệm Bản Địa') ?>
                 </span>
             </div>
@@ -392,7 +521,16 @@ if (empty($stops)) {
                 <span class="opacity-40">|</span>
                 <i class="bi bi-arrows"></i> Phím &larr; / &rarr;
             </div>
-            <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 rounded-pill fw-bold" id="topStationCounter">
+
+            <!-- Nút chuyển đổi DAY MODE / NIGHT MODE chuẩn ảnh mẫu -->
+            <button type="button" id="themeToggleSwitch" class="theme-mode-switch" aria-label="Chuyển chế độ Sáng/Tối" title="Chuyển chế độ Sáng / Tối">
+                <span class="switch-label" id="themeSwitchText">DAY MODE</span>
+                <span class="switch-knob" id="themeSwitchIcon">
+                    <i class="bi bi-sun"></i>
+                </span>
+            </button>
+
+            <span class="vt-station-counter" id="topStationCounter">
                 Trạm 1 / <?= count($stops) ?>
             </span>
         </div>
@@ -414,17 +552,17 @@ if (empty($stops)) {
             <!-- Card chính của Trạm hiện tại -->
             <div class="vt-glass-story-card tour-hud-card" id="station-overlay">
                 <div class="vt-station-top-pill" id="station-badge">Trạm 1</div>
-                <h3 class="fw-bold text-white font-editorial mb-2 mt-1" id="station-caption">
+                <h3 class="fw-bold font-editorial mb-2 mt-1" id="station-caption" style="color: var(--vt-text-main);">
                     <?= htmlspecialchars($stops[0]['caption'] ?? ($service['title'] ?? 'Toàn cảnh trải nghiệm')) ?>
                 </h3>
-                <div class="text-light opacity-90 mb-3" id="station-story" style="line-height: 1.65; font-size: 0.95rem; min-height: 72px;">
+                <div class="mb-3" id="station-story" style="color: var(--vt-text-muted); line-height: 1.65; font-size: 0.95rem; min-height: 72px;">
                     <span class="vt-typed-content"><?= htmlspecialchars($stops[0]['story_text'] ?? '') ?></span><span class="vt-typing-cursor"></span>
                 </div>
                 <!-- Chứa nội dung văn bản thô phục vụ kiểm thử tự động -->
                 <span class="d-none" id="station-story-raw"><?= htmlspecialchars($stops[0]['story_text'] ?? '') ?></span>
                 <div class="d-flex align-items-center gap-2" id="hudVideoWrapper">
                     <?php if (!empty($stops[0]['video_url'])): ?>
-                        <a href="<?= htmlspecialchars($stops[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="hudVideoBtn">
+                        <a href="<?= htmlspecialchars($stops[0]['video_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="rounded-pill" id="hudVideoBtn">
                             <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
                         </a>
                     <?php endif; ?>
@@ -445,6 +583,14 @@ if (empty($stops)) {
 
     <!-- DẢI VIÊN THUỐC TRỤC TRẠM NHANH (ĐÁY PHẢI) -->
     <div class="tour-station-rail d-none d-md-flex" id="tourStationRail">
+        <?php foreach ($stops as $idx => $st): ?>
+            <button type="button" 
+                    class="tour-rail-btn <?= $idx === 0 ? 'active' : '' ?>" 
+                    data-station-idx="<?= $idx ?>">
+                <i class="bi bi-geo-alt me-1"></i> Trạm <?= $idx + 1 ?>
+            </button>
+        <?php endforeach; ?>
+    </div>
         <?php foreach ($stops as $idx => $st): ?>
             <button type="button" 
                     class="tour-rail-btn <?= $idx === 0 ? 'active' : '' ?>" 
@@ -480,6 +626,52 @@ if (empty($stops)) {
         const btnNext = document.getElementById('btnNextStation');
         const topCounter = document.getElementById('topStationCounter');
         const railButtons = document.querySelectorAll('[data-station-idx]');
+
+        // Nút chuyển đổi giao diện Dark/Light mode
+        const themeBtn = document.getElementById('themeToggleSwitch');
+        const themeLabel = document.getElementById('themeSwitchText');
+        const themeIcon = document.getElementById('themeSwitchIcon');
+
+        function syncSwitchUI(theme) {
+            if (theme === 'dark') {
+                if (themeLabel) themeLabel.textContent = 'NIGHT MODE';
+                if (themeIcon) themeIcon.innerHTML = '<i class="bi bi-moon-stars"></i>';
+            } else {
+                if (themeLabel) themeLabel.textContent = 'DAY MODE';
+                if (themeIcon) themeIcon.innerHTML = '<i class="bi bi-sun"></i>';
+            }
+        }
+
+        const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        syncSwitchUI(initialTheme);
+
+        function updateThreeTheme(theme) {
+            const isDark = (theme === 'dark');
+            const fogColor = isDark ? 0x070e17 : 0xFAF9F6;
+            if (scene && scene.fog) {
+                scene.fog.color.setHex(fogColor);
+            }
+            stationGroups.forEach(grp => {
+                if (grp.userData.backMesh) {
+                    grp.userData.backMesh.material.color.setHex(isDark ? 0x38bdf8 : 0x0284c7);
+                }
+                if (grp.userData.borderLines) {
+                    grp.userData.borderLines.material.color.setHex(isDark ? 0xffffff : 0x0284c7);
+                }
+            });
+        }
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', nextTheme);
+                document.documentElement.setAttribute('data-bs-theme', nextTheme);
+                localStorage.setItem('ot_theme', nextTheme);
+                syncSwitchUI(nextTheme);
+                updateThreeTheme(nextTheme);
+            });
+        }
 
         // Biến trạng thái Cuộn Liên Tục
         let targetProgress = initialStop;
@@ -528,7 +720,8 @@ if (empty($stops)) {
                     ctx.drawImage(img, 0, 0, width, height);
 
                     // Viền sáng mềm mại
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+                    const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+                    ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(2, 132, 199, 0.35)';
                     ctx.lineWidth = 4;
                     ctx.stroke();
 
@@ -542,7 +735,8 @@ if (empty($stops)) {
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#0f172a';
+                    const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+                    ctx.fillStyle = isDark ? '#0f172a' : '#e2e8f0';
                     ctx.fillRect(0, 0, width, height);
                     const texture = new THREE.CanvasTexture(canvas);
                     resolve(texture);
@@ -599,7 +793,7 @@ if (empty($stops)) {
             if (videoWrapper) {
                 if (st.video_url) {
                     videoWrapper.innerHTML = `
-                        <a href="${st.video_url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1">
+                        <a href="${st.video_url}" target="_blank" rel="noopener" class="rounded-pill" id="hudVideoBtn">
                             <i class="bi bi-play-circle-fill me-1"></i> Xem Video Thực Tế
                         </a>
                     `;
@@ -621,9 +815,10 @@ if (empty($stops)) {
         function initScene() {
             const width = window.innerWidth;
             const height = window.innerHeight;
+            const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
 
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x070e17, 0.032);
+            scene.fog = new THREE.FogExp2(isDark ? 0x070e17 : 0xFAF9F6, 0.032);
 
             camera = new THREE.PerspectiveCamera(54, width / height, 0.1, 140);
             camera.position.set(0, 0, 7.2);
@@ -642,9 +837,9 @@ if (empty($stops)) {
                 // Tầng 1: Back-Plate Kính sẫm bo góc
                 const backGeo = new THREE.PlaneGeometry(8.1, 5.0);
                 const backMat = new THREE.MeshBasicMaterial({
-                    color: 0x38bdf8,
+                    color: isDark ? 0x38bdf8 : 0x0284c7,
                     transparent: true,
-                    opacity: 0.14,
+                    opacity: isDark ? 0.14 : 0.10,
                     side: THREE.DoubleSide
                 });
                 const backMesh = new THREE.Mesh(backGeo, backMat);
@@ -673,9 +868,9 @@ if (empty($stops)) {
                 // Tầng 3: Khung viền sáng nổi phía trước
                 const borderGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(7.78, 4.78));
                 const borderMat = new THREE.LineBasicMaterial({
-                    color: 0xffffff,
+                    color: isDark ? 0xffffff : 0x0284c7,
                     transparent: true,
-                    opacity: 0.4
+                    opacity: isDark ? 0.4 : 0.35
                 });
                 const borderLines = new THREE.LineSegments(borderGeo, borderMat);
                 borderLines.position.z = 0.35;
@@ -816,15 +1011,17 @@ if (empty($stops)) {
 
                     grp.scale.set(scale, scale, scale);
 
+                    const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+
                     // Độ mờ alpha
                     if (grp.userData.photoMesh) {
                         grp.userData.photoMesh.material.opacity = opacity;
                     }
                     if (grp.userData.backMesh) {
-                        grp.userData.backMesh.material.opacity = opacity * 0.14;
+                        grp.userData.backMesh.material.opacity = opacity * (isDark ? 0.14 : 0.10);
                     }
                     if (grp.userData.borderLines) {
-                        grp.userData.borderLines.material.opacity = opacity * 0.4;
+                        grp.userData.borderLines.material.opacity = opacity * (isDark ? 0.4 : 0.35);
                     }
                 });
 

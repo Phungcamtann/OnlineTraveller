@@ -202,11 +202,14 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
         </div>
     </section>
 
-    <!-- 2. THANH TÌM KIẾM NỔI CAPSULE VẮT NGANG DƯỚI BANNER (CHUẨN ROAMORA) -->
-    <section class="container" style="margin-top: -42px; position: relative; z-index: 10;">
-        <div class="row justify-content-center">
-            <div class="col-12 col-xl-11">
-                <form action="/services" method="GET" class="surface-card rounded-pill px-4 py-3 shadow-lg" id="homeSearchForm">
+    <!-- KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) -->
+    <div class="home-content-stage">
+
+        <!-- 2. THANH TÌM KIẾM NỔI CAPSULE VẮT NGANG DƯỚI BANNER (CHUẨN ROAMORA) -->
+        <section class="container home-search-container" style="margin-top: -45px; position: relative; z-index: 20;">
+            <div class="row justify-content-center">
+                <div class="col-12 col-xl-11">
+                    <form action="/services" method="GET" class="surface-card rounded-pill px-4 py-3 shadow-lg" id="homeSearchForm" style="position: relative; z-index: 20;">
                     <!-- Backward compatibility hidden input for price_range -->
                     <input type="hidden" name="price_range" id="inputHomePriceRange" value="<?= htmlspecialchars($_GET['price_range'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
@@ -294,7 +297,7 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
             ?>
             <?php foreach ($destinationsWeather as $w): ?>
                 <div class="col">
-                    <a href="/services?location=<?= urlencode($w['query']) ?>" class="glass-panel p-3 h-100 d-block text-decoration-none hover-lift">
+                    <a href="/services?location=<?= urlencode($w['query']) ?>" class="weather-card glass-panel p-3 h-100 d-block text-decoration-none hover-lift">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="fw-semibold text-white" style="font-size: 0.95rem;"><?= htmlspecialchars($w['city'], ENT_QUOTES, 'UTF-8') ?></span>
                             <img src="https://openweathermap.org/img/wn/<?= $w['icon'] ?>.png" 
@@ -435,7 +438,7 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
     </section>
 
     <!-- 5. TIN TỨC DU LỊCH RSS (2 CỘT: TRÁI GIỚI THIỆU, PHẢI 2 CARD BÀI BÁO) -->
-    <section class="container my-5">
+    <section class="container mt-5 mb-0">
         <div class="row">
             <div class="col-12">
                 <div class="glass-panel p-4 p-lg-5">
@@ -505,6 +508,8 @@ $defaultMaxPrice = !empty($_GET['max_price']) ? (int)$_GET['max_price'] : 500000
             </div>
         </div>
     </section>
+
+    </div><!-- /.home-content-stage -->
 
 </div>
 

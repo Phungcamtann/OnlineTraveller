@@ -18,27 +18,32 @@ $currentPage = $currentPage ?? 1;
 $totalPages = $totalPages ?? 1;
 ?>
 
-<div class="container py-5">
-    <!-- HERO HEADER -->
-    <div class="text-center mb-4">
-        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 mb-2">
-            <i class="bi bi-compass-fill me-1"></i> Bản Tin Du Lịch & Cộng Đồng Bản Địa
-        </span>
-        <h2 class="fw-bold font-editorial text-dark mb-2">Góc Nhìn & Kinh Nghiệm Đi Tour</h2>
-        <p class="text-muted mx-auto mb-3" style="max-width: 640px;">
-            Không gian kết nối những câu chuyện chân thực từ du khách, cẩm nang của người bản địa và dòng chảy tin tức du lịch thời sự mới nhất.
-        </p>
+<div class="main-container">
+    <div class="container pt-4 pb-2">
+        <!-- HERO HEADER -->
+        <div class="text-center mb-3">
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 mb-2">
+                <i class="bi bi-compass-fill me-1"></i> Bản Tin Du Lịch & Cộng Đồng Bản Địa
+            </span>
+            <h2 class="fw-bold font-editorial text-dark mb-2">Góc Nhìn & Kinh Nghiệm Đi Tour</h2>
+            <p class="text-muted mx-auto mb-3" style="max-width: 640px;">
+                Không gian kết nối những câu chuyện chân thực từ du khách, cẩm nang của người bản địa và dòng chảy tin tức du lịch thời sự mới nhất.
+            </p>
 
-        <!-- CTA Button for All 3 Roles -->
-        <div>
-            <a href="/posts/create" class="btn btn-editorial rounded-pill px-4 py-2 shadow-sm">
-                <i class="bi bi-pencil-square me-2"></i> Chia Sẻ Câu Chuyện / Viết Bài Mới
-            </a>
+            <!-- CTA Button for All 3 Roles -->
+            <div>
+                <a href="/posts/create" class="btn btn-editorial rounded-pill px-4 py-2 shadow-sm">
+                    <i class="bi bi-pencil-square me-2"></i> Chia Sẻ Câu Chuyện / Viết Bài Mới
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- FILTER TABS -->
-    <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 mb-4">
+    <!-- KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) -->
+    <div class="page-content-stage">
+        <div class="container">
+            <!-- FILTER TABS -->
+            <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 mb-4">
         <a href="/posts?tab=all" class="btn btn-sm rounded-pill px-3 py-2 <?= $currentTab === 'all' ? 'btn-dark' : 'btn-outline-secondary' ?>">
             <i class="bi bi-grid-fill me-1"></i> Tất Cả Dòng Tin 
             <span class="badge bg-white text-dark ms-1 rounded-pill"><?= (int)($totalCount ?? count($posts)) ?></span>
@@ -176,20 +181,24 @@ $totalPages = $totalPages ?? 1;
                 <ul class="pagination justify-content-center align-items-center gap-2">
                     <!-- Prev Page -->
                     <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link rounded-pill px-3 py-2 border shadow-sm" href="/posts?tab=<?= urlencode($currentTab) ?>&page=<?= $currentPage - 1 ?>">
+                        <a class="page-link pagination-pill rounded-pill px-3 py-2 border shadow-sm <?= ($currentPage <= 1) ? 'disabled' : '' ?>" 
+                           href="/posts?tab=<?= urlencode($currentTab) ?>&page=<?= $currentPage - 1 ?>"
+                           <?= ($currentPage <= 1) ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
                             <i class="bi bi-chevron-left me-1"></i> Trang trước
                         </a>
                     </li>
 
                     <li class="page-item disabled">
-                        <span class="page-link border-0 text-muted small fw-bold">
+                        <span class="page-link pagination-info border-0 text-muted small fw-bold bg-transparent">
                             Trang <?= $currentPage ?> / <?= $totalPages ?>
                         </span>
                     </li>
 
                     <!-- Next Page -->
                     <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
-                        <a class="page-link rounded-pill px-3 py-2 border shadow-sm" href="/posts?tab=<?= urlencode($currentTab) ?>&page=<?= $currentPage + 1 ?>">
+                        <a class="page-link pagination-pill rounded-pill px-3 py-2 border shadow-sm <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>" 
+                           href="/posts?tab=<?= urlencode($currentTab) ?>&page=<?= $currentPage + 1 ?>"
+                           <?= ($currentPage >= $totalPages) ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
                             Trang sau <i class="bi bi-chevron-right ms-1"></i>
                         </a>
                     </li>
@@ -197,6 +206,8 @@ $totalPages = $totalPages ?? 1;
             </nav>
         <?php endif; ?>
     <?php endif; ?>
+    </div>
+    </div><!-- /.page-content-stage -->
 </div>
 
 <style>

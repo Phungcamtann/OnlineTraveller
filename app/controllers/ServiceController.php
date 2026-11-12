@@ -107,8 +107,9 @@ class ServiceController extends BaseController
         $reviewStats = $reviewModel->getServiceRatingStats($serviceId);
 
         $user = $this->user();
-        $hasReviewed = $user ? $reviewModel->hasUserReviewed((int)$user['id'], $serviceId) : false;
-        $isEligibleVerified = $user ? $reviewModel->hasCompletedBooking((int)$user['id'], $serviceId) : false;
+        $userId = !empty($user['id']) ? (int)$user['id'] : (!empty($user['user_id']) ? (int)$user['user_id'] : null);
+        $hasReviewed = $userId ? $reviewModel->hasUserReviewed($userId, $serviceId) : false;
+        $isEligibleVerified = $userId ? $reviewModel->hasCompletedBooking($userId, $serviceId) : false;
 
         $this->view('services/show', [
             'title' => $service['title'] . ' — OnlineTraveller',

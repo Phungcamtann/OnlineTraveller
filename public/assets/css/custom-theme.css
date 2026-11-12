@@ -152,8 +152,7 @@ h1, h2, h3, h4, h5, h6,
 [data-theme="dark"] .breadcrumb-item.active,
 [data-theme="dark"] .breadcrumb-item,
 [data-theme="dark"] .card-title,
-[data-theme="dark"] .card-text,
-[data-theme="dark"] .page-link {
+[data-theme="dark"] .card-text {
     color: var(--text-main) !important;
 }
 
@@ -712,10 +711,102 @@ h1, h2, h3, h4, h5, h6,
     }
 }
 
+/* ==========================================================================
+   9B. KHỐI MẶT SÀN NỘI DUNG (CONTENT CANVAS STAGE) & THANH TÌM KIẾM GỐI ĐẦU
+   ========================================================================== */
+.home-content-stage {
+    background-color: var(--bg-surface-subtle);
+    border-radius: 36px 36px 0 0;
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 5;
+    margin-top: 1.5rem;
+}
+
+[data-theme="dark"] .home-content-stage {
+    background-color: var(--bg-surface);
+    border-top-color: var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* Thanh tìm kiếm capsule gối đầu neo giữa Banner và Content Stage */
+.home-content-stage .home-search-container {
+    margin-top: calc(-5rem - 45px) !important;
+    position: relative;
+    z-index: 20;
+}
+
+#homeSearchForm {
+    position: relative;
+    z-index: 20;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(24, 24, 27, 0.08) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1) !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="dark"] #homeSearchForm {
+    background-color: var(--bg-surface-subtle) !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+#homeSearchForm:focus-within {
+    border-color: var(--border-strong) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="dark"] #homeSearchForm:focus-within {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6) !important;
+}
+
 /* Đảm bảo form tìm kiếm capsule đẹp mắt trên di động */
 @media (max-width: 991.98px) {
     #homeSearchForm.rounded-pill {
         border-radius: 22px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-content-stage {
+        border-radius: 24px 24px 0 0;
+        padding-top: 3.5rem;
+        padding-bottom: 2.5rem;
+        margin-top: 1rem;
+    }
+    .home-content-stage .home-search-container {
+        margin-top: calc(-3.5rem - 30px) !important;
+    }
+}
+
+/* Khối mặt sàn nội dung đa năng cho Trang Khám Phá & Trang Bản Tin */
+.page-content-stage {
+    background-color: var(--bg-surface-subtle);
+    border-radius: 36px 36px 0 0;
+    padding-top: 3.5rem;
+    padding-bottom: 4rem;
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 5;
+    margin-top: 1.5rem;
+}
+
+[data-theme="dark"] .page-content-stage {
+    background-color: var(--bg-surface);
+    border-top-color: var(--border-subtle);
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 767.98px) {
+    .page-content-stage {
+        border-radius: 24px 24px 0 0;
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem;
+        margin-top: 1rem;
     }
 }
 
@@ -836,22 +927,113 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ==========================================================================
-   11. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD) & THUMBNAILS
+   11. CARD TRẢI NGHIỆM TRÀN ẢNH (POSTER CARD), THỜI TIẾT & THUMBNAILS
    ========================================================================== */
+/* 5 Card thời tiết tại trang chủ */
+.weather-card,
+.home-weather-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+}
+
+[data-theme="dark"] .weather-card,
+[data-theme="dark"] .home-weather-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.weather-card:hover,
+.home-weather-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+    border-color: var(--border-strong) !important;
+}
+
+[data-theme="dark"] .weather-card:hover,
+[data-theme="dark"] .home-weather-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Card trải nghiệm tràn ảnh (Poster Card) */
 .experience-poster-card {
     position: relative;
     aspect-ratio: 3 / 4;
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid var(--border-subtle);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    background-color: var(--bg-surface-subtle);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+    background-color: var(--bg-surface);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .experience-poster-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .experience-poster-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-soft);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
     border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .experience-poster-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Tăng cường độ tương phản cho Glass Panel & Pill trong Content Stage */
+.home-content-stage .glass-panel,
+.page-content-stage .glass-panel {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .home-content-stage .glass-panel,
+[data-theme="dark"] .page-content-stage .glass-panel {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.home-content-stage .glass-pill:not(.experience-poster-card *),
+.page-content-stage .glass-pill:not(.experience-poster-card *) {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main) !important;
+}
+
+.home-content-stage .glass-pill:not(.experience-poster-card *):hover,
+.page-content-stage .glass-pill:not(.experience-poster-card *):hover {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg);
+}
+
+/* Card bài viết trong trang Bản tin */
+.page-content-stage article.card,
+.page-content-stage .post-article-card {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.28s ease;
+}
+
+[data-theme="dark"] .page-content-stage article.card,
+[data-theme="dark"] .page-content-stage .post-article-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+.page-content-stage article.card:hover,
+.page-content-stage .post-article-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--border-strong) !important;
+}
+
+[data-theme="dark"] .page-content-stage article.card:hover,
+[data-theme="dark"] .page-content-stage .post-article-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
 .experience-poster-card img {
@@ -1579,5 +1761,75 @@ select option {
     color: var(--text-main) !important;
     border-color: #0284c7 !important;
 }
+
+/* ==========================================================================
+   PAGINATION CONTROLS (PHÂN TRANG DAY MODE & NIGHT MODE ĐỒNG BỘ)
+   ========================================================================== */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-item .page-link,
+.pagination-pill {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 999px !important;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pagination .page-item:not(.disabled) .page-link:hover,
+.pagination-pill:hover:not(.disabled) {
+    background-color: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.pagination .page-item.disabled .page-link,
+.pagination-pill.disabled,
+.page-link.disabled {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-subtle) !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    box-shadow: none !important;
+}
+
+.pagination-info {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    border: none !important;
+    user-select: none;
+}
+
+[data-theme="dark"] .pagination .page-item .page-link,
+[data-theme="dark"] .pagination-pill {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .pagination .page-item:not(.disabled) .page-link:hover,
+[data-theme="dark"] .pagination-pill:hover:not(.disabled) {
+    background-color: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
+    border-color: var(--btn-primary-bg) !important;
+}
+
+[data-theme="dark"] .pagination .page-item.disabled .page-link,
+[data-theme="dark"] .pagination-pill.disabled {
+    background-color: var(--bg-surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-subtle) !important;
+    opacity: 0.45 !important;
+}
+
 
 

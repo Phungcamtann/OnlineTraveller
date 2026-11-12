@@ -41,7 +41,7 @@ class ReviewController extends BaseController
             return;
         }
 
-        $touristId = (int)$user['id'];
+        $touristId = (int)($user['id'] ?? ($user['user_id'] ?? 0));
         $bookingId = (int)$request->input('booking_id', 0);
         $serviceId = (int)$request->input('service_id', 0);
         $rating = (int)$request->input('rating', 5);
