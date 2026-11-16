@@ -48,16 +48,125 @@ Các nền tảng du lịch truyền thống thường tập trung vào các tou
 
 ---
 
-## 👥 3. Thông Tin Các Thành Viên Nhóm Phát Triển
+## 👥 3. Thông Tin Các Thành Viên Nhóm Phát Triển & Bảng Phân Công Nhiệm Vụ
 
-Dự án được phân chia theo 4 phân hệ chuyên trách (TV1 – TV4), mỗi thành viên trực tiếp thiết kế cơ sở dữ liệu, viết Stored Procedures riêng biệt, xây dựng Controller, View và viết bộ kiểm thử tự động tương ứng:
+Dự án được phân chia theo 4 phân hệ chuyên trách (**TV1 – TV4**) tương ứng với 4 thành viên nhóm. Dựa trên toàn bộ lịch sử **71 commits** thực tế trên nhánh `main`, mỗi thành viên đã trực tiếp thiết kế cơ sở dữ liệu, viết Stored Procedures riêng biệt, xây dựng Controller, View, xử lý tích hợp API và viết bộ kiểm thử tự động tương ứng:
 
-| STT | Họ và Tên | MSSV / Email | Phân Hệ Phụ Trách | Mã Stored Procedures | Nhiệm Vụ Chính Đảm Nhiệm |
+### 📊 3.1. Bảng Tổng Hợp Phân Công Nhiệm Vụ & Phân Hệ Chuyên Trách
+
+| STT | Họ và Tên | MSSV / Email | Phân Hệ Phụ Trách | Mã Stored Procedures | Vai Trò & Nhiệm Vụ Chính Đảm Nhiệm |
 |:---:|:---|:---|:---:|:---:|:---|
-| **1** | **Phùng Cẩm Tân** *(Nhóm trưởng)* | `phungcamtann@gmail.com` | **TV4** | `pct_sp_*` | **Cộng Đồng, Đánh Giá, Blog & Tích Hợp Ngoại Vi**<br>- Điều phối kiến trúc tổng thể và triển khai hệ thống.<br>- Kênh hỏi đáp thảo luận 1 cấp dưới tour (AJAX có huy hiệu Host).<br>- Đánh giá 1–5 sao sau khi hoàn thành tour (chặn review chéo).<br>- Quản trị bài viết Cẩm nang du lịch (Blog tin tức).<br>- Tích hợp VnExpress RSS, thời tiết OpenWeather & Tối ưu triển khai Hosting. |
-| **2** | **Dương Hoàng Sâm** | **31241026707**<br>`samduong.31241026707@st.ueh.edu.vn` | **TV1** | `dhs_sp_*` | **Xác thực, Phân quyền RBAC & Quản trị Hệ thống**<br>- Thiết kế xác thực người dùng, Đăng ký / Đăng nhập, Profile.<br>- Phân quyền RBAC 4 cấp (Guest, Tourist, Host, Admin).<br>- Bảo mật Token CSRF kép (Header AJAX & Input Form).<br>- Quản lý danh mục & chức năng Admin khóa/mở tài khoản. |
-| **3** | **Phạm Thiên Long** | **31241021371**<br>`longpham.31241021371@st.ueh.edu.vn` | **TV2** | `ptl_sp_*` | **Quản Lý Tour, Lưu Trú & Trải Nghiệm 3D**<br>- Nghiệp vụ tạo, cập nhật gói trải nghiệm bản địa & tọa độ GPS.<br>- Quản lý cơ sở lưu trú Homestay nhà dân (quan hệ 1-1).<br>- Mở lịch khởi hành, quản lý sức chứa và hủy lịch tour.<br>- Xây dựng Timeline trạm dừng chân & Không gian 3D Three.js Z-Scroll. |
-| **4** | **Nguyễn Duy Thành Tài** | `nguyenduythanhtai050706@gmail.com` | **TV3** | `ndtt_sp_*` | **Báo Giá, Đặt Chỗ, Thanh Toán MoMo & Hoàn Tiền**<br>- Tính toán báo giá, áp dụng khuyến mãi, chia đợt trả (50% / 100%).<br>- Quy trình đặt chỗ, Host duyệt đơn, khóa giữ chỗ 15 phút.<br>- Tích hợp cổng MoMo Sandbox (QR Code, Webhook IPN HMAC-SHA256).<br>- Xuất Biên nhận điện tử (E-Receipt) & Xử lý hủy hoàn tiền theo mốc T24. |
+| **1** | **Phùng Cẩm Tân**<br>*(Nhóm trưởng)* | `phungcamtann@gmail.com` | **TV4** | `pct_sp_*`<br>*(6 SPs)* | **Kiến Trúc Hệ Thống, Bảo Mật RBAC, Cộng Đồng, Blog & Tích Hợp Ngoại Vi**<br>- Khởi tạo kiến trúc Core MVC PSR-4 thuần (`Router`, `Request`, `Response`, `Database PDO Singleton`, `Autoloader`).<br>- Xây dựng hệ thống phân quyền RBAC 4 cấp (`RoleMiddleware`, `AuthMiddleware`, `CsrfMiddleware`, `SecurityHelper`).<br>- Kênh hỏi đáp thảo luận Q&A 1-cấp thời gian thực dưới tour (AJAX có huy hiệu Host bản địa).<br>- Đánh giá 1–5 sao sau khi hoàn tất chuyến đi (cơ chế chặn review chéo khi chưa đi tour).<br>- Phân hệ Blog cẩm nang du lịch: gộp chung dòng tin cộng đồng & tin tức báo chí thời sự.<br>- Tích hợp 2 API ngoại vi: thời tiết **OpenWeatherMap** & dòng tin tức **VnExpress Du Lịch RSS**.<br>- Quản lý GitHub workflow, review/merge PRs, đóng gói CSDL `production_install.sql` & Triển khai máy chủ AlwaysData. |
+| **2** | **Dương Hoàng Sâm** | **31241026707**<br>`samduong.31241026707@st.ueh.edu.vn` | **TV1** | `dhs_sp_*`<br>*(5 SPs)* | **Cơ Sở Dữ Liệu, Xác Thực, Admin Quản Trị, 3D Hero Banner & QA Test Lead**<br>- Thiết kế, chuẩn hóa toàn bộ lược đồ CSDL (`schema.sql`, `install.sql`, `seed_data.sql`).<br>- Viết script đồ sộ `database/fix_alwaysdata_collation.sql` (1.254 dòng) khắc phục triệt để lỗi xung đột collation trên AlwaysData.<br>- Thiết kế module Xác thực người dùng (Đăng ký mã hóa Bcrypt, Đăng nhập an toàn, Quên mật khẩu).<br>- Nâng cấp hồ sơ người dùng (`07_user_profile_enhancement.sql`): cập nhật avatar, số điện thoại, CCCD định danh.<br>- Quản trị Admin: CRUD danh mục trải nghiệm (`CategoryController`) & Khóa/Mở khóa tài khoản vi phạm.<br>- Thiết kế hệ thống 3D Hero Banners trên Trang chủ & Trang chi tiết tour (`Update 3D banner`, `Fix_Detail_Banner`).<br>- Lập trình **Master Test Suite Runner** (`tests/run_all_tests.php`) chạy 22+ test suites & soạn thảo `SYSTEM_TESTING_GUIDE.md`.<br>- Hỗ trợ xây dựng các phân hệ chéo: Thảo luận (`Discussion`), Bài viết Admin (`Post`), Đánh giá (`Review`). |
+| **3** | **Phạm Thiên Long** | **31241021371**<br>`longpham.31241021371@st.ueh.edu.vn` | **TV2** | `ptl_sp_*`<br>*(5 SPs)* | **Đồ Họa 3D Three.js Z-Scroll, Quản Lý Tour, Lưu Trú Homestay & Phân Hệ Host**<br>- Trực tiếp nghiên cứu, lập trình tính năng đột phá **Tham quan thực tế ảo 3D (Three.js Z-Scroll Virtual Tour)** với hơn 1.200 dòng mã WebGL.<br>- Tích hợp hệ thống Camera Z-Scroll cuộn mượt xuyên không gian qua các trạm dừng chân 3D, hiệu ứng ánh sáng ambient, billboard thông tin và particle bụi không gian.<br>- Tinh chỉnh giao diện tối (Dark mode) sang trọng cho trải nghiệm 3D và viết 2 tài liệu đặc tả đồ họa 3D.<br>- Xây dựng trọn vẹn phân hệ Dân bản địa (Host Module): tạo và cập nhật gói trải nghiệm bản địa đa trạm dừng chân (`stops`).<br>- Quản lý cơ sở lưu trú Homestay nhà dân tích hợp trực tiếp trong tour (quan hệ 1-1).<br>- Quản lý lịch trình khởi hành (`ScheduleController`): mở lịch, kiểm soát sức chứa tối đa và xử lý hủy lịch tour.<br>- Xây dựng tính năng Host tiếp nhận, theo dõi và duyệt đơn đặt chỗ của du khách theo thời gian thực.<br>- Cải tiến Form đăng tour, giao diện chi tiết tour (`services/show.php`) và khối thông tin Đánh giá sao. |
+| **4** | **Nguyễn Duy Thành Tài** | `nguyenduythanhtai050706@gmail.com` | **TV3** | `ndtt_sp_*`<br>*(6 SPs)* | **Báo Giá, Đặt Chỗ, Cổng MoMo Sandbox, Hoàn Tiền T24, UI Dark-Alpine & Đặc Tả Hệ Thống**<br>- Xây dựng công cụ Báo giá thông minh (`PricingService`): tính khuyến mãi, voucher, lựa chọn trả cọc 50% hoặc trả đủ 100%.<br>- Quy trình đặt chỗ của Du khách (`BookingController`): tạo đơn, cơ chế khóa giữ chỗ tạm thời (Hold concurrency) 15 phút chống trùng chỗ.<br>- Tích hợp cổng thanh toán trực tuyến **MoMo Sandbox** (`MomoClient`): sinh mã QR, trang quét mã giả lập, xác thực Webhook IPN HMAC-SHA256.<br>- Xử lý quy trình hủy tour và hoàn tiền tự động theo mốc thời gian T24 (trước 24h) & Giao diện Admin duyệt lệnh hoàn tiền MoMo.<br>- Phát hành Biên nhận điện tử (E-Receipt) minh bạch với đầy đủ thông tin thanh toán.<br>- Lập kế hoạch và hiện thực hóa đại tu giao diện **Dark-Alpine Glassmorphism** (UI Refactor 2) & Tái cấu trúc bộ trang lỗi hệ thống (`403`, `404`, `419`, `500`).<br>- Chủ biên soạn thảo tài liệu phân tích thiết kế đồ sộ `docs/SYSTEM_SPECIFICATION.md` (3.000 dòng đặc tả) và các tài liệu thiết kế UI. |
+
+---
+
+### 🔍 3.2. Bảng Thống Kê Chi Tiết Đóng Góp Kỹ Thuật Theo Lịch Sử Git Commit (Main Branch)
+
+Dưới đây là bảng tổng hợp định lượng và đối chiếu kỹ thuật dựa trên toàn bộ **71 commits** đã được kiểm duyệt và đưa vào nhánh `main`:
+
+| Tiêu Chí Đánh Giá | TV1 – Dương Hoàng Sâm | TV2 – Phạm Thiên Long | TV3 – Nguyễn Duy Thành Tài | TV4 – Phùng Cẩm Tân *(Lead)* |
+|:---|:---|:---|:---|:---|
+| **Số Commit Trên `main`** | **16 commits** | **17 commits** | **16 commits** | **22 commits** *(+ 3 PR Merges)* |
+| **Phân Hệ Đảm Nhiệm** | TV1 (`dhs_sp_*`) | TV2 (`ptl_sp_*`) | TV3 (`ndtt_sp_*`) | TV4 (`pct_sp_*`) |
+| **Số Stored Procedures** | **5 Procedures** (`dhs_sp_register_user`, `authenticate_user`, `update_user_profile`, `admin_set_user_status`, `manage_category`) | **5 Procedures** (`ptl_sp_create_service_with_stops`, `update_service`, `add_schedule`, `cancel_schedule`, `get_service_detail`) | **6 Procedures** (`ndtt_sp_calculate_quote`, `create_booking_hold`, `confirm_payment`, `request_cancel_booking`, `admin_process_refund`, `get_receipt`) | **6 Procedures** (`pct_sp_create_discussion`, `reply_discussion`, `create_review`, `create_post`, `list_posts`, `get_post_detail`) |
+| **Tầng Kiến Trúc & CSDL** | - Thiết kế DDL CSDL `schema.sql`<br>- Viết `fix_alwaysdata_collation.sql` (1.254 dòng)<br>- Chuẩn hóa `install.sql` & `seed.php` | - Thiết kế lược đồ quan hệ Tour - Điểm dừng (`stops`) - Homestay lưu trú (1-1)<br>- Quản lý lịch khởi hành | - Thiết kế quan hệ Booking - Payments - Refunds<br>- Xây dựng cơ chế khóa chỗ tạm thời 15 phút (Hold lock) | - Khởi tạo Framework Core MVC PSR-4 (`Router`, `Database`, `Request`, `Response`)<br>- Đóng gói `production_install.sql` (1.666 dòng) |
+| **Tầng Logic Nghiệp Vụ (Backend)** | - `AuthController`, `AuthService`<br>- `AdminController` (Users)<br>- `CategoryController`, `Category`<br>- `User` Model | - `HostController`, `TourService`<br>- `ScheduleController`, `ScheduleService`<br>- `Service`, `Accommodation`<br>- `ServiceSchedule` | - `BookingController`, `BookingService`<br>- `PricingService`, `PaymentService`<br>- `PaymentController`, `ReceiptController`<br>- `RefundController`, `Booking`, `Payment` | - `DiscussionController`, `PostController`<br>- `ReviewController`, `HomeController`<br>- `SecurityHelper`, `Discussion`, `Post`<br>- Phân quyền RBAC Middleware |
+| **Tầng Giao Diện (Frontend & 3D)** | - Giao diện Đăng nhập / Đăng ký<br>- Giao diện Hồ sơ cá nhân (`profile`)<br>- Quản lý Admin Users & Categories<br>- Thiết kế 3D Hero Banners Trang chủ & Chi tiết | - **Đồ họa 3D Three.js Z-Scroll (1.200+ dòng WebGL)**<br>- Giao diện Host Dashboard & Quản lý tour<br>- Form đăng tour đa trạm dừng chân<br>- Khối Homestay & Chi tiết tour Dark mode | - **Đại tu UI Dark-Alpine Glassmorphism**<br>- Giao diện Đặt chỗ (`bookings/create`)<br>- Chi tiết đơn hàng & E-Receipt<br>- Bộ trang lỗi hệ thống (`403`, `404`, `419`, `500`) | - Giao diện Trang chủ (Hero, Dòng tin tức)<br>- Giao diện Blog cẩm nang du lịch<br>- Khung Thảo luận Q&A (AJAX có huy hiệu Host)<br>- Bộ nhận diện Logo SVG, Favicon |
+| **Tích Hợp API Ngoại Vi** | - Đồng bộ Collation máy chủ MariaDB AlwaysData | - Thư viện Three.js WebGL Engine | - Cổng thanh toán **MoMo Sandbox API** (QR Code, Webhook IPN HMAC-SHA256) | - **OpenWeatherMap API** (Thời tiết thực địa)<br>- **VnExpress RSS Du Lịch** (Tin tức báo chí) |
+| **Kiểm Thử Tự Động (Tests)** | - **Master Test Runner** (`run_all_tests.php`)<br>- `test_sprint2_tv1_06`<br>- `test_phase4_profile_enhancements`<br>- `test_step3_services_show`<br>- `test_sprint2_tv4_06` | - `test_tv2_01` -> `test_tv2_04`<br>- `test_sprint2_tv2_05`<br>- `test_phase5_host_services`<br>- `test_phase2_reviews` | - `test_tv3_01` -> `test_tv3_04`<br>- `test_sprint2_tv3_05`<br>- `test_sprint2_tv3_06`<br>- `test_admin_service_moderation`<br>- `test_booking_flow_csrf` | - `test_tv4_01` -> `test_tv4_04`<br>- `test_phase3_community_posts`<br>- `test_phase0`<br>- `test_sprint3_integration` |
+| **Tài Liệu Kỹ Thuật (Docs)** | - `SYSTEM_TESTING_GUIDE.md`<br>- `THREEJS_AND_3D_BANNERS_SPEC.md`<br>- `THREEJS_3D_SCROLL_AND_BANNERS_SPEC.md`<br>- `phase4_profile_enhancements.md` | - `DEDICATED_3D_VIRTUAL_TOUR_SPEC.md`<br>- `UPGRADE_3D_SCROLL_CANVA_SPEC.md`<br>- `thiet-ke-tinh-chinh.html`<br>- `phase5_host_services.md` | - `SYSTEM_SPECIFICATION.md` (3.000 dòng)<br>- `UI_LAYOUT_DESIGN_SYSTEM.md`<br>- `UI_OVERHAUL_SPEC.md`<br>- `admin_service_moderation.md`<br>- `phase6_slider_cards_banner.md` | - `README.md` chính thức dự án<br>- `UI_SPEC_FOR_AGENT.md`<br>- `phase3_community_posts.md` |
+| **Mức Độ Hoàn Thành** | **100% (Xuất sắc)** | **100% (Xuất sắc)** | **100% (Xuất sắc)** | **100% (Xuất sắc)** |
+
+---
+
+### 📝 3.3. Chi Tiết Đầu Việc & Đóng Góp Kỹ Thuật Thực Tế Của Từng Thành Viên
+
+#### 1. Phùng Cẩm Tân *(Nhóm trưởng – Phụ trách TV4)*
+- **Điều phối & Quản trị mã nguồn:** Khởi tạo repository, thiết lập quy chuẩn cấu trúc thư mục MVC, điều phối tiến độ của 4 phân hệ, phụ trách review code và hợp nhất các nhánh tính năng qua Pull Requests (`PR #1`, `PR #2`, `PR #3`).
+- **Nền tảng Framework Core MVC:** Tự xây dựng toàn bộ tầng Core nhẹ chuẩn PSR-4 không dùng thư viện ngoài:
+  - `core/Autoloader.php`: Nạp tự động các Class theo cấu trúc thư mục.
+  - `core/Router.php`, `core/Request.php`, `core/Response.php`: Điều phối request HTTP, bóc tách tham số GET/POST/JSON và hỗ trợ RESTful routing.
+  - `core/Database.php`: Quản lý kết nối PDO theo mẫu thiết kế Singleton, tối ưu hóa thực thi Stored Procedures với tham số IN/OUT.
+  - `core/BaseController.php`, `core/BaseModel.php`: Cung cấp hàm render view, nạp partial, xử lý JSON response và đóng gói truy vấn.
+- **Bảo mật & Phân quyền RBAC 4 cấp:**
+  - Thiết kế hệ thống Middleware bảo mật: `AuthMiddleware`, `CsrfMiddleware`, `RoleMiddleware`, `SecurityHelper`.
+  - Phân tách quyền hạn chặt chẽ: *Guest (Khách vãng lai)*, *Tourist (Du khách)*, *Host (Dân bản địa)*, *Admin (Quản trị viên)*.
+  - Cơ chế Token CSRF kép chống tấn công giả mạo (bảo vệ cả Form HTML và AJAX Header `X-CSRF-TOKEN`).
+- **Phân hệ Cộng đồng, Đánh giá, Blog & Tích hợp Ngoại vi (`pct_sp_*`):**
+  - Viết 6 Stored Procedures phân hệ TV4 quản lý thảo luận, đánh giá sao và cẩm nang du lịch.
+  - Tích hợp **OpenWeatherMap REST API** (`OpenWeatherClient.php`): bóc tách thông tin thời tiết thời gian thực tại các tọa độ du lịch.
+  - Tích hợp **VnExpress RSS Du Lịch** (`RssClient.php`): bộ bóc tách XML tự động nạp các tin tức du lịch trong nước mới nhất.
+  - Xây dựng luồng Thảo luận hỏi đáp (Q&A) 1 cấp tương tác AJAX nhanh chóng, tự động nhận diện và gắn huy hiệu **Host bản địa**.
+  - Xây dựng cơ chế Đánh giá 1–5 sao sau khi hoàn tất chuyến đi, chặn hành vi đánh giá chéo khi chưa có đơn hàng thành công.
+- **Tối ưu Triển khai Hosting AlwaysData:**
+  - Đóng gói script cài đặt hoàn chỉnh `database/production_install.sql` (1.666 dòng), cập nhật dữ liệu thực tế 8 tour mẫu (`database/seed_data.sql`).
+  - Thiết kế logo SVG, Favicon chuẩn kích thước và cấu hình tệp định tuyến `.htaccess` tương thích hoàn hảo với shared hosting Apache.
+
+#### 2. Dương Hoàng Sâm *(Phụ trách TV1)*
+- **Thiết kế & Tối ưu Cơ sở Dữ liệu Toàn Hệ Thống:**
+  - Soạn thảo và chuẩn hóa lược đồ CSDL DDL (`database/schema.sql`), script cài đặt ban đầu (`database/install.sql`), dữ liệu mẫu (`database/seed.php`, `seed_data.sql`).
+  - Viết tệp script `database/fix_alwaysdata_collation.sql` (1.254 dòng) khắc phục triệt để lỗi xung đột collation `utf8mb4_unicode_ci` / `utf8mb4_0900_ai_ci` trên máy chủ MariaDB AlwaysData.
+  - Đồng bộ và chuẩn hóa toàn bộ 22 Stored Procedures của 4 thành viên đảm bảo tính toàn vẹn dữ liệu.
+- **Phân hệ Xác thực, Hồ sơ Người dùng & Phân quyền (`dhs_sp_*`):**
+  - Viết 5 Stored Procedures phân hệ TV1 quản lý đăng ký, đăng nhập, hồ sơ người dùng, phân quyền và danh mục tour.
+  - Xây dựng module Xác thực: `AuthController.php`, `AuthService.php`, `User.php`; bảo mật mật khẩu một chiều với thuật toán `Bcrypt`.
+  - Phát triển giao diện Đăng nhập (`auth/login.php`), Đăng ký (`auth/register.php`), Hồ sơ người dùng (`profile/index.php`), Modal thông báo dùng chung (`notification-modal.php`).
+  - Nâng cấp hồ sơ người dùng (`07_user_profile_enhancement.sql`): hỗ trợ cập nhật avatar, số điện thoại, định danh căn cước công dân.
+- **Phân hệ Quản trị Admin:**
+  - Quản lý danh mục gói trải nghiệm: `CategoryController.php`, `Category.php`, giao diện Admin CRUD danh mục (`admin/categories/index.php`, `create.php`, `edit.php`).
+  - Quản trị tài khoản người dùng: `AdminController.php`, giao diện danh sách người dùng (`admin/users/index.php`), tính năng Admin khóa (Lock) hoặc mở khóa (Active) tài khoản vi phạm.
+- **Thiết kế 3D Hero Banners & Hỗ trợ Đa Phân Hệ:**
+  - Thiết kế hệ thống 3D Hero Banners trên Trang chủ và Trang chi tiết tour (`Update 3D banner`, `Fix_Detail_Banner`).
+  - Soạn thảo 2 tài liệu đặc tả đồ họa banner: `docs/THREEJS_AND_3D_BANNERS_SPEC.md` và `docs/THREEJS_3D_SCROLL_AND_BANNERS_SPEC.md`.
+  - Hỗ trợ xây dựng giao diện Thảo luận (`DiscussionController.php`), quản trị Bài viết tin tức (`PostController.php`), và tinh chỉnh khối Đánh giá sao (`Fix_Ui đánh giá`).
+- **Hệ thống Kiểm thử Tự động (QA Lead):**
+  - Lập trình **Master Test Suite Runner** (`tests/run_all_tests.php`) chạy tự động 22+ test suites với hơn 400+ assertions.
+  - Soạn thảo cẩm nang hướng dẫn kiểm thử toàn diện `docs/SYSTEM_TESTING_GUIDE.md` (255 dòng).
+
+#### 3. Phạm Thiên Long *(Phụ trách TV2)*
+- **Đột phá Đồ họa 3D Three.js Z-Scroll (Virtual Tour):**
+  - Trực tiếp nghiên cứu kiến trúc WebGL, thiết kế và lập trình tính năng **Tham quan thực tế ảo 3D (Three.js Z-Scroll Virtual Tour)** tại `app/views/services/virtual_tour.php` với hơn 1.200 dòng mã JavaScript/WebGL.
+  - Tích hợp kỹ thuật Camera Z-Scroll: người dùng cuộn chuột để máy quay 3D di chuyển mượt mà xuyên không gian qua các trạm dừng chân hình ảnh.
+  - Tích hợp hệ thống chiếu sáng (Ambient & Directional light), các tấm bảng thông tin trạm dừng (billboard), và hệ thống hạt particle mô phỏng bụi mờ lơ lửng tạo cảm giác chiều sâu không gian chân thực.
+  - Tinh chỉnh giao diện tối (Dark mode) sang trọng cho trải nghiệm 3D (`Tích hợp giao diện tối cho 3D scroll`, `Fix màu UI`, `Sửa nút mở trang 3D`, `Update 3D scroll`).
+  - Soạn thảo 2 tài liệu đặc tả đồ họa 3D chuyên sâu: `docs/DEDICATED_3D_VIRTUAL_TOUR_SPEC.md` và `docs/UPGRADE_3D_SCROLL_CANVA_SPEC.md`.
+- **Phân hệ Quản lý Tour & Dân bản địa (`ptl_sp_*`):**
+  - Viết 5 Stored Procedures phân hệ TV2 quản lý gói tour, các trạm dừng chân (`stops`), homestay và lịch khởi hành.
+  - Xây dựng tầng Models & Services: `Service.php`, `Accommodation.php`, `ServiceSchedule.php`, `TourService.php`, `ScheduleService.php`.
+  - Xây dựng toàn bộ giao diện và nghiệp vụ dành cho Local Host:
+    - Host Dashboard (`app/views/host/dashboard.php`): thống kê tour, lịch và đơn đặt chỗ.
+    - Tạo và chỉnh sửa gói tour đa trạm dừng chân (`host/services/create.php`, `edit.php`, `index.php`).
+    - Quản lý cơ sở lưu trú Homestay nhà dân tích hợp trực tiếp trong tour (quan hệ 1-1).
+    - Mở lịch khởi hành, quản lý sức chứa tối đa và hạn đăng ký (`host/schedules/create.php`, `index.php`).
+    - Tính năng Host tiếp nhận, theo dõi và duyệt đơn đặt chỗ của du khách theo thời gian thực (`host/bookings/index.php`, `show.php`).
+- **Cải tiến Giao diện & Trải nghiệm Tour:**
+  - Tinh chỉnh trang chi tiết tour (`services/show.php`), tích hợp khối Homestay, timeline các trạm dừng và khối Đánh Giá Tour.
+  - Hỗ trợ sửa UI thanh toán (`Fix_UI_Thanh_Toán`), đồng bộ nút chuyển đổi giữa Timeline tour và Không gian 3D thực tế ảo.
+  - Soạn thảo tài liệu thiết kế tinh chỉnh `docs/thiet-ke-tinh-chinh.html` (722 dòng) và tài liệu vận hành bảo mật.
+  - Viết các bộ kiểm thử tự động phân hệ TV2: `test_tv2_01.php` đến `04`, `test_sprint2_tv2_05.php`, `test_phase5_host_services.php`, `test_phase2_reviews.php`.
+
+#### 4. Nguyễn Duy Thành Tài *(Phụ trách TV3)*
+- **Cổng Thanh toán Trực tuyến MoMo Sandbox:**
+  - Xây dựng lớp tích hợp cổng thanh toán `app/integrations/MomoClient.php`: sinh mã QR thanh toán nhanh, đồng bộ trạng thái thanh toán qua Webhook IPN bảo mật với chữ ký số `HMAC-SHA256`.
+  - Phát triển giao diện quét mã thanh toán giả lập `app/views/payments/sandbox_qr.php` và trang xử lý kết quả thanh toán `app/views/payments/callback.php`.
+  - Tinh chỉnh công thức tính thuế/phí minh bạch trong báo giá booking (`Fix thuế thanh toán`).
+- **Quy trình Đặt chỗ, Báo giá Thông minh & Hoàn tiền T24 (`ndtt_sp_*`):**
+  - Viết 6 Stored Procedures phân hệ TV3 quản lý báo giá, đặt chỗ, xác nhận thanh toán, hoàn tiền và biên nhận.
+  - Xây dựng công cụ Báo giá thông minh (`PricingService.php`): tính toán tiền phòng, phụ phí, áp dụng mã giảm giá, hỗ trợ 2 phương thức thanh toán (*Đặt cọc 50%* hoặc *Thanh toán 100%*).
+  - Xây dựng cơ chế đặt tour (`BookingController.php`, `BookingService.php`): tạo đơn đặt chỗ và kích hoạt cơ chế khóa giữ chỗ tạm thời (Hold concurrency) trong 15 phút chống trùng chỗ.
+  - Quy trình Hủy tour và Hoàn tiền tự động theo mốc thời gian T24 (trước khởi hành 24 giờ), xây dựng màn hình Admin xét duyệt và thực hiện lệnh hoàn tiền qua MoMo (`admin/refunds/index.php`).
+  - Phát hành Biên nhận điện tử (E-Receipt) minh bạch tại `receipts/show.php` xác nhận chi tiết giao dịch.
+  - Khắc phục lỗi tương tác trạng thái nút duyệt đơn booking cho Host (`Fix nút_Duyệt`).
+- **Đại tu Toàn diện Giao diện Dark-Alpine Glassmorphism (UI Refactor 2):**
+  - Lập kế hoạch và hiện thực hóa ngôn ngữ thiết kế **Dark-Alpine Glassmorphism** (`UI_Refactor_2`, commit `327582c`), tái thiết kế các card tour, slider, banner, form đặt tour sang trọng.
+  - Thiết kế lại toàn bộ bộ trang lỗi hệ thống (`Refactor_Error_Page`): `403.php`, `404.php`, `419.php`, `500.php` theo nhận diện thương hiệu Online Traveller.
+- **Chủ biên Tài liệu Đặc tả Hệ thống & Kiến trúc:**
+  - Chủ biên tài liệu đặc tả phân tích & thiết kế hệ thống đồ sộ `docs/SYSTEM_SPECIFICATION.md` (gần 3.000 dòng đặc tả nghiệp vụ chi tiết).
+  - Biên soạn các tài liệu hướng dẫn thiết kế: `docs/UI_LAYOUT_DESIGN_SYSTEM.md`, `docs/UI_OVERHAUL_SPEC.md`, `docs/admin_service_moderation.md`, `docs/phase6_slider_cards_banner.md`, `docs/plan_refactor_ui.md`.
+  - Viết các bộ kiểm thử tự động phân hệ TV3: `test_tv3_01.php` đến `04`, `test_sprint2_tv3_05.php`, `test_sprint2_tv3_06.php`, `test_admin_service_moderation.php`, `test_booking_flow_csrf.php`, `test_phase6_slider_cards_banner.php`.
 
 ---
 
