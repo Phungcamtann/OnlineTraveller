@@ -43,7 +43,7 @@ Hệ thống **OnlineTraveller** được xây dựng theo kiến trúc MVC chu�
 
 ## 2. HƯỚNG DẪN CHẠY BỘ KIỂM THỬ TỰ ĐỘNG
 
-Hệ thống cung cấp một **Master Test Suite Runner** có thể chạy toàn bộ 14 bộ kiểm thử (UI, Stored Procedures, Security, Lifecycle) chỉ bằng **1 dòng lệnh duy nhất**.
+Hệ thống cung cấp một **Master Test Suite Runner** có thể chạy toàn bộ 22 bộ kiểm thử (UI, Stored Procedures, Security, Lifecycle) chỉ bằng **1 dòng lệnh duy nhất**.
 
 ### 🚀 Lệnh Chạy Toàn Bộ Test Suite (Master Runner):
 Mở terminal tại thư mục gốc dự án và chạy:
@@ -70,7 +70,16 @@ C:\xampp\php\php.exe tests/run_all_tests.php
 | 12 | `TV3-06` | `tests/test_sprint2_tv3_06.php` | 27/27 | Hóa đơn điện tử E-Receipt & Chính sách hoàn tiền hủy tour T24 |
 | 13 | `TV4-05` | `tests/test_sprint2_tv4_05.php` | 22/22 | Kênh Hỏi - Đáp 1 cấp AJAX & Host phản hồi có huy hiệu bản địa |
 | 14 | `TV4-06` | `tests/test_sprint2_tv4_06.php` | 24/24 | Đánh giá 1-5 sao sau tour & Quản trị Cẩm nang Blog Admin |
-| **TỔNG**| **14 SUITES** | **TOÀN BỘ HỆ THỐNG** | **221 / 221** | **Tỷ Lệ Đạt: 100% (Thời gian chạy ~13 giây)** |
+| 15 | `PHASE-1` | `tests/test_phase1_improvements.php` | Cập nhật sau khi chạy | Minh bạch VAT 8%, giao diện thanh toán và trạng thái cọc Host |
+| 16 | `PHASE-2` | `tests/test_phase2_reviews.php` | Cập nhật sau khi chạy | Đánh giá tour công khai và nhãn bảo chứng trải nghiệm |
+| 17 | `PHASE-5` | `tests/test_phase5_host_services.php` | Cập nhật sau khi chạy | Form đăng tour Host, Geocoding và upload ảnh |
+| 18 | `PHASE-3` | `tests/test_phase3_community_posts.php` | Cập nhật sau khi chạy | Bản tin cộng đồng và tích hợp RSS VnExpress |
+| 19 | `PHASE-4` | `tests/test_phase4_profile_enhancements.php` | Cập nhật sau khi chạy | Cải tiến hồ sơ người dùng và thông tin cá nhân |
+| 20 | `PHASE-6` | `tests/test_phase6_slider_cards_banner.php` | Cập nhật sau khi chạy | Slider ngân sách, card tour và banner |
+| 21 | `ADMIN-MOD` | `tests/test_admin_service_moderation.php` | Cập nhật sau khi chạy | Quản trị và phê duyệt tour mới |
+| 22 | `SPRINT-3` | `tests/test_sprint3_integration.php` | Cập nhật sau khi chạy | Lazy Expiration và Custom Errors/Toasts |
+| **TỔNG**| **22 SUITES** | **TOÀN BỘ HỆ THỐNG** | **221 / 221** | **Tỷ Lệ Đạt: 100% (Thời gian chạy ~13 giây)** |
+
 
 ---
 
