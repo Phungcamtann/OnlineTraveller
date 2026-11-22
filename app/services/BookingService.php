@@ -70,7 +70,7 @@ class BookingService
         }
 
         if (!in_array($paymentPlan, ['deposit_50', 'full_online', 'host_direct', 'none'], true)) {
-            $paymentPlan = 'deposit_50';
+            throw new InvalidArgumentException('Phương thức thanh toán không hợp lệ.');
         }
 
         // 0. Kích hoạt Lazy Expiration: Quét và giải phóng các đơn quá hạn 15 phút để nhả ghế

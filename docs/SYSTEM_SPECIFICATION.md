@@ -578,7 +578,7 @@ Ngoại lệ xem xét lại: Admin mở lại hồ sơ có căn cứ mới và l
 
 ## 6 1 Quy ước vật lý
 
-- Tất cả 25 bảng nghiệp vụ mang tiền tố tbl_. Tên trường snake_case; khóa chính BIGINT UNSIGNED; các FK dùng cùng kiểu.
+- Tất cả 15 bảng nghiệp vụ mang tiền tố tbl_. Tên trường snake_case; khóa chính BIGINT UNSIGNED; các FK dùng cùng kiểu.
 
 - MySQL InnoDB, utf8mb4; cấu hình SQL mode nghiêm ngặt. Thiết kế tham chiếu cú pháp MySQL 8.4 [S06–S08].
 
@@ -775,7 +775,6 @@ erDiagram
 Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
 
 <a id="sec-037"></a>
-
 ## Hình 10  ERD chi tiết tour booking và thanh toán
 
 <a id="diagram-erd_booking"></a>
