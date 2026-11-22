@@ -594,40 +594,187 @@ Ngoại lệ xem xét lại: Admin mở lại hồ sơ có căn cứ mới và l
 
 ## Hình 9  ERD tổng hợp toàn hệ thống
 
+<a id="diagram-erd_full"></a>
+
+```mermaid
 erDiagram
-    tbl_users ||--o{ tbl_services : host_id
-    tbl_categories ||--o{ tbl_services : category_id
+  direction LR
+  tbl_users {
+    bigint id PK
+  }
+  tbl_categories {
+    bigint id PK
+  }
+  tbl_services {
+    bigint id PK
+    bigint local_id FK
+    bigint category_id FK
+    bigint approved_by FK
+  }
+  tbl_service_accommodations {
+    bigint service_id PK,FK
+  }
+  tbl_service_schedules {
+    bigint id PK
+    bigint service_id FK
+    bigint cancelled_by FK
+  }
+  tbl_promotions {
+    bigint id PK
+    bigint created_by FK
+  }
+  tbl_promotion_services {
+    bigint promotion_id PK,FK
+    bigint service_id PK,FK
+  }
+  tbl_policy_versions {
+    bigint id PK
+    bigint published_by FK
+  }
+  tbl_bookings {
+    bigint id PK
+    bigint tourist_id FK
+    bigint service_id FK
+    bigint schedule_id FK
+    bigint promotion_id FK
+    bigint policy_version_id FK
+    bigint applied_payment_id FK,UK
+  }
+  tbl_booking_events {
+    bigint id PK
+    bigint booking_id FK
+    bigint actor_id FK
+  }
+  tbl_payments {
+    bigint id PK
+    bigint booking_id FK
+  }
+  tbl_receipts {
+    bigint id PK
+    bigint payment_id FK,UK
+  }
+  tbl_refunds {
+    bigint id PK
+    bigint payment_id FK,UK
+    bigint approved_by FK
+  }
+  tbl_refund_attempts {
+    bigint id PK
+    bigint refund_id FK
+  }
+  tbl_discussions {
+    bigint id PK
+    bigint service_id FK
+    bigint user_id FK
+    bigint parent_id FK
+    bigint moderated_by FK
+  }
+  tbl_reviews {
+    bigint id PK
+    bigint booking_id FK,UK
+  }
+  tbl_posts {
+    bigint id PK
+    bigint author_id FK
+  }
+  tbl_schedule_updates {
+    bigint id PK
+    bigint schedule_id FK
+    bigint created_by FK
+  }
+  tbl_notifications {
+    bigint id PK
+    bigint user_id FK
+  }
+  tbl_reports {
+    bigint id PK
+    bigint reporter_id FK
+    bigint service_id FK
+    bigint booking_id FK
+    bigint refund_id FK
+    bigint no_show_case_id FK
+    bigint assigned_admin_id FK
+  }
+  tbl_report_events {
+    bigint id PK
+    bigint report_id FK
+    bigint actor_id FK
+  }
+  tbl_no_show_cases {
+    bigint id PK
+    bigint booking_id FK,UK
+    bigint reported_by FK
+    bigint resolved_by FK
+  }
+  tbl_no_show_responses {
+    bigint id PK
+    bigint case_id FK
+    bigint submitted_by FK
+  }
+  tbl_policy_acceptances {
+    bigint id PK
+    bigint booking_id FK
+    bigint policy_version_id FK
+    bigint accepted_by FK
+  }
+  tbl_audit_logs {
+    bigint id PK
+    bigint actor_id FK
+  }
+  tbl_users ||--o{ tbl_services : "local_id"
+  tbl_categories ||--o{ tbl_services : "category_id"
+  tbl_users |o--o{ tbl_services : "approved_by"
+  tbl_services ||--o| tbl_service_accommodations : "service_id"
+  tbl_services ||--o{ tbl_service_schedules : "service_id"
+  tbl_users |o--o{ tbl_service_schedules : "cancelled_by"
+  tbl_users ||--o{ tbl_promotions : "created_by"
+  tbl_promotions ||--o{ tbl_promotion_services : "promotion_id"
+  tbl_services ||--o{ tbl_promotion_services : "service_id"
+  tbl_users |o--o{ tbl_policy_versions : "published_by"
+  tbl_users ||--o{ tbl_bookings : "tourist_id"
+  tbl_services ||--o{ tbl_bookings : "service_id"
+  tbl_service_schedules ||--o{ tbl_bookings : "schedule_id"
+  tbl_promotions |o--o{ tbl_bookings : "promotion_id"
+  tbl_policy_versions ||--o{ tbl_bookings : "policy_version_id"
+  tbl_bookings ||--o{ tbl_booking_events : "booking_id"
+  tbl_users |o--o{ tbl_booking_events : "actor_id"
+  tbl_bookings ||--o{ tbl_payments : "booking_id"
+  tbl_payments |o--o| tbl_bookings : "applied_payment_id"
+  tbl_payments ||--o| tbl_receipts : "payment_id"
+  tbl_payments ||--o| tbl_refunds : "payment_id"
+  tbl_users |o--o{ tbl_refunds : "approved_by"
+  tbl_refunds ||--o{ tbl_refund_attempts : "refund_id"
+  tbl_services ||--o{ tbl_discussions : "service_id"
+  tbl_users ||--o{ tbl_discussions : "user_id"
+  tbl_users |o--o{ tbl_discussions : "moderated_by"
+  tbl_discussions |o--o{ tbl_discussions : "parent_id"
+  tbl_bookings ||--o| tbl_reviews : "booking_id"
+  tbl_users ||--o{ tbl_posts : "author_id"
+  tbl_service_schedules ||--o{ tbl_schedule_updates : "schedule_id"
+  tbl_users ||--o{ tbl_schedule_updates : "created_by"
+  tbl_users ||--o{ tbl_notifications : "user_id"
+  tbl_users ||--o{ tbl_reports : "reporter_id"
+  tbl_services ||--o{ tbl_reports : "service_id"
+  tbl_bookings |o--o{ tbl_reports : "booking_id"
+  tbl_refunds |o--o{ tbl_reports : "refund_id"
+  tbl_no_show_cases |o--o{ tbl_reports : "no_show_case_id"
+  tbl_users |o--o{ tbl_reports : "assigned_admin_id"
+  tbl_reports ||--o{ tbl_report_events : "report_id"
+  tbl_users |o--o{ tbl_report_events : "actor_id"
+  tbl_bookings ||--o| tbl_no_show_cases : "booking_id"
+  tbl_users ||--o{ tbl_no_show_cases : "reported_by"
+  tbl_users |o--o{ tbl_no_show_cases : "resolved_by"
+  tbl_no_show_cases ||--o{ tbl_no_show_responses : "case_id"
+  tbl_users ||--o{ tbl_no_show_responses : "submitted_by"
+  tbl_bookings ||--o{ tbl_policy_acceptances : "booking_id"
+  tbl_policy_versions ||--o{ tbl_policy_acceptances : "policy_version_id"
+  tbl_users ||--o{ tbl_policy_acceptances : "accepted_by"
+  tbl_users |o--o{ tbl_audit_logs : "actor_id"
+```
 
-    tbl_services ||--o{ tbl_service_images : service_id
-    tbl_services ||--o| tbl_service_accommodations : service_id
-    tbl_services ||--o{ tbl_service_schedules : service_id
+Mũi tên đi từ bảng con tới bảng cha; nhãn ghi FK và số lượng phía con : phía cha. ERD tổng hợp có đủ 25 bảng và 49 FK; góc nhìn chi tiết hiện thêm cột FK. Từ điển dữ liệu mô tả đầy đủ trường.
 
-    tbl_promotions ||--o{ tbl_promotion_services : promotion_id
-    tbl_services ||--o{ tbl_promotion_services : service_id
-
-    tbl_users ||--o{ tbl_bookings : tourist_id
-    tbl_service_schedules ||--o{ tbl_bookings : schedule_id
-    tbl_services ||--o{ tbl_bookings : service_id
-
-    tbl_bookings ||--o{ tbl_payments : booking_id
-
-    tbl_payments ||--o| tbl_receipts : payment_id
-    tbl_bookings ||--o{ tbl_receipts : booking_id
-
-    tbl_payments ||--o{ tbl_refunds : payment_id
-    tbl_bookings ||--o{ tbl_refunds : booking_id
-
-    tbl_bookings ||--o| tbl_reviews : booking_id
-    tbl_users ||--o{ tbl_reviews : tourist_id
-    tbl_services ||--o{ tbl_reviews : service_id
-
-    tbl_services ||--o{ tbl_discussions : service_id
-    tbl_users ||--o{ tbl_discussions : user_id
-    tbl_discussions |o--o{ tbl_discussions : parent_id
-
-    tbl_users ||--o{ tbl_posts : author_id
 <a id="sec-037"></a>
-
 ## Hình 10  ERD chi tiết tour booking và thanh toán
 
 <a id="diagram-erd_booking"></a>
