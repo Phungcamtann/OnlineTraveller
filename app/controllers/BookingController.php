@@ -179,11 +179,15 @@ class BookingController extends BaseController
 
             $this->flash('success', 'Yêu cầu giữ chỗ của bạn đã được gửi tới Host! Vui lòng chờ Host duyệt trong giây lát.');
             $this->redirect('/bookings/' . $booking['id']);
-        } catch (Exception $e) {
+                    } catch (Exception $e) {
+            error_log('[BookingController::store] ' . $e);
+        
+            $message = 'Không thể xử lý yêu cầu đặt chỗ lúc này. Vui lòng thử lại sau.';
+        
             if ($request->isAjax()) {
-                $this->json(['success' => false, 'message' => $e->getMessage()], 400);
+                $this->json(['success' => false, 'message' => $message], 400);
             } else {
-                $this->flash('danger', $e->getMessage());
+                $this->flash('danger', $message);
                 $this->redirect('/bookings/create?schedule_id=' . $scheduleId . '&count=' . $participantsCount);
             }
         }
