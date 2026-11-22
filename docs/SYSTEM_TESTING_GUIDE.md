@@ -102,7 +102,7 @@ C:\xampp\php\php.exe tests/run_all_tests.php
 | Mã TC | Tiêu Đề Kiểm Thử | Đầu Vào / Thao Tác | Kết Quả Kỳ Vọng | Trạng Thái |
 | :--- | :--- | :--- | :--- | :---: |
 | `TC-BOOK-01` | Báo giá tự động | Gọi `ndtt_sp_bookings_quote` cho 2 khách | Tính đúng tổng tiền gốc, áp dụng giảm giá nếu có mã coupon | **PASS** |
-| `TC-BOOK-02` | Tạo đơn đặt tour | Tourist gửi form đặt vé (khung giờ & số khách) | Tạo đơn hàng mới trạng thái `pending_approval`, mã BK... | **PASS** |
+| `TC-BOOK-02` | Tạo đơn đặt tour | Tourist gửi form đặt vé (khung giờ & số khách) | Tạo đơn hàng mới trạng thái `pending`, mã BK... | **PASS** |
 | `TC-BOOK-03` | Host xem danh sách duyệt | Host đăng nhập vào `/host/bookings` | Nhìn thấy đơn đặt chỗ của du khách đang ở trạng thái chờ duyệt | **PASS** |
 | `TC-BOOK-04` | Host duyệt đơn giữ chỗ | Host bấm nút "Duyệt Đơn" | Gọi `ndtt_sp_bookings_approve`, trạng thái đổi sang `awaiting_payment` | **PASS** |
 | `TC-BOOK-05` | Đồng hồ đếm ngược 15 phút | Xem chi tiết đơn sau khi Host duyệt | Hệ thống gán hạn chót thanh toán chính xác 15 phút kể từ thời điểm duyệt | **PASS** |
@@ -161,7 +161,7 @@ php -S localhost:8000 -t public
   - Truy cập trang chi tiết tour: `http://localhost:8000/services/1`
   - Cuộn xuống **Khối 3: Đặt Chỗ**, chọn ngày/lịch trình khởi hành và số khách = `2`.
   - Nhấn nút **"Đặt Chỗ Trực Tuyến Ngay"** -> Hệ thống tạo đơn hàng thành công và chuyển sang trang chi tiết đơn `http://localhost:8000/bookings/{id}`.
-  - *Kiểm tra:* Trạng thái đơn lúc này là `Chờ Host xác nhận` (`pending_approval`).
+  - *Kiểm tra:* Trạng thái đơn lúc này là `Chờ Host xác nhận` (`pending`).
 
 * **Bước 2: Host phê duyệt đơn & kích hoạt giữ chỗ 15 phút**
   - Mở tab ẩn danh (Incognito) hoặc đăng xuất, truy cập `http://localhost:8000/login`.
